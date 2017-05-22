@@ -32,39 +32,9 @@
     </div>
 
     <div class="row">
-        <?php echo $form->labelEx($model, 'owner_user_id'); ?>
-        <?php echo $form->textField($model, 'owner_user_id', array('size' => 10, 'maxlength' => 10)); ?>
-        <?php echo $form->error($model, 'owner_user_id'); ?>
-    </div>
-
-    <div class="row">
         <?php echo $form->labelEx($model, 'status'); ?>
         <?php echo $form->dropDownList($model, 'status', $model->getStatusOptions()); ?>
         <?php echo $form->error($model, 'status'); ?>
-    </div>
-
-    <div class="row">
-        <?php echo $form->labelEx($model, 'last_modified_date'); ?>
-        <?php echo $form->textField($model, 'last_modified_date'); ?>
-        <?php echo $form->error($model, 'last_modified_date'); ?>
-    </div>
-
-    <div class="row">
-        <?php echo $form->labelEx($model, 'last_modified_user_id'); ?>
-        <?php echo $form->textField($model, 'last_modified_user_id', array('size' => 10, 'maxlength' => 10)); ?>
-        <?php echo $form->error($model, 'last_modified_user_id'); ?>
-    </div>
-
-    <div class="row">
-        <?php echo $form->labelEx($model, 'created_user_id'); ?>
-        <?php echo $form->textField($model, 'created_user_id', array('size' => 10, 'maxlength' => 10)); ?>
-        <?php echo $form->error($model, 'created_user_id'); ?>
-    </div>
-
-    <div class="row">
-        <?php echo $form->labelEx($model, 'created_date'); ?>
-        <?php echo $form->textField($model, 'created_date'); ?>
-        <?php echo $form->error($model, 'created_date'); ?>
     </div>
 
     <div class="row buttons">

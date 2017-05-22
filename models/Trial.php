@@ -140,6 +140,13 @@ class Trial extends BaseActiveRecordVersioned
         ));
     }
 
+
+    protected function beforeValidate()
+    {
+        $this->owner_user_id = Yii::app()->user->id;
+        return parent::beforeValidate();
+    }
+
     /**
      * Returns the static model of the specified AR class.
      * Please note that you should have this exact method in all your CActiveRecord descendants!
