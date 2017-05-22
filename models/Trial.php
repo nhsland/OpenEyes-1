@@ -21,6 +21,11 @@
  */
 class Trial extends BaseActiveRecordVersioned
 {
+    const STATUS_OPEN = 0;
+    const STATUS_IN_PROGRESS = 1;
+    const STATUS_CLOSED = 2;
+    const STATUS_CANCELLED = 3;
+
     /**
      * @return string the associated database table name
      */
@@ -40,11 +45,32 @@ class Trial extends BaseActiveRecordVersioned
             array('name, owner_user_id, status', 'required'),
             array('name, description', 'length', 'max' => 64),
             array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),
+            array('status', 'in', 'range' => self::getAllowedStatusRange()),
             array('last_modified_date, created_date', 'safe'),
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('id, name, description, owner_user_id, status, last_modified_date, last_modified_user_id, created_user_id, created_date', 'safe', 'on' => 'search'),
+        );
+    }
+
+    public function getAllowedStatusRange()
+    {
+        return array(
+            self::STATUS_OPEN,
+            self::STATUS_IN_PROGRESS,
+            self::STATUS_CLOSED,
+            self::STATUS_CANCELLED,
+        );
+    }
+
+    public function getStatusOptions()
+    {
+        return array(
+            self::STATUS_OPEN => 'Open"',
+            self::STATUS_IN_PROGRESS => 'In Progress',
+            self::STATUS_CLOSED => 'Closed',
+            self::STATUS_CANCELLED => 'Cancelled',
         );
     }
 
