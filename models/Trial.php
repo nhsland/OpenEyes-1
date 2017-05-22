@@ -37,14 +37,14 @@ class Trial extends BaseActiveRecordVersioned
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('name, owner_user_id', 'required'),
+            array('name, owner_user_id, status', 'required'),
             array('name, description', 'length', 'max' => 64),
-            array('owner_user_id, last_modified_user_id, created_user_id', 'length', 'max' => 10),
+            array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),
             array('last_modified_date, created_date', 'safe'),
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('id, name, description, owner_user_id, last_modified_date, last_modified_user_id, created_user_id, created_date', 'safe', 'on' => 'search'),
+            array('id, name, description, owner_user_id, status, last_modified_date, last_modified_user_id, created_user_id, created_date', 'safe', 'on' => 'search'),
         );
     }
 
@@ -73,6 +73,7 @@ class Trial extends BaseActiveRecordVersioned
             'name' => 'Name',
             'description' => 'Description',
             'owner_user_id' => 'Owner User',
+            'status' => 'Status',
             'last_modified_date' => 'Last Modified Date',
             'last_modified_user_id' => 'Last Modified User',
             'created_user_id' => 'Created User',
@@ -102,6 +103,7 @@ class Trial extends BaseActiveRecordVersioned
         $criteria->compare('name', $this->name, true);
         $criteria->compare('description', $this->description, true);
         $criteria->compare('owner_user_id', $this->owner_user_id, true);
+        $criteria->compare('status', $this->status, true);
         $criteria->compare('last_modified_date', $this->last_modified_date, true);
         $criteria->compare('last_modified_user_id', $this->last_modified_user_id, true);
         $criteria->compare('created_user_id', $this->created_user_id, true);
