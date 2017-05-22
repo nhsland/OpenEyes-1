@@ -1,13 +1,29 @@
 <?php
 /* @var $this TrialController */
+/* @var $dataProvider CActiveDataProvider */
 
 $this->breadcrumbs = array(
-    'Trial',
+    'Trials',
+);
+
+$this->menu = array(
+    array('label' => 'Create Trial', 'url' => array('create')),
+    array('label' => 'Manage Trial', 'url' => array('admin')),
 );
 ?>
-<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+<h1 class="badge">Trial</h1>
+<div class="box content admin-content">
+    <div class="large-10 column content admin large-centered">
 
-<p>
-    You may change the content of this page by modifying
-    the file <tt><?php echo __FILE__; ?></tt>.
-</p>
+        <div class="box admin">
+            <h1 class="text-center">Create Trial</h1>
+            <h1>Trials</h1>
+
+            <?php $this->widget('zii.widgets.CListView', array(
+                'dataProvider' => $dataProvider,
+                'itemView' => '_view',
+            )); ?>
+        </div>
+    </div>
+</div>
+
