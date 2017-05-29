@@ -3,31 +3,52 @@
 /* @var $model Trial */
 
 $this->breadcrumbs = array(
-    'Trials' => array('index'),
+    'My Trials' => array('/OETrial/trial'),
     $model->name,
-);
-
-$this->menu = array(
-    array('label' => 'List Trial', 'url' => array('index')),
-    array('label' => 'Create Trial', 'url' => array('create')),
-    array('label' => 'Update Trial', 'url' => array('update', 'id' => $model->id)),
-    array('label' => 'Delete Trial', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->id), 'confirm' => 'Are you sure you want to delete this item?')),
-    array('label' => 'Manage Trial', 'url' => array('admin')),
 );
 ?>
 
-<h1>View Trial #<?php echo $model->id; ?></h1>
+<h1 class="badge">Trial</h1>
+<div class="box content admin-content">
 
-<?php $this->widget('zii.widgets.CDetailView', array(
-    'data' => $model,
-    'attributes' => array(
-        'id',
-        'name',
-        'description',
-        'owner_user_id',
-        'last_modified_date',
-        'last_modified_user_id',
-        'created_user_id',
-        'created_date',
-    ),
+    <?php $this->widget('zii.widgets.CBreadcrumbs', array(
+        'links' => $this->breadcrumbs,
+    )); ?>
+
+    <div class="large-10 column content admin large-centered">
+        <div class="box admin">
+            <h1 class="text-center"><?php echo $model->name; ?></h1>
+
+            <b><?php echo CHtml::encode($model->getAttributeLabel('description')); ?>:</b>
+            <?php echo CHtml::encode($model->description); ?>
+            <br/>
+
+            <b><?php echo CHtml::encode($model->getAttributeLabel('owner_user_id')); ?>:</b>
+            <?php echo CHtml::encode($model->ownerUser->getFullName()); ?>
+            <br/>
+
+            <b><?php echo CHtml::encode($model->getAttributeLabel('created_date')); ?>:</b>
+            <?php echo CHtml::encode($model->created_date); ?>
+            <br/>
+        </div>
+    </div>
+</div>
+
+
+<h2>Shortlisted Patients</h2>
+<?php $this->widget('zii.widgets.CListView', array(
+    'dataProvider' => $shortlistedPatientDataProvider,
+    'itemView' => '/trialPatient/_view',
+)); ?>
+
+<h2>Accepted Patients</h2>
+<?php $this->widget('zii.widgets.CListView', array(
+    'dataProvider' => $acceptedPatientDataProvider,
+    'itemView' => '/trialPatient/_view',
+)); ?>
+
+<h2>Rejected Patients</h2>
+<?php $this->widget('zii.widgets.CListView', array(
+    'dataProvider' => $rejectedPatientDataProvider,
+    'itemView' => '/trialPatient/_view',
 )); ?>

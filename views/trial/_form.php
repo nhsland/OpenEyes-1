@@ -30,13 +30,6 @@
         <?php echo $form->textField($model, 'description', array('size' => 60, 'maxlength' => 64)); ?>
         <?php echo $form->error($model, 'description'); ?>
     </div>
-
-    <div class="row">
-        <?php echo $form->labelEx($model, 'status'); ?>
-        <?php echo $form->dropDownList($model, 'status', $model->getStatusOptions()); ?>
-        <?php echo $form->error($model, 'status'); ?>
-    </div>
-
     <div class="row buttons">
         <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
     </div>

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TrialController
+ */
 class TrialController extends BaseModuleController
 {
     /**
@@ -51,10 +54,45 @@ class TrialController extends BaseModuleController
      */
     public function actionView($id)
     {
+        $model = $this->loadModel($id);
+
         $this->render('view', array(
-            'model' => $this->loadModel($id),
+            'model' => $model,
+            'shortlistedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_SHORTLISTED),
+            'acceptedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_ACCEPTED),
+            'rejectedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_REJECTED),
         ));
     }
+
+    /**
+     * Create a data provider for patients in the Trial
+     * @param $model Trial The Trial model to find the patients for
+     * @param $patient_status int The status of patients of
+     * @return CActiveDataProvider The data provider of patients with the given status
+     * @throws CException Thrown if the patient_status is invalid
+     */
+    public function getPatientDataProvider($model, $patient_status)
+    {
+        if (!array_key_exists($patient_status, TrialPatient::getAllowedStatusRange())) {
+            throw new CException("Unknown Trial Patient status: $patient_status");
+        }
+
+        $patientDataProvider = new CActiveDataProvider('TrialPatient', array(
+            'criteria' => array(
+                'condition' => 'trial_id = :trialId AND patient_status = :patientStatus',
+                'params' => array(
+                    ':trialId' => $model->id,
+                    ':patientStatus' => $patient_status,
+                ),
+            ),
+            'pagination' => array(
+                'pageSize' => 10,
+            ),
+        ));
+
+        return $patientDataProvider;
+    }
+
 
     /**
      * Creates a new model.
@@ -63,14 +101,17 @@ class TrialController extends BaseModuleController
     public function actionCreate()
     {
         $model = new Trial;
+        $model->status = Trial::STATUS_OPEN;
+        $model->owner_user_id = Yii::app()->user->id;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
         if (isset($_POST['Trial'])) {
             $model->attributes = $_POST['Trial'];
-            if ($model->save())
+            if ($model->save()) {
                 $this->redirect(array('view', 'id' => $model->id));
+            }
         }
 
         $this->render('create', array(
@@ -92,8 +133,9 @@ class TrialController extends BaseModuleController
 
         if (isset($_POST['Trial'])) {
             $model->attributes = $_POST['Trial'];
-            if ($model->save())
+            if ($model->save()) {
                 $this->redirect(array('view', 'id' => $model->id));
+            }
         }
 
         $this->render('update', array(
@@ -111,8 +153,9 @@ class TrialController extends BaseModuleController
         $this->loadModel($id)->delete();
 
         // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-        if (!isset($_GET['ajax']))
+        if (!isset($_GET['ajax'])) {
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+        }
     }
 
     /**
@@ -120,7 +163,15 @@ class TrialController extends BaseModuleController
      */
     public function actionIndex()
     {
-        $dataProvider = new CActiveDataProvider('Trial');
+        $dataProvider = new CActiveDataProvider('Trial', array(
+            'criteria' => array(
+                'condition' => 'owner_user_id = :userId',
+                'params' => array(
+                    ':userId' => Yii::app()->user->id,
+                ),
+            ),
+        ));
+
         $this->render('index', array(
             'dataProvider' => $dataProvider,
         ));
@@ -133,8 +184,9 @@ class TrialController extends BaseModuleController
     {
         $model = new Trial('search');
         $model->unsetAttributes();  // clear any default values
-        if (isset($_GET['Trial']))
+        if (isset($_GET['Trial'])) {
             $model->attributes = $_GET['Trial'];
+        }
 
         $this->render('admin', array(
             'model' => $model,
@@ -151,8 +203,9 @@ class TrialController extends BaseModuleController
     public function loadModel($id)
     {
         $model = Trial::model()->findByPk($id);
-        if ($model === null)
+        if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
         return $model;
     }
 
