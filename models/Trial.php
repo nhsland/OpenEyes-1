@@ -21,9 +21,24 @@
  */
 class Trial extends BaseActiveRecordVersioned
 {
+    /**
+     * The status when the Trial is first created
+     */
     const STATUS_OPEN = 0;
+
+    /**
+     * The status when the Trial has begun (can only be moved here once all patients have accepted or rejected)
+     */
     const STATUS_IN_PROGRESS = 1;
+
+    /**
+     * The status when the Trial has been completed and closed (can only be moved here from STATUS_IN_PROGRESS)
+     */
     const STATUS_CLOSED = 2;
+
+    /**
+     * The status when the Trial has been closed prematurely
+     */
     const STATUS_CANCELLED = 3;
 
     /**
@@ -54,6 +69,10 @@ class Trial extends BaseActiveRecordVersioned
         );
     }
 
+    /**
+     * Returns an array of all of the allowable values of "status"
+     * @return array The list of statuses
+     */
     public function getAllowedStatusRange()
     {
         return array(
@@ -64,6 +83,10 @@ class Trial extends BaseActiveRecordVersioned
         );
     }
 
+    /**
+     * Returns an array withs keys of the allowable values of status and values of the label for that status
+     * @return array The array of status id/label key/value pairs
+     */
     public function getStatusOptions()
     {
         return array(
