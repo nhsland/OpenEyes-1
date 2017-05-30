@@ -183,7 +183,7 @@ class Trial extends BaseActiveRecordVersioned
      */
     public static function canUserAccessTrial($user, $trial_id, $action)
     {
-        $model = Trial::model()->findByPk($id);
+        $model = Trial::model()->findByPk($trial_id);
         if ($model === null) {
             return false;
         }
