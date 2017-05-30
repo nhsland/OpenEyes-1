@@ -157,4 +157,22 @@ class Trial extends BaseActiveRecordVersioned
     {
         return parent::model($className);
     }
+
+    /**
+     * Returns whether or not the given user can access the given trial using the given action
+     * @param $user User The user to check access for
+     * @param $trial_id int The ID of the trial
+     * @param $action string The ID of the controller action
+     * @return bool True if access is permitted, otherwise false
+     */
+    public static function canUserAccessTrial($user, $trial_id, $action)
+    {
+        $model = Trial::model()->findByPk($id);
+        if ($model === null) {
+            return false;
+        }
+
+        return $model->owner_user_id == $user->id;
+    }
+
 }
