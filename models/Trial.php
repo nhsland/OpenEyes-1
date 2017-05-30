@@ -4,13 +4,14 @@
  * This is the model class for table "trial".
  *
  * The followings are the available columns in table 'trial':
- * @property string $id
+ * @property integer $id
  * @property string $name
  * @property string $description
- * @property string $owner_user_id
+ * @property integer $owner_user_id
+ * @property integer $status
  * @property string $last_modified_date
  * @property string $last_modified_user_id
- * @property string $created_user_id
+ * @property integer $created_user_id
  * @property string $created_date
  *
  * The followings are the available model relations:

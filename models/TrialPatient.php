@@ -7,11 +7,11 @@
  * @property integer $id
  * @property string $external_trial_identifier
  * @property integer $trial_id
- * @property string $patient_id
- * @property string $patient_status
- * @property string $last_modified_user_id
+ * @property integer $patient_id
+ * @property integer $patient_status
+ * @property integer $last_modified_user_id
  * @property string $last_modified_date
- * @property string $created_user_id
+ * @property integer $created_user_id
  * @property string $created_date
  *
  * The followings are the available model relations:
