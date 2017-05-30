@@ -17,7 +17,10 @@ $this->breadcrumbs = array(
 
     <div class="large-10 column content admin large-centered">
         <div class="box admin">
-            <h1 class="text-center"><?php echo $model->name; ?></h1>
+            <h1 class="text-center"><?php echo $model->name; ?>
+                <?php if (Yii::app()->user->checkAccess('/OETrial/trial/update', array('id' => $model->id))) {
+                    echo Chtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id));
+                } ?></h1>
 
             <b><?php echo CHtml::encode($model->getAttributeLabel('description')); ?>:</b>
             <?php echo CHtml::encode($model->description); ?>

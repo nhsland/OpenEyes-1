@@ -17,8 +17,7 @@ class TrialController extends BaseModuleController
     public function filters()
     {
         return array(
-            'accessControl', // perform access control for CRUD operations
-            'postOnly + delete', // we only allow deletion via POST request
+            'accessControl',
         );
     }
 
@@ -30,7 +29,7 @@ class TrialController extends BaseModuleController
     public function accessRules()
     {
         return array(
-            array('allow',  // allow all users to perform 'index' and 'view' actions
+            array('allow',  // allow all users to perform the 'index' action
                 'actions' => array('index'),
                 'users' => array('*'),
             ),
@@ -38,19 +37,33 @@ class TrialController extends BaseModuleController
                 'actions' => array('view'),
                 'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "view")',
             ),
-            array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update'),
-                'users' => array('@'),
+            array('allow',
+                'actions' => array('update'),
+                'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "update")',
             ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
-                'users' => array('admin'),
+            array('allow',
+                'actions' => array('manage'),
+                'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "manage")',
+            ),
+            array('allow', // allow authenticated user to perform the 'create'  action
+                'actions' => array('create'),
+                'users' => array('@'),
             ),
             array('deny',  // deny all users
                 'users' => array('*'),
             ),
         );
     }
+
+    private function getPatientDataProviders($model)
+    {
+        return array(
+            'shortlistedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_SHORTLISTED),
+            'acceptedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_ACCEPTED),
+            'rejectedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_REJECTED),
+        );
+    }
+
 
     /**
      * Displays a particular model.
@@ -59,14 +72,21 @@ class TrialController extends BaseModuleController
     public function actionView($id)
     {
         $model = $this->loadModel($id);
-
-        $this->render('view', array(
-            'model' => $model,
-            'shortlistedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_SHORTLISTED),
-            'acceptedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_ACCEPTED),
-            'rejectedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_REJECTED),
-        ));
+        $params = array_merge(array('model' => $model), $this->getPatientDataProviders($model));
+        $this->render('view', $params);
     }
+
+    /**
+     * Displays a particular model in manage mode.
+     * @param integer $id the ID of the model to be displayed
+     */
+    public function actionManage($id)
+    {
+        $model = $this->loadModel($id);
+        $params = array_merge(array('model' => $model), $this->getPatientDataProviders($model));
+        $this->render('manage', $params);
+    }
+
 
     /**
      * Create a data provider for patients in the Trial
