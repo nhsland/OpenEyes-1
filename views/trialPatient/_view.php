@@ -12,8 +12,12 @@
     <?php echo CHtml::encode($data->external_trial_identifier); ?>
     <br/>
 
-    <?php echo CHtml::link('Accept Patient', array('trialPatient/accept', 'id' => $data->id)); ?>
-
-    <?php /* echo CHtml::button('Accept Patient 2', array('class' => 'acceptPatientLink')); */?>
-    <?php echo CHtml::link('Accept Patient 2', 'javascript:void(0)', array('onclick'=> "acceptPatient(this, $data->id)", 'class' => 'accept-patient-link')); ?>
+    <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED) {
+        echo CHtml::link('Accept Patient',
+            'javascript:void(0)',
+            array(
+                'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_ACCEPTED . ")", 'class' => 'accept-patient-link'
+            )
+        );
+    } ?>
 </div>

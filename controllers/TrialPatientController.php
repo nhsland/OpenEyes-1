@@ -28,15 +28,7 @@ class TrialPatientController extends BaseModuleController
     {
         return array(
             array('allow',  // allow all users to perform the 'index' action
-                'actions' => array('accept'),
-                'users' => array('*'),
-            ),
-            array('allow',  // allow all users to perform the 'index' action
-                'actions' => array('reject'),
-                'users' => array('*'),
-            ),
-            array('allow',  // allow all users to perform the 'index' action
-                'actions' => array('shortlist'),
+                'actions' => array('changeStatus'),
                 'users' => array('*'),
             ),
             array('deny',  // deny all users
@@ -72,11 +64,11 @@ class TrialPatientController extends BaseModuleController
         }
     }
 
-    public function actionAccept($id)
+    public function actionChangeStatus($id, $new_status)
     {
         $model = TrialPatient::model()->findByPk($id);
 
-        $model->patient_status = TrialPatient::STATUS_ACCEPTED;
+        $model->patient_status = $new_status;
         $model->save();
     }
 }

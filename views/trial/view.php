@@ -42,27 +42,14 @@ $this->breadcrumbs = array(
     </div>
 </div>
 
-<?php /*
-Yii::app()->clientScript->registerScript('acceptPatient', "
-$('.acceptPatientLink').click(function() {
-  var id = $(this).parent('.trialPatientContainer').attr('id');
-  $.ajax({
-    url: '" . Yii::app()->controller->createUrl('/OETrial/trialPatient/accept') . "/' + id,
-    type: 'GET',
-    success: function(response) {
-      $.fn.yiiListView.update('shortlistedPatientList');
-    }
-  });
-});");*/
-?>
-
 <script type="application/javascript">
-function acceptPatient(object, trial_patient_id) {
+function changePatientStatus(object, trial_patient_id, new_status) {
   $.ajax({
-    url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/accept'); ?>/' + trial_patient_id,
+    url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
     type: 'GET',
     success: function(response) {
       $.fn.yiiListView.update('shortlistedPatientList');
+        $.fn.yiiListView.update('acceptedPatientList');
     }
   });
 }
@@ -77,12 +64,14 @@ function acceptPatient(object, trial_patient_id) {
 
 <h2>Accepted Patients</h2>
 <?php $this->widget('zii.widgets.CListView', array(
+    'id' => 'acceptedPatientList',
     'dataProvider' => $acceptedPatientDataProvider,
     'itemView' => '/trialPatient/_view',
 )); ?>
 
 <h2>Rejected Patients</h2>
 <?php $this->widget('zii.widgets.CListView', array(
+    'id' => 'rejectedPatientList',
     'dataProvider' => $rejectedPatientDataProvider,
     'itemView' => '/trialPatient/_view',
 )); ?>
