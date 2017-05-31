@@ -42,9 +42,35 @@ $this->breadcrumbs = array(
     </div>
 </div>
 
+<?php /*
+Yii::app()->clientScript->registerScript('acceptPatient', "
+$('.acceptPatientLink').click(function() {
+  var id = $(this).parent('.trialPatientContainer').attr('id');
+  $.ajax({
+    url: '" . Yii::app()->controller->createUrl('/OETrial/trialPatient/accept') . "/' + id,
+    type: 'GET',
+    success: function(response) {
+      $.fn.yiiListView.update('shortlistedPatientList');
+    }
+  });
+});");*/
+?>
+
+<script type="application/javascript">
+function acceptPatient(object, trial_patient_id) {
+  $.ajax({
+    url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/accept'); ?>/' + trial_patient_id,
+    type: 'GET',
+    success: function(response) {
+      $.fn.yiiListView.update('shortlistedPatientList');
+    }
+  });
+}
+</script>
 
 <h2>Shortlisted Patients</h2>
 <?php $this->widget('zii.widgets.CListView', array(
+    'id' => 'shortlistedPatientList',
     'dataProvider' => $shortlistedPatientDataProvider,
     'itemView' => '/trialPatient/_view',
 )); ?>
@@ -60,3 +86,4 @@ $this->breadcrumbs = array(
     'dataProvider' => $rejectedPatientDataProvider,
     'itemView' => '/trialPatient/_view',
 )); ?>
+

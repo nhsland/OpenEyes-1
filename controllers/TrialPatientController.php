@@ -15,7 +15,7 @@ class TrialPatientController extends BaseModuleController
     {
         return array(
             'accessControl', // perform access control for CRUD operations
-            'postOnly + delete', // we only allow deletion via POST request
+            'ajaxOnly + accept',
         );
     }
 
@@ -27,6 +27,18 @@ class TrialPatientController extends BaseModuleController
     public function accessRules()
     {
         return array(
+            array('allow',  // allow all users to perform the 'index' action
+                'actions' => array('accept'),
+                'users' => array('*'),
+            ),
+            array('allow',  // allow all users to perform the 'index' action
+                'actions' => array('reject'),
+                'users' => array('*'),
+            ),
+            array('allow',  // allow all users to perform the 'index' action
+                'actions' => array('shortlist'),
+                'users' => array('*'),
+            ),
             array('deny',  // deny all users
                 'users' => array('*'),
             ),
@@ -58,5 +70,13 @@ class TrialPatientController extends BaseModuleController
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionAccept($id)
+    {
+        $model = TrialPatient::model()->findByPk($id);
+
+        $model->patient_status = TrialPatient::STATUS_ACCEPTED;
+        $model->save();
     }
 }

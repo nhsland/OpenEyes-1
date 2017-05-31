@@ -55,7 +55,7 @@ class TrialPatient extends BaseActiveRecordVersioned
             array('trial_id', 'numerical', 'integerOnly' => true),
             array('external_trial_identifier', 'length', 'max' => 64),
             array('patient_id, patient_status, last_modified_user_id, created_user_id', 'length', 'max' => 10),
-            array('status_id', 'in', 'range' => self::getAllowedStatusRange()),
+            array('patient_status', 'in', 'range' => self::getAllowedStatusRange()),
             array('last_modified_date, created_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
