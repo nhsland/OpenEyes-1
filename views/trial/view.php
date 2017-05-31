@@ -1,6 +1,10 @@
 <?php
 /* @var $this TrialController */
-/* @var $model Trial */
+/* @var $model Trial
+ * @var $shortlistedPatientDataProvider CActiveDataProvider
+ * @var $acceptedPatientDataProvider CActiveDataProvider
+ * @var $rejectedPatientDataProvider CActiveDataProvider
+ */
 
 $this->breadcrumbs = array(
     'My Trials' => array('/OETrial/trial'),
