@@ -12,7 +12,6 @@ $this->menu = array(
     array('label' => 'List Trial', 'url' => array('index')),
     array('label' => 'Create Trial', 'url' => array('create')),
     array('label' => 'View Trial', 'url' => array('view', 'id' => $model->id)),
-    array('label' => 'Manage Trial', 'url' => array('admin')),
 );
 ?>
 

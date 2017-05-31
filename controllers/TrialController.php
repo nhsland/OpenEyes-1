@@ -41,10 +41,6 @@ class TrialController extends BaseModuleController
                 'actions' => array('update'),
                 'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "update")',
             ),
-            array('allow',
-                'actions' => array('manage'),
-                'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "manage")',
-            ),
             array('allow', // allow authenticated user to perform the 'create'  action
                 'actions' => array('create'),
                 'users' => array('@'),
@@ -64,7 +60,6 @@ class TrialController extends BaseModuleController
         );
     }
 
-
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
@@ -72,21 +67,16 @@ class TrialController extends BaseModuleController
     public function actionView($id)
     {
         $model = $this->loadModel($id);
-        $params = array_merge(array('model' => $model), $this->getPatientDataProviders($model));
+        $params = array_merge(
+            array(
+                'model' => $model,
+                'canManage' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'manage'),
+                'canUpdateTrial' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'update'),
+            ),
+            $this->getPatientDataProviders($model)
+        );
         $this->render('view', $params);
     }
-
-    /**
-     * Displays a particular model in manage mode.
-     * @param integer $id the ID of the model to be displayed
-     */
-    public function actionManage($id)
-    {
-        $model = $this->loadModel($id);
-        $params = array_merge(array('model' => $model), $this->getPatientDataProviders($model));
-        $this->render('manage', $params);
-    }
-
 
     /**
      * Create a data provider for patients in the Trial
