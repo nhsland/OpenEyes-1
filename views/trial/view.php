@@ -43,16 +43,17 @@ $this->breadcrumbs = array(
 </div>
 
 <script type="application/javascript">
-function changePatientStatus(object, trial_patient_id, new_status) {
-  $.ajax({
-    url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
-    type: 'GET',
-    success: function(response) {
-      $.fn.yiiListView.update('shortlistedPatientList');
-        $.fn.yiiListView.update('acceptedPatientList');
+    function changePatientStatus(object, trial_patient_id, new_status) {
+        $.ajax({
+            url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
+            type: 'GET',
+            success: function (response) {
+                $.fn.yiiListView.update('shortlistedPatientList');
+                $.fn.yiiListView.update('acceptedPatientList');
+                $.fn.yiiListView.update('rejectedPatientList');
+            }
+        });
     }
-  });
-}
 </script>
 
 <h2>Shortlisted Patients</h2>

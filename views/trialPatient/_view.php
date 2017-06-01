@@ -19,5 +19,23 @@
                 'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_ACCEPTED . ")", 'class' => 'accept-patient-link'
             )
         );
+    }
+
+    if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED) {
+        echo CHtml::link('Reject Patient',
+            'javascript:void(0)',
+            array(
+                'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_REJECTED . ")", 'class' => 'accept-patient-link'
+            )
+        );
+    }
+
+    if ($data->patient_status == TrialPatient::STATUS_REJECTED) {
+        echo CHtml::link('Shortlist Patient',
+            'javascript:void(0)',
+            array(
+                'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_SHORTLISTED . ")", 'class' => 'accept-patient-link'
+            )
+        );
     } ?>
 </div>
