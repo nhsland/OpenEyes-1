@@ -22,10 +22,25 @@
  */
 class TrialPatient extends BaseActiveRecordVersioned
 {
+    /**
+     * The status when the patient has been just added to a Trial, but hasn't been accepted or rejected yet
+     */
     const STATUS_SHORTLISTED = 0;
+
+    /**
+     * The status when the patient has been accepted into the Trial
+     */
     const STATUS_ACCEPTED = 1;
+
+    /**
+     * The status when the patient hsa been rejected from the Trial
+     */
     const STATUS_REJECTED = 2;
 
+    /**
+     * Gets an array of the available statues of a patient
+     * @return array The array of statues
+     */
     public static function getAllowedStatusRange()
     {
         return array(

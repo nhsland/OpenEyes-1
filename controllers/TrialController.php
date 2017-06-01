@@ -51,6 +51,11 @@ class TrialController extends BaseModuleController
         );
     }
 
+    /**
+     * Gets the data providers for each patient status
+     * @param $model Trial The trial to get the patients for
+     * @return array An array of data providers with one for each patient status
+     */
     private function getPatientDataProviders($model)
     {
         return array(

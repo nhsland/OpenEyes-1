@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TrialPatientController
+ */
 class TrialPatientController extends BaseModuleController
 {
     /**
@@ -47,8 +50,9 @@ class TrialPatientController extends BaseModuleController
     public function loadModel($id)
     {
         $model = TrialPatient::model()->findByPk($id);
-        if ($model === null)
+        if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
         return $model;
     }
 
@@ -64,6 +68,11 @@ class TrialPatientController extends BaseModuleController
         }
     }
 
+    /**
+     * Changes the status of a patient in a trial to a given value
+     * @param $id integer The id of the TrialPatient to change the status for
+     * @param $new_status integer The new status of the TrialPatient
+     */
     public function actionChangeStatus($id, $new_status)
     {
         $model = TrialPatient::model()->findByPk($id);
