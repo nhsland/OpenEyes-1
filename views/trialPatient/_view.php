@@ -31,8 +31,10 @@
     <div class="row data-row">
         <div class="large-12 column">
             <div>
-                <a href="#collapse-section_<?php echo $data->id . '_diagnosis'; ?>" class="section-toggle"
-                        data-show-label="Show Diagnoses" data-hide-label="Hide Diagnoses" rel="nofollow">Show Diagnoses
+                <a href="javascript:void(0)" class="section-toggle"
+                   data-show-label="Show Diagnoses" data-hide-label="Hide Diagnoses"
+                   onclick="toggleSection(this, '#collapse-section_<?php echo $data->id . '_diagnosis'; ?>');">Show
+                    Diagnoses
                 </a>
             </div>
             <div id="collapse-section_<?php echo $data->id . '_diagnosis'; ?>" style="display:none">
@@ -64,10 +66,13 @@
     <div class="row data-row">
         <div class="large-12 column">
             <div>
-                <a href="#collapse-section_<?php echo $data->id . '_medication'; ?>" class="section-toggle"
-                        data-show-label="Show Medications" data-hide-label="Hide Medications" rel="nofollow">Show Medications
+                <a href="javascript:void(0)" class="section-toggle"
+                   data-show-label="Show Medications" data-hide-label="Hide Medications"
+                   onclick="toggleSection(this, '#collapse-section_<?php echo $data->id . '_medication'; ?>');">Show
+                    Medications
                 </a>
             </div>
+
             <div id="collapse-section_<?php echo $data->id . '_medication'; ?>" style="display:none">
                 <div class="medications detail row data-row">
                     <div class="large-12 column">
@@ -100,31 +105,22 @@
         </div>
     </div>
 
-    <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED) {
-        echo CHtml::link('Accept Patient',
-            'javascript:void(0)',
-            array(
-                'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_ACCEPTED . ")", 'class' => 'accept-patient-link'
-            )
-        );
-    }
+    <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED): ?>
+        <button onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
+                class="accept-patient-link">Accept Patient
+        </button>
+    <?php endif; ?>
 
-    if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED) {
-        echo CHtml::link('Reject Patient',
-            'javascript:void(0)',
-            array(
-                'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_REJECTED . ")", 'class' => 'accept-patient-link'
-            )
-        );
-    }
+    <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED): ?>
+        <button onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_REJECTED; ?>)"
+                class="accept-patient-link">Reject Patient
+        </button>
+    <?php endif; ?>
 
-    if ($data->patient_status == TrialPatient::STATUS_REJECTED) {
-        echo CHtml::link('Shortlist Patient',
-            'javascript:void(0)',
-            array(
-                'onclick' => "changePatientStatus(this, $data->id, " . TrialPatient::STATUS_SHORTLISTED . ")", 'class' => 'accept-patient-link'
-            )
-        );
-    } ?>
+    <?php if ($data->patient_status == TrialPatient::STATUS_REJECTED): ?>
+        <button onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_SHORTLISTED; ?>)"
+                class="accept-patient-link">Shortlist Patient
+        </button>
+    <?php endif; ?>
 </div>
 
