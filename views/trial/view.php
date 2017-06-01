@@ -54,7 +54,37 @@ $this->breadcrumbs = array(
             }
         });
     }
+
+    $(document).ready(function () {
+        $('.section-toggle').click(function () {
+            //get collapse content selector
+            var collapse_content_selector = $(this).attr('href');
+
+            //make the collapse content to be shown or hide
+            var toggle_switch = $(this);
+            $(collapse_content_selector).toggle(function () {
+                if ($(this).css('display') === 'none') {
+                    //change the button label to be 'Show'
+                    toggle_switch.html($(this).attr('data-show-label'));
+                } else {
+                    //change the button label to be 'Hide'
+                    toggle_switch.html($(this).attr('data-hide-label'));
+                }
+            });
+
+            // return false so the link isn't followed
+            return false;
+        });
+
+    });
 </script>
+
+<div>
+    <button href="#collapse1" class="nav-toggle">Show</button>
+</div>
+<div id="collapse1" style="display:none">
+    <p>Bla bla bla bla</p>
+</div>
 
 <h2>Shortlisted Patients</h2>
 <?php $this->widget('zii.widgets.CListView', array(
