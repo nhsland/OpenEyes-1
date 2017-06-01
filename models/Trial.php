@@ -181,15 +181,16 @@ class Trial extends BaseActiveRecordVersioned
      * @param $trial_id int The ID of the trial
      * @param $action string The ID of the controller action
      * @return bool True if access is permitted, otherwise false
+     * @throws CHttpException
      */
     public static function canUserAccessTrial($user, $trial_id, $action)
     {
         $model = Trial::model()->findByPk($trial_id);
         if ($model === null) {
-            return false;
+            throw new CHttpException(404);
         }
 
-        return $model->owner_user_id == $user->id;
+        return $model->owner_user_id === $user->id;
     }
 
 }
