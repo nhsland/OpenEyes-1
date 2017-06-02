@@ -32,82 +32,84 @@
         </div>
     </div>
 
-    <div class="row data-row">
-        <div class="large-12 column">
-            <div>
-                <a href="javascript:void(0)" class="section-toggle"
-                   data-show-label="Show Diagnoses" data-hide-label="Hide Diagnoses"
-                   onclick="toggleSection(this, '#collapse-section_<?php echo $data->id . '_diagnosis'; ?>');">Show
-                    Diagnoses
-                </a>
-            </div>
-            <div id="collapse-section_<?php echo $data->id . '_diagnosis'; ?>" style="display:none">
-                <div class="diagnoses detail row data-row">
-                    <div class="large-12 column">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Diagnosis</th>
-                                <th>Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($data->patient->secondarydiagnoses as $diagnosis): ?>
+    <?php if ($data->patient->secondarydiagnoses): ?>
+        <div class="row data-row">
+            <div class="large-12 column">
+                <div>Medications:
+                    <a href="javascript:void(0)" class="section-toggle"
+                       data-show-label="show" data-hide-label="hide"
+                       onclick="toggleSection(this, '#collapse-section_<?php echo $data->id . '_diagnosis'; ?>');">show
+                    </a>
+                </div>
+                <div id="collapse-section_<?php echo $data->id . '_diagnosis'; ?>" style="display:none">
+                    <div class="diagnoses detail row data-row">
+                        <div class="large-12 column">
+                            <table>
+                                <thead>
                                 <tr>
-                                    <td><?php echo $diagnosis->disorder->fully_specified_name; ?></td>
-                                    <td><?php echo $diagnosis->dateText; ?></td>
+                                    <th>Diagnosis</th>
+                                    <th>Date</th>
                                 </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($data->patient->secondarydiagnoses as $diagnosis): ?>
+                                    <tr>
+                                        <td><?php echo $diagnosis->disorder->fully_specified_name; ?></td>
+                                        <td><?php echo $diagnosis->dateText; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 
 
-    <div class="row data-row">
-        <div class="large-12 column">
-            <div>
-                <a href="javascript:void(0)" class="section-toggle"
-                   data-show-label="Show Medications" data-hide-label="Hide Medications"
-                   onclick="toggleSection(this, '#collapse-section_<?php echo $data->id . '_medication'; ?>');">Show
-                    Medications
-                </a>
-            </div>
+    <?php if ($data->patient->medications): ?>
+        <div class="row data-row">
+            <div class="large-12 column">
+                <div>Medications:
+                    <a href="javascript:void(0)" class="section-toggle"
+                       data-show-label="show" data-hide-label="hide"
+                       onclick="toggleSection(this, '#collapse-section_<?php echo $data->id . '_medication'; ?>');">show
+                    </a>
+                </div>
 
-            <div id="collapse-section_<?php echo $data->id . '_medication'; ?>" style="display:none">
-                <div class="medications detail row data-row">
-                    <div class="large-12 column">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Medication</th>
-                                <th>Administration</th>
-                                <th>Date From</th>
-                                <th>Date To</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($data->patient->medications as $medication): ?>
+                <div id="collapse-section_<?php echo $data->id . '_medication'; ?>" style="display:none">
+                    <div class="medications detail row data-row">
+                        <div class="large-12 column">
+                            <table>
+                                <thead>
                                 <tr>
-                                    <td><?php echo $medication->getDrugLabel(); ?></td>
-                                    <td><?= $medication->dose ?>
-                                        <?= isset($medication->route->name) ? $medication->route->name : '' ?>
-                                        <?= $medication->option ? "({$medication->option->name})" : '' ?>
-                                        <?= isset($medication->frequency->name) ? $medication->frequency->name : '' ?></td>
-                                    <td><?php echo Helper::formatFuzzyDate($medication->start_date); ?></td>
-                                    <td><?php echo isset($medication->end_date) ? Helper::formatFuzzyDate($medication->end_date) : ''; ?></td>
+                                    <th>Medication</th>
+                                    <th>Administration</th>
+                                    <th>Date From</th>
+                                    <th>Date To</th>
                                 </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($data->patient->medications as $medication): ?>
+                                    <tr>
+                                        <td><?php echo $medication->getDrugLabel(); ?></td>
+                                        <td><?= $medication->dose ?>
+                                            <?= isset($medication->route->name) ? $medication->route->name : '' ?>
+                                            <?= $medication->option ? "({$medication->option->name})" : '' ?>
+                                            <?= isset($medication->frequency->name) ? $medication->frequency->name : '' ?></td>
+                                        <td><?php echo Helper::formatFuzzyDate($medication->start_date); ?></td>
+                                        <td><?php echo isset($medication->end_date) ? Helper::formatFuzzyDate($medication->end_date) : ''; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 
     <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED): ?>
         <button onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
