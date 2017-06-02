@@ -18,7 +18,11 @@
 
 <div class="result box generic">
     <h3 class="box-title">
-        <?php echo CHtml::link($data->patient->contact->last_name . ', ' . $data->patient->contact->first_name . ($data->patient->is_deceased ? ' (Deceased)' : ''), array('/patient/view', 'id' => $data->patient->id)); ?>
+        <?php echo CHtml::link(
+            $data->patient->contact->last_name . ', ' . $data->patient->contact->first_name . ($data->patient->is_deceased ? ' (Deceased)' : ''),
+            array('/patient/view', 'id' => $data->patient->id),
+            array('target' => '_blank')
+        ); ?>
     </h3>
     <div class="row data-row">
         <div class="large-12 column">
