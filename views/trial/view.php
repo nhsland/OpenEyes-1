@@ -74,13 +74,6 @@ $this->breadcrumbs = array(
     }
 </script>
 
-<div>
-    <button href="#collapse1" class="nav-toggle">Show</button>
-</div>
-<div id="collapse1" style="display:none">
-    <p>Bla bla bla bla</p>
-</div>
-
 <h2>Shortlisted Patients</h2>
 <?php $this->widget('zii.widgets.CListView', array(
     'id' => 'shortlistedPatientList',
