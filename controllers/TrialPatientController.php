@@ -31,7 +31,7 @@ class TrialPatientController extends BaseModuleController
     {
         return array(
             array('allow',  // allow all users to perform the 'index' action
-                'actions' => array('changeStatus'),
+                'actions' => array('changeStatus', 'updateExternalId'),
                 'users' => array('*'),
             ),
             array('deny',  // deny all users
@@ -78,6 +78,17 @@ class TrialPatientController extends BaseModuleController
         $model = TrialPatient::model()->findByPk($id);
 
         $model->patient_status = $new_status;
+        $model->save();
+    }
+
+    public function actionUpdateExternalId($id, $new_external_id)
+    {
+        $model = TrialPatient::model()->findByPk($id);
+        if ($model == null) {
+            throw new HttpException(404);
+        }
+
+        $model->external_trial_identifier = $new_external_id;
         $model->save();
     }
 }

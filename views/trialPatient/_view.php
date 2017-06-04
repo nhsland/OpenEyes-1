@@ -3,20 +3,21 @@
 /* @var $data TrialPatient */
 ?>
 
-<div class="trial-patient-container">
-
-    <?php echo CHtml::link(CHtml::encode($data->patient->getFullName()), array('//patient/view', 'id' => $data->patient_id)); ?>
-    <br/>
+<div class="result box generic">
 
     <b><?php echo CHtml::encode($data->getAttributeLabel('external_trial_identifier')); ?>:</b>
-    <?php echo CHtml::encode($data->external_trial_identifier); ?>
+    <span id="ext-trial-id-<?php echo $data->id; ?>"><?php echo CHtml::encode($data->external_trial_identifier); ?></span>
+    <a id="ext-trial-id-link-<?php echo $data->id; ?>" href="javascript:void(0)"
+       onclick="editExternalTrialIdentifier(<?php echo $data->id; ?>)">edit</a>
+
+    <form id="ext-trial-id-form-<?php echo $data->id; ?>" style="display:none">
+        <input id="trial-patient-ext-id-<?php echo $data->id; ?>" type="text"
+               value="<?php echo $data->external_trial_identifier; ?>" width="50"/>
+        <a id="ext-trial-id-save-<?php echo $data->id; ?>" href="javascript:void(0)"
+           onclick="saveExternalTrialIdentifier(<?php echo $data->id; ?>)">save</a>
+    </form>
     <br/>
 
-
-</div>
-
-
-<div class="result box generic">
     <h3 class="box-title">
         <?php echo CHtml::link(
             $data->patient->contact->last_name . ', ' . $data->patient->contact->first_name . ($data->patient->is_deceased ? ' (Deceased)' : ''),
@@ -27,7 +28,10 @@
     <div class="row data-row">
         <div class="large-12 column">
             <?php
-            echo $data->patient->gender . ' ' . '(' . $data->patient->getAge() . ')';
+            echo $data->patient->getGenderString() . ' ' . '(' . $data->patient->getAge() . ') ';
+            if ($data->patient->ethnic_group) {
+                echo $data->patient->getEthnicGroupString();
+            }
             ?>
         </div>
     </div>

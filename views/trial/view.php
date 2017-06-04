@@ -72,6 +72,27 @@ $this->breadcrumbs = array(
         // return false so the link isn't followed
         return false;
     }
+
+    function editExternalTrialIdentifier(trial_patient_id) {
+        $("#ext-trial-id-form-" + trial_patient_id).show();
+        $("#ext-trial-id-" + trial_patient_id).hide();
+    }
+
+    function saveExternalTrialIdentifier(trial_patient_id) {
+        var external_id = $('#trial-patient-ext-id-' + trial_patient_id).val();
+        $.ajax({
+            url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/updateExternalId'); ?>',
+            data: {id: trial_patient_id, new_external_id: external_id},
+            type: 'GET',
+            success: function (response) {
+                $("#ext-trial-id-form-" + trial_patient_id).hide();
+
+                var id_label = $("#ext-trial-id-" + trial_patient_id);
+                id_label.html(external_id);
+                id_label.show();
+            }
+        });
+    }
 </script>
 
 <h2>Shortlisted Patients</h2>
