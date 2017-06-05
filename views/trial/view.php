@@ -42,7 +42,13 @@ $this->breadcrumbs = array(
     </div>
 </div>
 
+<?php
+$assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.assets'), false, -1);
+Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-section.js');
+?>
+
 <script type="application/javascript">
+
     function changePatientStatus(object, trial_patient_id, new_status) {
         $.ajax({
             url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
@@ -55,27 +61,10 @@ $this->breadcrumbs = array(
         });
     }
 
-    function toggleSection(section, reference) {
-
-        //make the collapse content to be shown or hidden
-        var toggle_switch = $(section);
-        $(reference).toggle(function () {
-            if ($(reference).css('display') === 'none') {
-                //change the button label to be 'Show'
-                toggle_switch.html($(section).attr('data-show-label'));
-            } else {
-                //change the button label to be 'Hide'
-                toggle_switch.html($(section).attr('data-hide-label'));
-            }
-        });
-
-        // return false so the link isn't followed
-        return false;
-    }
-
     function editExternalTrialIdentifier(trial_patient_id) {
         $("#ext-trial-id-form-" + trial_patient_id).show();
         $("#ext-trial-id-" + trial_patient_id).hide();
+        $('#ext-trial-id-link-' + trial_patient_id).hide();
     }
 
     function saveExternalTrialIdentifier(trial_patient_id) {
@@ -90,6 +79,13 @@ $this->breadcrumbs = array(
                 var id_label = $("#ext-trial-id-" + trial_patient_id);
                 id_label.html(external_id);
                 id_label.show();
+
+                $('#ext-trial-id-link-' + trial_patient_id).show();
+            },
+            error: function (response) {
+                new OpenEyes.UI.Dialog.Alert({
+                    content: "Sorry, an internal error occurred and we were unable to change the external trail identifier.\n\nPlease contact support for assistance."
+                }).open();
             }
         });
     }
