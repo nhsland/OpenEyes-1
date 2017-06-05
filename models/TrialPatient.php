@@ -63,18 +63,20 @@ class TrialPatient extends BaseActiveRecordVersioned
      */
     public function rules()
     {
-        // NOTE: you should only define rules for those attributes that
-        // will receive user inputs.
         return array(
             array('trial_id, patient_id, patient_status', 'required'),
             array('trial_id', 'numerical', 'integerOnly' => true),
             array('external_trial_identifier', 'length', 'max' => 64),
-            array('patient_id, patient_status, last_modified_user_id, created_user_id', 'length', 'max' => 10),
+            array('patient_id, patient_status', 'length', 'max' => 10),
             array('patient_status', 'in', 'range' => self::getAllowedStatusRange()),
+            // The trial_id and the patient_id must be unique together
+            array('trial_id', 'unique', 'criteria' => array(
+                'condition' => '`patient_id`=:patientId',
+                'params' => array(
+                    ':patientId' => $this->patient_id
+                )
+            )),
             array('last_modified_date, created_date', 'safe'),
-            // The following rule is used by search().
-            // @todo Please remove those attributes that should not be searched.
-            array('id, external_trial_identifier, trial_id, patient_id, patient_status, last_modified_user_id, last_modified_date, created_user_id, created_date', 'safe', 'on' => 'search'),
         );
     }
 
@@ -153,5 +155,21 @@ class TrialPatient extends BaseActiveRecordVersioned
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
+    }
+
+    public static function isPatientInTrial($patient_id, $trial_id)
+    {
+        return TrialPatient::model()->exists(
+            'patient_id = :patientId AND trial_id = :trialId',
+            array(
+                ':patientId' => $patient_id,
+                ':trialId' => $trial_id,
+            )
+        );
+    }
+
+    public static function canPatientBeAssignedToTrial()
+    {
+
     }
 }

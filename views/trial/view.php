@@ -95,6 +95,8 @@ $this->breadcrumbs = array(
     }
 </script>
 
+<?php echo CHtml::link('Add Patients', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?>
+
 <h2>Shortlisted Patients</h2>
 <?php $this->widget('zii.widgets.CListView', array(
     'id' => 'shortlistedPatientList',

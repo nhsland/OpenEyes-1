@@ -91,4 +91,5 @@ class TrialPatientController extends BaseModuleController
         $model->external_trial_identifier = $new_external_id;
         $model->save();
     }
+
 }

@@ -193,4 +193,8 @@ class Trial extends BaseActiveRecordVersioned
         return $model->owner_user_id === $user->id;
     }
 
+    public function canPatientBeAssigned($patient_id)
+    {
+        return self::canUserAccessTrial(Yii::app()->user, $this->id, 'update');
+    }
 }

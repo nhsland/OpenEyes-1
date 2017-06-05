@@ -38,7 +38,7 @@ class TrialController extends BaseModuleController
                 'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "view")',
             ),
             array('allow',
-                'actions' => array('update'),
+                'actions' => array('update', 'addPatient', 'removePatient'),
                 'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "update")',
             ),
             array('allow', // allow authenticated user to perform the 'create'  action
@@ -212,6 +212,63 @@ class TrialController extends BaseModuleController
         ));
     }
 
+
+    /**
+     * @param $id integer
+     * @param $patient_id integer
+     * @throws ChttpException
+     */
+    public function actionAddPatient($id, $patient_id)
+    {
+        if (!Trial::canUserAccessTrial(Yii::app()->user, $id, 'update')) {
+            throw new ChttpException(403);
+        }
+
+        $trial = Trial::model()->findByPk($id);
+        $patient = Patient::model()->findByPk($patient_id);
+
+        $trialPatient = new TrialPatient();
+        $trialPatient->trial_id = $trial->id;
+        $trialPatient->patient_id = $patient->id;
+        $trialPatient->patient_status = TrialPatient::STATUS_SHORTLISTED;
+
+        if (!$trialPatient->save()) {
+            throw new \Exception('Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+        }
+        //var_dump($trialPatient);
+    }
+
+
+    /**
+     * @param $id integer The id of the trial to remove
+     * @param $patient_id integer The id of the patient to remove
+     * @throws ChttpException Raised when the record cannot be found
+     * @throws Exception Raised when an error occurs when removing the record
+     */
+    public function actionRemovePatient($id, $patient_id)
+    {
+        if (!Trial::canUserAccessTrial(Yii::app()->user, $id, 'update')) {
+            throw new ChttpException(403);
+        }
+
+        $trialPatient = TrialPatient::model()->find(
+            'patient_id = :patientId AND trial_id = :trialId',
+            array(
+                ':patientId' => $patient_id,
+                ':trialId' => $id,
+            )
+        );
+
+        if ($trialPatient == null) {
+            throw new CHttpException(400, "Patient $patient_id cannot be removed from Trial $id");
+        }
+
+
+        if (!$trialPatient->delete()) {
+            throw new Exception('Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+        }
+    }
+
     /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
@@ -225,6 +282,7 @@ class TrialController extends BaseModuleController
         if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
         }
+
         return $model;
     }
 
@@ -239,4 +297,5 @@ class TrialController extends BaseModuleController
             Yii::app()->end();
         }
     }
+
 }
