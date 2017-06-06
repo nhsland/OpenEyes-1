@@ -102,7 +102,7 @@ class TrialPatient extends BaseActiveRecordVersioned
     {
         return array(
             'id' => 'ID',
-            'external_trial_identifier' => 'External Trial Identifier',
+            'external_trial_identifier' => 'Trial Identifier',
             'trial_id' => 'Trial',
             'patient_id' => 'Patient',
             'patient_status' => 'Patient Status',

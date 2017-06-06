@@ -193,6 +193,8 @@ class TrialController extends BaseModuleController
 
         $this->render('index', array(
             'dataProvider' => $dataProvider,
+            'sort_by' => (integer) \Yii::app()->request->getParam('sort_by', null),
+            'sort_dir' => (integer) \Yii::app()->request->getParam('sort_dir', null),
         ));
     }
 

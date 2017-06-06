@@ -7,19 +7,10 @@
  * @var $rejectedPatientDataProvider CActiveDataProvider
  */
 
-$this->breadcrumbs = array(
-    'My Trials' => array('/OETrial/trial'),
-    $model->name,
-);
 ?>
 
 <h1 class="badge">Trial</h1>
 <div class="box content admin-content">
-
-    <?php $this->widget('zii.widgets.CBreadcrumbs', array(
-        'links' => $this->breadcrumbs,
-    )); ?>
-
     <div class="large-10 column content admin large-centered">
         <div class="box admin">
             <h1 class="text-center"><?php echo $model->name; ?>
@@ -31,13 +22,36 @@ $this->breadcrumbs = array(
             <?php echo CHtml::encode($model->description); ?>
             <br/>
 
-            <b><?php echo CHtml::encode($model->getAttributeLabel('owner_user_id')); ?>:</b>
-            <?php echo CHtml::encode($model->ownerUser->getFullName()); ?>
-            <br/>
-
             <b><?php echo CHtml::encode($model->getAttributeLabel('created_date')); ?>:</b>
             <?php echo CHtml::encode($model->created_date); ?>
             <br/>
+            <br/>
+
+            <?php echo CHtml::link('Search for and <span class="highlight">Add Patients</span> to this Trial', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?>
+            <br/>
+
+            <hr/>
+            <h2>Shortlisted Patients</h2>
+            <?php $this->widget('zii.widgets.CListView', array(
+                'id' => 'shortlistedPatientList',
+                'dataProvider' => $shortlistedPatientDataProvider,
+                'itemView' => '/trialPatient/_view',
+            )); ?>
+            <hr/>
+            <h2>Accepted Patients</h2>
+            <?php $this->widget('zii.widgets.CListView', array(
+                'id' => 'acceptedPatientList',
+                'dataProvider' => $acceptedPatientDataProvider,
+                'itemView' => '/trialPatient/_view',
+            )); ?>
+            <hr/>
+            <h2>Rejected Patients</h2>
+            <?php $this->widget('zii.widgets.CListView', array(
+                'id' => 'rejectedPatientList',
+                'dataProvider' => $rejectedPatientDataProvider,
+                'itemView' => '/trialPatient/_view',
+            )); ?>
+
         </div>
     </div>
 </div>
@@ -90,27 +104,3 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
         });
     }
 </script>
-
-<?php echo CHtml::link('Add Patients', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?>
-
-<h2>Shortlisted Patients</h2>
-<?php $this->widget('zii.widgets.CListView', array(
-    'id' => 'shortlistedPatientList',
-    'dataProvider' => $shortlistedPatientDataProvider,
-    'itemView' => '/trialPatient/_view',
-)); ?>
-
-<h2>Accepted Patients</h2>
-<?php $this->widget('zii.widgets.CListView', array(
-    'id' => 'acceptedPatientList',
-    'dataProvider' => $acceptedPatientDataProvider,
-    'itemView' => '/trialPatient/_view',
-)); ?>
-
-<h2>Rejected Patients</h2>
-<?php $this->widget('zii.widgets.CListView', array(
-    'id' => 'rejectedPatientList',
-    'dataProvider' => $rejectedPatientDataProvider,
-    'itemView' => '/trialPatient/_view',
-)); ?>
-
