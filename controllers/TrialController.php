@@ -29,9 +29,9 @@ class TrialController extends BaseModuleController
     public function accessRules()
     {
         return array(
-            array('allow',  // allow all users to perform the 'index' action
+            array('allow',  // allow authenticated users to perform the 'index' action
                 'actions' => array('index'),
-                'users' => array('*'),
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('view'),
