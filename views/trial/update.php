@@ -2,19 +2,16 @@
 /* @var $this TrialController */
 /* @var $model Trial */
 
-$this->breadcrumbs = array(
-    'Trials' => array('index'),
-    $model->name => array('view', 'id' => $model->id),
-    'Update',
-);
-
-$this->menu = array(
-    array('label' => 'List Trial', 'url' => array('index')),
-    array('label' => 'Create Trial', 'url' => array('create')),
-    array('label' => 'View Trial', 'url' => array('view', 'id' => $model->id)),
-);
 ?>
+<h1 class="badge">Trial</h1>
+<div class="box content admin-content">
+    <div class="large-10 column content admin large-centered">
 
-    <h1>Update Trial <?php echo $model->id; ?></h1>
+        <div class="box admin">
+            <h1 class="text-center">Update Trial Details</h1>
 
-<?php $this->renderPartial('_form', array('model' => $model)); ?>
+            <?php $this->renderPartial('_form', array('model' => $model)); ?>
+        </div>
+    </div>
+</div>
+

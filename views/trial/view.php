@@ -17,10 +17,13 @@
                 <?php if ($canUpdateTrial) {
                     echo Chtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id));
                 } ?></h1>
+            <div class="box-info"><?php echo $model->getTrialTypeOptions()[$model->trial_type]; ?></div>
 
-            <b><?php echo CHtml::encode($model->getAttributeLabel('description')); ?>:</b>
-            <?php echo CHtml::encode($model->description); ?>
-            <br/>
+            <?php if (strlen($model->description) > 0): ?>
+                <b><?php echo CHtml::encode($model->getAttributeLabel('description')); ?>:</b>
+                <?php echo CHtml::encode($model->description); ?>
+                <br/>
+            <?php endif; ?>
 
             <b><?php echo CHtml::encode($model->getAttributeLabel('created_date')); ?>:</b>
             <?php echo CHtml::encode($model->created_date); ?>
