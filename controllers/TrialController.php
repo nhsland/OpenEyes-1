@@ -182,17 +182,29 @@ class TrialController extends BaseModuleController
      */
     public function actionIndex()
     {
-        $dataProvider = new CActiveDataProvider('Trial', array(
+        $interventionTrialDataProvider = new CActiveDataProvider('Trial', array(
             'criteria' => array(
-                'condition' => 'owner_user_id = :userId',
+                'condition' => 'owner_user_id = :userId AND trial_type = :trialType',
                 'params' => array(
                     ':userId' => Yii::app()->user->id,
+                    ':trialType' => Trial::TRIAL_TYPE_INTERVENTION,
+                ),
+            ),
+        ));
+
+        $nonInterventionTrialDataProvider = new CActiveDataProvider('Trial', array(
+            'criteria' => array(
+                'condition' => 'owner_user_id = :userId AND trial_type = :trialType',
+                'params' => array(
+                    ':userId' => Yii::app()->user->id,
+                    ':trialType' => Trial::TRIAL_TYPE_NON_INTERVENTION,
                 ),
             ),
         ));
 
         $this->render('index', array(
-            'dataProvider' => $dataProvider,
+            'interventionTrialDataProvider' => $interventionTrialDataProvider,
+            'nonInterventionTrialDataProvider' => $nonInterventionTrialDataProvider,
             'sort_by' => (integer) \Yii::app()->request->getParam('sort_by', null),
             'sort_dir' => (integer) \Yii::app()->request->getParam('sort_dir', null),
         ));
