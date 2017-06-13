@@ -9,6 +9,7 @@
  * @property string $description
  * @property integer $owner_user_id
  * @property integer $status
+ * @property integer $trial_type
  * @property string $last_modified_date
  * @property string $last_modified_user_id
  * @property integer $created_user_id
@@ -42,6 +43,10 @@ class Trial extends BaseActiveRecordVersioned
      */
     const STATUS_CANCELLED = 3;
 
+    const TRIAL_TYPE_NON_INTERVENTION = 0;
+
+    const TRIAL_TYPE_INTERVENTION = 1;
+
     /**
      * @return string the associated database table name
      */
@@ -62,6 +67,7 @@ class Trial extends BaseActiveRecordVersioned
             array('name, description', 'length', 'max' => 64),
             array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),
             array('status', 'in', 'range' => self::getAllowedStatusRange()),
+            array('trial_type', 'in', 'range' => self::getAllowedTrialTypeRange()),
             array('last_modified_date, created_date', 'safe'),
 
             // The following rule is used by search().
@@ -72,7 +78,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns an array of all of the allowable values of "status"
-     * @return array The list of statuses
+     * @return int[] The list of statuses
      */
     public function getAllowedStatusRange()
     {
@@ -97,6 +103,31 @@ class Trial extends BaseActiveRecordVersioned
             self::STATUS_CANCELLED => 'Cancelled',
         );
     }
+
+    /**
+     * Returns an array of all of the allowable values of "trial_type"
+     * @return int[] The list of types
+     */
+    public function getAllowedTrialTypeRange()
+    {
+        return array(
+            self::TRIAL_TYPE_NON_INTERVENTION,
+            self::TRIAL_TYPE_INTERVENTION,
+        );
+    }
+
+    /**
+     * Returns an array withs keys of the allowable values of the trial status and values of the label for that type
+     * @return array The array of trial type id/label key/value pairs
+     */
+    public function getTrialTypeOptions()
+    {
+        return array(
+            self::TRIAL_TYPE_NON_INTERVENTION => 'Non-Intervention',
+            self::TRIAL_TYPE_INTERVENTION => 'Intervention',
+        );
+    }
+
 
     /**
      * @return array relational rules.
@@ -124,6 +155,7 @@ class Trial extends BaseActiveRecordVersioned
             'description' => 'Description',
             'owner_user_id' => 'Owner User',
             'status' => 'Status',
+            'trial_type' => 'Trial Type',
             'last_modified_date' => 'Last Modified Date',
             'last_modified_user_id' => 'Last Modified User',
             'created_user_id' => 'Created User',
