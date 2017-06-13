@@ -35,10 +35,10 @@
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($dataProvided as $i => $result) { ?>
-            <tr id="r<?php echo $result->id ?>" class="clickable">
-                <td><?php echo $result->name ?></td>
-                <td><?php echo date('d/m/Y', strtotime($result->created_date)); ?></td>
+        <?php foreach ($dataProvided as $i => $trial) { ?>
+            <tr id="r<?php echo $trial->id; ?>" class="clickable">
+                <td><?php echo $trial->name; ?></td>
+                <td><?php echo date('d/m/Y', strtotime($trial->created_date)); ?></td>
             </tr>
         <?php } ?>
         </tbody>

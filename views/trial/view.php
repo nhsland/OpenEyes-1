@@ -10,8 +10,9 @@
 ?>
 
 <h1 class="badge">Trial</h1>
-<div class="box content admin-content">
-    <div class="large-10 column content admin large-centered">
+<div class="row">
+    <div class="large-9 column">
+
         <div class="box admin">
             <h1 class="text-center"><?php echo $model->name; ?>
                 <?php if ($canUpdateTrial) {
@@ -27,10 +28,6 @@
 
             <b><?php echo CHtml::encode($model->getAttributeLabel('created_date')); ?>:</b>
             <?php echo CHtml::encode($model->created_date); ?>
-            <br/>
-            <br/>
-
-            <?php echo CHtml::link('Search for and <span class="highlight">Add Patients</span> to this Trial', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?>
             <br/>
 
             <hr/>
@@ -56,6 +53,14 @@
             )); ?>
 
         </div>
+
+    </div><!-- /.large-9.column -->
+    <div class="large-3 column">
+        <div class="box generic">
+            <p>
+                <span class="highlight"><?php echo CHtml::link('Search for patients to add', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?></span>
+            </p>
+        </div>
     </div>
 </div>
 
@@ -71,9 +76,22 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
             url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
             type: 'GET',
             success: function (response) {
-                $.fn.yiiListView.update('shortlistedPatientList');
-                $.fn.yiiListView.update('acceptedPatientList');
-                $.fn.yiiListView.update('rejectedPatientList');
+                if (response == '<?php echo TrialPatient::STATUS_CHANGE_CODE_OK; ?>') {
+                    $.fn.yiiListView.update('shortlistedPatientList');
+                    $.fn.yiiListView.update('acceptedPatientList');
+                    $.fn.yiiListView.update('rejectedPatientList');
+                } else if (response == '<?php echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION; ?>') {
+                    new OpenEyes.UI.Dialog.Alert({
+                        content: "You can't accept this patient into your Trial because the patient has already been accepted into another Intervention trial."
+                    }).open();
+                } else {
+                    alert("Unknown response code: " + response_code);
+                }
+            },
+            error: function (response) {
+                new OpenEyes.UI.Dialog.Alert({
+                    content: "Sorry, an internal error occurred and we were unable to change the patient status.\n\nPlease contact support for assistance."
+                }).open();
             }
         });
     }

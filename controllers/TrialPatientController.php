@@ -75,10 +75,21 @@ class TrialPatientController extends BaseModuleController
      */
     public function actionChangeStatus($id, $new_status)
     {
+        /** @var TrialPatient $model */
         $model = TrialPatient::model()->findByPk($id);
+
+        if ($new_status == TrialPatient::STATUS_ACCEPTED &&
+            $model->trial->trial_type == Trial::TRIAL_TYPE_INTERVENTION &&
+            $model->patient->isCurrentlyInInterventionTrial()
+        ) {
+            echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION;
+            return;
+        }
 
         $model->patient_status = $new_status;
         $model->save();
+
+        echo TrialPatient::STATUS_CHANGE_CODE_OK;
     }
 
     public function actionUpdateExternalId($id, $new_external_id)

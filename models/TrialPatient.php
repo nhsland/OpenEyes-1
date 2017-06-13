@@ -37,6 +37,10 @@ class TrialPatient extends BaseActiveRecordVersioned
      */
     const STATUS_REJECTED = 2;
 
+    const STATUS_CHANGE_CODE_OK = "0";
+    const STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION = "1";
+
+
     /**
      * Gets an array of the available statues of a patient
      * @return array The array of statues
