@@ -1,6 +1,8 @@
 <?php
 /* @var $this TrialPatientController */
 /* @var $data TrialPatient */
+
+$isInAnotherInterventionTrial = $data->patient->isCurrentlyInInterventionTrial($data->trial_id);
 ?>
 <div class="box generic">
     <div class="row">
@@ -13,6 +15,12 @@
                         array('target' => '_blank')
                     ); ?>
                 </h3>
+
+                <?php if ($isInAnotherInterventionTrial) {?>
+                    <div id="deceased-notice" class="alert-box alert with-icon">
+                        This patient is already in an Intervention trial
+                    </div>
+                <?php }?>
 
                 <?php
                 echo $data->patient->getGenderString() . ' ' . '(' . $data->patient->getAge() . ') ';
@@ -45,12 +53,11 @@
 
         <div class="large-2 column">
             <div class="box">
-                <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED): ?>
+                <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>
                     <a href="javascript:void(0)"
                        onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
                        class="accept-patient-link">Accept into Trial
                     </a>
-                    <br/>
                     <br/>
                 <?php endif; ?>
 
@@ -62,7 +69,7 @@
                 <?php endif; ?>
 
                 <?php if ($data->patient_status == TrialPatient::STATUS_REJECTED): ?>
-                    <a href="javscript:void(0)"
+                    <a href="javascript:void(0)"
                        onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_SHORTLISTED; ?>)"
                        class="accept-patient-link">Send to Shortlist
                     </a>
