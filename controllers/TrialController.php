@@ -41,6 +41,10 @@ class TrialController extends BaseModuleController
                 'actions' => array('update', 'addPatient', 'removePatient'),
                 'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "update")',
             ),
+            array('allow',
+                'actions' => array('permissions', 'addPermission'),
+                'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "manage")',
+            ),
             array('allow', // allow authenticated user to perform the 'create'  action
                 'actions' => array('create'),
                 'users' => array('@'),
@@ -205,8 +209,8 @@ class TrialController extends BaseModuleController
         $this->render('index', array(
             'interventionTrialDataProvider' => $interventionTrialDataProvider,
             'nonInterventionTrialDataProvider' => $nonInterventionTrialDataProvider,
-            'sort_by' => (integer) \Yii::app()->request->getParam('sort_by', null),
-            'sort_dir' => (integer) \Yii::app()->request->getParam('sort_dir', null),
+            'sort_by' => (integer)\Yii::app()->request->getParam('sort_by', null),
+            'sort_dir' => (integer)\Yii::app()->request->getParam('sort_dir', null),
         ));
     }
 
@@ -283,6 +287,38 @@ class TrialController extends BaseModuleController
         }
     }
 
+    public function actionPermissions($id)
+    {
+        if (!Trial::canUserAccessTrial(Yii::app()->user, $id, 'manage')) {
+            throw new ChttpException(403);
+        }
+
+        $model = Trial::model()->findByPk($id);
+
+        $newPermission = new UserTrialPermission();
+
+        $this->render('permissions', array(
+            'model' => $model,
+            'newPermission' => $newPermission,
+        ));
+    }
+
+
+    public function actionAddPermission($id)
+    {
+        $permission = new UserTrialPermission();
+        $permission->trial_id = $_POST['trial_id'];
+        $permission->user_id = $_POST['user_id'];
+        $permission->permission = $_POST['permission'];
+        if (!$permission->save()) {
+            var_dump($permission->getErrors());
+            //throw new CHttpException(400);
+            return;
+        }
+
+        $this->redirect(array('/OETrial/trial/permissions', 'id' => $id));
+    }
+
     /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
@@ -311,5 +347,4 @@ class TrialController extends BaseModuleController
             Yii::app()->end();
         }
     }
-
 }

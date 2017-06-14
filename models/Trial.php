@@ -20,6 +20,7 @@
  * @property User $createdUser
  * @property User $lastModifiedUser
  * @property TrialPatient[] $trialPatients
+ * @property UserTrialPermission[] $userPermissions
  */
 class Trial extends BaseActiveRecordVersioned
 {
@@ -80,7 +81,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array of all of the allowable values of "status"
      * @return int[] The list of statuses
      */
-    public function getAllowedStatusRange()
+    public static function getAllowedStatusRange()
     {
         return array(
             self::STATUS_OPEN,
@@ -94,7 +95,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array withs keys of the allowable values of status and values of the label for that status
      * @return array The array of status id/label key/value pairs
      */
-    public function getStatusOptions()
+    public static function getStatusOptions()
     {
         return array(
             self::STATUS_OPEN => 'Open"',
@@ -108,7 +109,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array of all of the allowable values of "trial_type"
      * @return int[] The list of types
      */
-    public function getAllowedTrialTypeRange()
+    public static function getAllowedTrialTypeRange()
     {
         return array(
             self::TRIAL_TYPE_NON_INTERVENTION,
@@ -120,7 +121,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array withs keys of the allowable values of the trial status and values of the label for that type
      * @return array The array of trial type id/label key/value pairs
      */
-    public function getTrialTypeOptions()
+    public static function getTrialTypeOptions()
     {
         return array(
             self::TRIAL_TYPE_NON_INTERVENTION => 'Non-Intervention',
@@ -141,6 +142,7 @@ class Trial extends BaseActiveRecordVersioned
             'createdUser' => array(self::BELONGS_TO, 'User', 'created_user_id'),
             'lastModifiedUser' => array(self::BELONGS_TO, 'User', 'last_modified_user_id'),
             'trialPatients' => array(self::HAS_MANY, 'TrialPatient', 'trial_id'),
+            'userPermissions' => array(self::HAS_MANY, 'UserTrialPermission', 'trial_id'),
         );
     }
 

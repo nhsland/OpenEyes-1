@@ -57,9 +57,21 @@
     </div><!-- /.large-9.column -->
     <div class="large-3 column">
         <div class="box generic">
-            <p>
-                <span class="highlight"><?php echo CHtml::link('Search for patients to add', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?></span>
-            </p>
+            <?php if (Trial::canUserAccessTrial(Yii::app()->user, $model->id, "update")): ?>
+                <p>
+                    <span class="highlight">
+                        <?php echo CHtml::link('Search for patients to add', Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?>
+                    </span>
+                </p>
+            <?php endif; ?>
+
+            <?php if (Trial::canUserAccessTrial(Yii::app()->user, $model->id, "manage")): ?>
+                <p>
+                    <span class="highlight">
+                        <?php echo CHtml::link('Share this trial with other users', Yii::app()->createUrl('/OETrial/trial/permissions', array('id' => $model->id))); ?>
+                    </span>
+                </p>
+            <?php endif; ?>
         </div>
     </div>
 </div>
