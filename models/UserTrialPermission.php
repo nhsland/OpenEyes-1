@@ -47,7 +47,11 @@ class UserTrialPermission extends BaseActiveRecordVersioned
             array('last_modified_date, created_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('user_id, trial_id, permission, last_modified_user_id, last_modified_date, created_user_id, created_date', 'safe', 'on' => 'search'),
+            array(
+                'user_id, trial_id, permission, last_modified_user_id, last_modified_date, created_user_id, created_date',
+                'safe',
+                'on' => 'search',
+            ),
         );
     }
 

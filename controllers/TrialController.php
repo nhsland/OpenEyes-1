@@ -29,27 +29,33 @@ class TrialController extends BaseModuleController
     public function accessRules()
     {
         return array(
-            array('allow',  // allow authenticated users to perform the 'index' action
+            array(
+                'allow',  // allow authenticated users to perform the 'index' action
                 'actions' => array('index'),
                 'users' => array('@'),
             ),
-            array('allow',
+            array(
+                'allow',
                 'actions' => array('view'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_VIEW . ')',
             ),
-            array('allow',
+            array(
+                'allow',
                 'actions' => array('update', 'addPatient', 'removePatient'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_EDIT . ')',
             ),
-            array('allow',
+            array(
+                'allow',
                 'actions' => array('permissions', 'addPermission', 'removePermission'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_MANAGE . ')',
             ),
-            array('allow', // allow authenticated user to perform the 'create'  action
+            array(
+                'allow', // allow authenticated user to perform the 'create'  action
                 'actions' => array('create'),
                 'users' => array('@'),
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
@@ -81,7 +87,7 @@ class TrialController extends BaseModuleController
             array(
                 'model' => $model,
                 'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
-                'report' => $report
+                'report' => $report,
             ),
             $this->getPatientDataProviders($model)
         );
@@ -306,6 +312,7 @@ class TrialController extends BaseModuleController
         $permission->permission = $_POST['permission'];
         if (!$permission->save()) {
             var_dump($permission->getErrors());
+
             //throw new CHttpException(400);
             return;
         }
@@ -322,6 +329,7 @@ class TrialController extends BaseModuleController
         }
 
         $permission->delete();
+
         return "success";
     }
 

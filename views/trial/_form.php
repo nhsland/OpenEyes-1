@@ -15,49 +15,50 @@
         'enableAjaxValidation' => false,
     )); ?>
 
-    <p class="note text-right">Fields with <span class="required">*</span> are required.</p>
+  <p class="note text-right">Fields with <span class="required">*</span> are required.</p>
 
     <?php echo $form->errorSummary($model); ?>
 
-    <div class="row field-row">
-        <div class="large-6 column">
-            <div class="row field-row">
-                <?php echo $form->labelEx($model, 'name'); ?>
-                <?php echo $form->textField($model, 'name', array('size' => 60, 'maxlength' => 64)); ?>
-                <?php echo $form->error($model, 'name'); ?>
-            </div>
+  <div class="row field-row">
+    <div class="large-6 column">
+      <div class="row field-row">
+          <?php echo $form->labelEx($model, 'name'); ?>
+          <?php echo $form->textField($model, 'name', array('size' => 60, 'maxlength' => 64)); ?>
+          <?php echo $form->error($model, 'name'); ?>
+      </div>
+    </div>
+  </div>
+
+  <div class="row field-row">
+      <?php echo $form->labelEx($model, 'description'); ?>
+      <?php echo $form->textArea($model, 'description', array('size' => 60, 'maxlength' => 64)); ?>
+      <?php echo $form->error($model, 'description'); ?>
+  </div>
+
+  <div class="row field-row">
+    <div class="large-6 column">
+      <div class="row field-row">
+        <div class="large-3 column">
+            <?php echo $form->labelEx($model, 'trial_type'); ?>
         </div>
-    </div>
-
-    <div class="row field-row">
-        <?php echo $form->labelEx($model, 'description'); ?>
-        <?php echo $form->textArea($model, 'description', array('size' => 60, 'maxlength' => 64)); ?>
-        <?php echo $form->error($model, 'description'); ?>
-    </div>
-
-    <div class="row field-row">
-        <div class="large-6 column">
-            <div class="row field-row">
-                <div class="large-3 column">
-                    <?php echo $form->labelEx($model, 'trial_type'); ?>
-                </div>
-                <div class="large-6 column end">
-                    <?php foreach (Trial::model()->getTrialTypeOptions() as $trial_type => $type_label): ?>
-                        <div class="row field-row text">
-                            <label>
-                                <?php echo $form->radioButton($model, 'trial_type', array('value' => $trial_type, 'uncheckValue' => null)); ?>
-                                <?php echo $type_label; ?>
-                            </label>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
+        <div class="large-6 column end">
+            <?php foreach (Trial::model()->getTrialTypeOptions() as $trial_type => $type_label): ?>
+              <div class="row field-row text">
+                <label>
+                    <?php echo $form->radioButton($model, 'trial_type',
+                        array('value' => $trial_type, 'uncheckValue' => null)); ?>
+                    <?php echo $type_label; ?>
+                </label>
+              </div>
+            <?php endforeach; ?>
         </div>
+      </div>
     </div>
+  </div>
 
-    <div class="row buttons text-right">
-        <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
-    </div>
+  <div class="row buttons text-right">
+      <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+  </div>
 
     <?php $this->endWidget(); ?>
 

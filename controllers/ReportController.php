@@ -22,7 +22,8 @@ class ReportController extends BaseReportController
     public function accessRules()
     {
         return array(
-            array('allow',
+            array(
+                'allow',
                 'actions' => array('runReport', 'downloadReport'),
                 'roles' => array('OprnGenerateReport', 'admin'),
             ),

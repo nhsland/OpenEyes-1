@@ -73,7 +73,11 @@ class Trial extends BaseActiveRecordVersioned
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('id, name, description, owner_user_id, status, last_modified_date, last_modified_user_id, created_user_id, created_date', 'safe', 'on' => 'search'),
+            array(
+                'id, name, description, owner_user_id, status, last_modified_date, last_modified_user_id, created_user_id, created_date',
+                'safe',
+                'on' => 'search',
+            ),
         );
     }
 
@@ -247,6 +251,7 @@ class Trial extends BaseActiveRecordVersioned
 
         $sql = 'SELECT MAX(permission) FROM user_trial_permission WHERE user_id = :userId AND trial_id = :trialId';
         $query = $this->getDbConnection()->createCommand($sql);
+
         return $query->queryScalar(array(':userId' => $user_id, ':trialId' => $this->id));
     }
 
