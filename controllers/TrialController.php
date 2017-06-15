@@ -37,17 +37,17 @@ class TrialController extends BaseModuleController
             array(
                 'allow',
                 'actions' => array('view'),
-                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_VIEW . ')',
+                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_VIEW)',
             ),
             array(
                 'allow',
                 'actions' => array('update', 'addPatient', 'removePatient'),
-                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_EDIT . ')',
+                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_EDIT)',
             ),
             array(
                 'allow',
                 'actions' => array('permissions', 'addPermission', 'removePermission'),
-                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_MANAGE . ')',
+                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_MANAGE)',
             ),
             array(
                 'allow', // allow authenticated user to perform the 'create'  action
@@ -222,8 +222,8 @@ class TrialController extends BaseModuleController
         $this->render('index', array(
             'interventionTrialDataProvider' => $interventionTrialDataProvider,
             'nonInterventionTrialDataProvider' => $nonInterventionTrialDataProvider,
-            'sort_by' => (integer)\Yii::app()->request->getParam('sort_by', null),
-            'sort_dir' => (integer)\Yii::app()->request->getParam('sort_dir', null),
+            'sort_by' => (integer)Yii::app()->request->getParam('sort_by', null),
+            'sort_dir' => (integer)Yii::app()->request->getParam('sort_dir', null),
         ));
     }
 
@@ -245,11 +245,14 @@ class TrialController extends BaseModuleController
 
 
     /**
-     * @param $id integer
-     * @param $patient_id integer
-     * @throws ChttpException
+     * Adds a patient to the trial
+     *
+     * @param $id integer The ID of the Trial to add to
+     * @param $patient_id integer THe ID of the patient to add
+     * @param $patient_status integer The initial trial status for the patient (default to shortlisted)
+     * @throws Exception Thrown if an error occurs when saving the TrialPatient record
      */
-    public function actionAddPatient($id, $patient_id)
+    public function actionAddPatient($id, $patient_id, $patient_status = TrialPatient::STATUS_SHORTLISTED)
     {
         $trial = Trial::model()->findByPk($id);
         $patient = Patient::model()->findByPk($patient_id);
@@ -257,10 +260,10 @@ class TrialController extends BaseModuleController
         $trialPatient = new TrialPatient();
         $trialPatient->trial_id = $trial->id;
         $trialPatient->patient_id = $patient->id;
-        $trialPatient->patient_status = TrialPatient::STATUS_SHORTLISTED;
+        $trialPatient->patient_status = $patient_status;
 
         if (!$trialPatient->save()) {
-            throw new \Exception('Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+            throw new Exception('Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
         }
     }
 
@@ -268,7 +271,7 @@ class TrialController extends BaseModuleController
     /**
      * @param $id integer The id of the trial to remove
      * @param $patient_id integer The id of the patient to remove
-     * @throws ChttpException Raised when the record cannot be found
+     * @throws CHttpException Raised when the record cannot be found
      * @throws Exception Raised when an error occurs when removing the record
      */
     public function actionRemovePatient($id, $patient_id)
