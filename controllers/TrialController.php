@@ -81,8 +81,6 @@ class TrialController extends BaseModuleController
             array(
                 'model' => $model,
                 'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
-                'canManage' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'manage'),
-                'canUpdateTrial' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'update'),
                 'report' => $report
             ),
             $this->getPatientDataProviders($model)
