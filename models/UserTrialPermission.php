@@ -4,7 +4,8 @@
  * This is the model class for table "user_trial_permission".
  *
  * The followings are the available columns in table 'user_trial_permission':
- * @property string $user_id
+ * @property integer $id
+ * @property integer $user_id
  * @property integer $trial_id
  * @property string $permission
  * @property string $last_modified_user_id
@@ -20,9 +21,9 @@
  */
 class UserTrialPermission extends BaseActiveRecordVersioned
 {
-    const PERMISSION_MANAGE = 0;
+    const PERMISSION_VIEW = 0;
     const PERMISSION_EDIT = 1;
-    const PERMISSION_VIEW = 2;
+    const PERMISSION_MANAGE = 2;
 
     /**
      * @return string the associated database table name

@@ -30,9 +30,9 @@ class TrialPatientController extends BaseModuleController
     public function accessRules()
     {
         return array(
-            array('allow',  // allow all users to perform the 'index' action
+            array('allow',
                 'actions' => array('changeStatus', 'updateExternalId'),
-                'users' => array('*'),
+                'expression' => 'TrialPatient::checkTrialPatientAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_EDIT . ')',
             ),
             array('deny',  // deny all users
                 'users' => array('*'),
@@ -102,5 +102,4 @@ class TrialPatientController extends BaseModuleController
         $model->external_trial_identifier = $new_external_id;
         $model->save();
     }
-
 }

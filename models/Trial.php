@@ -213,22 +213,45 @@ class Trial extends BaseActiveRecordVersioned
      * Returns whether or not the given user can access the given trial using the given action
      * @param $user User The user to check access for
      * @param $trial_id int The ID of the trial
-     * @param $action string The ID of the controller action
+     * @param $permission integer The ID of the controller action
      * @return bool True if access is permitted, otherwise false
      * @throws CHttpException
      */
-    public static function canUserAccessTrial($user, $trial_id, $action)
+    public static function checkTrialAccess($user, $trial_id, $permission)
     {
+        /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
         if ($model === null) {
             throw new CHttpException(404);
         }
 
-        return $model->owner_user_id === $user->id;
+        if ($model->owner_user_id === $user->id) {
+            return true;
+        }
+
+        return UserTrialPermission::model()->exists(
+            'user_id = :userId AND trial_id = :trialId AND permission >= :permission',
+            array(
+                ':userId' => $user->id,
+                ':trialId' => $trial_id,
+                ':permission' => $permission,
+            )
+        );
+    }
+
+    public function getTrialAccess($user_id)
+    {
+        if ($this->owner_user_id === $user_id) {
+            return UserTrialPermission::PERMISSION_MANAGE;
+        }
+
+        $sql = 'SELECT MAX(permission) FROM user_trial_permission WHERE user_id = :userId AND trial_id = :trialId';
+        $query = $this->getDbConnection()->createCommand($sql);
+        return $query->queryScalar(array(':userId' => $user_id, ':trialId' => $this->id));
     }
 
     public function canPatientBeAssigned($patient_id)
     {
-        return self::canUserAccessTrial(Yii::app()->user, $this->id, 'update');
+        return self::checkTrialAccess(Yii::app()->user, $this->id, UserTrialPermission::PERMISSION_EDIT);
     }
 }

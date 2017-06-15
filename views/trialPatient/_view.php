@@ -1,8 +1,10 @@
 <?php
 /* @var $this TrialPatientController */
 /* @var $data TrialPatient */
+/* @var $userPermission integer */
 
 $isInAnotherInterventionTrial = $data->patient->isCurrentlyInInterventionTrial($data->trial_id);
+$canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, UserTrialPermission::PERMISSION_EDIT);
 ?>
 <div class="box generic">
     <div class="row">
@@ -16,11 +18,11 @@ $isInAnotherInterventionTrial = $data->patient->isCurrentlyInInterventionTrial($
                     ); ?>
                 </h3>
 
-                <?php if ($isInAnotherInterventionTrial) {?>
+                <?php if ($isInAnotherInterventionTrial) { ?>
                     <div id="deceased-notice" class="alert-box alert with-icon">
                         This patient is already in an Intervention trial
                     </div>
-                <?php }?>
+                <?php } ?>
 
                 <?php
                 echo $data->patient->getGenderString() . ' ' . '(' . $data->patient->getAge() . ') ';
@@ -32,15 +34,17 @@ $isInAnotherInterventionTrial = $data->patient->isCurrentlyInInterventionTrial($
 
                 <?php echo CHtml::encode($data->getAttributeLabel('external_trial_identifier')); ?>:
                 <span id="ext-trial-id-<?php echo $data->id; ?>"><?php echo CHtml::encode($data->external_trial_identifier); ?></span>
-                <a id="ext-trial-id-link-<?php echo $data->id; ?>" href="javascript:void(0)"
-                   onclick="editExternalTrialIdentifier(<?php echo $data->id; ?>)">edit</a>
+                <?php if ($canEditPatient): ?>
+                    <a id="ext-trial-id-link-<?php echo $data->id; ?>" href="javascript:void(0)"
+                       onclick="editExternalTrialIdentifier(<?php echo $data->id; ?>)">edit</a>
 
-                <div id="ext-trial-id-form-<?php echo $data->id; ?>" style="display:none">
-                    <input id="trial-patient-ext-id-<?php echo $data->id; ?>" type="text"
-                           value="<?php echo $data->external_trial_identifier; ?>" width="50"/>
-                    <a id="ext-trial-id-save-<?php echo $data->id; ?>" href="javascript:void(0)"
-                       onclick="saveExternalTrialIdentifier(<?php echo $data->id; ?>)">save</a>
-                </div>
+                    <div id="ext-trial-id-form-<?php echo $data->id; ?>" style="display:none">
+                        <input id="trial-patient-ext-id-<?php echo $data->id; ?>" type="text"
+                               value="<?php echo $data->external_trial_identifier; ?>" width="50"/>
+                        <a id="ext-trial-id-save-<?php echo $data->id; ?>" href="javascript:void(0)"
+                           onclick="saveExternalTrialIdentifier(<?php echo $data->id; ?>)">save</a>
+                    </div>
+                <?php endif; ?>
                 <br/>
 
                 <?php $this->widget('PatientDiagnosesAndMedicationsWidget',
@@ -51,30 +55,32 @@ $isInAnotherInterventionTrial = $data->patient->isCurrentlyInInterventionTrial($
             </div>
         </div>
 
-        <div class="large-2 column">
-            <div class="box">
-                <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>
-                    <a href="javascript:void(0)"
-                       onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
-                       class="accept-patient-link">Accept into Trial
-                    </a>
-                    <br/>
-                <?php endif; ?>
+        <?php if ($canEditPatient): ?>
+            <div class="large-2 column">
+                <div class="box">
+                    <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>
+                        <a href="javascript:void(0)"
+                           onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
+                           class="accept-patient-link">Accept into Trial
+                        </a>
+                        <br/>
+                    <?php endif; ?>
 
-                <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED): ?>
-                    <a href="javascript:void(0)"
-                       onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_REJECTED; ?>)"
-                       class="accept-patient-link">Reject from Trial
-                    </a>
-                <?php endif; ?>
+                    <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED): ?>
+                        <a href="javascript:void(0)"
+                           onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_REJECTED; ?>)"
+                           class="accept-patient-link">Reject from Trial
+                        </a>
+                    <?php endif; ?>
 
-                <?php if ($data->patient_status == TrialPatient::STATUS_REJECTED): ?>
-                    <a href="javascript:void(0)"
-                       onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_SHORTLISTED; ?>)"
-                       class="accept-patient-link">Send to Shortlist
-                    </a>
-                <?php endif; ?>
+                    <?php if ($data->patient_status == TrialPatient::STATUS_REJECTED): ?>
+                        <a href="javascript:void(0)"
+                           onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_SHORTLISTED; ?>)"
+                           class="accept-patient-link">Send to Shortlist
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 </div>

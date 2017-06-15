@@ -172,8 +172,10 @@ class TrialPatient extends BaseActiveRecordVersioned
         );
     }
 
-    public static function canPatientBeAssignedToTrial()
+    public static function checkTrialPatientAccess($user, $trial_patient_id, $permission)
     {
-
+        /* @var TrialPatient $model */
+        $model = TrialPatient::model()->findByPk($trial_patient_id);
+        return Trial::checkTrialAccess($user, $model->trial_id, $permission);
     }
 }
