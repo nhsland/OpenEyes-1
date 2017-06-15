@@ -76,10 +76,14 @@ class TrialController extends BaseModuleController
     public function actionView($id)
     {
         $model = $this->loadModel($id);
+        $report = new OETrial_ReportCohort();
         $params = array_merge(
             array(
                 'model' => $model,
                 'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
+                'canManage' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'manage'),
+                'canUpdateTrial' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'update'),
+                'report' => $report
             ),
             $this->getPatientDataProviders($model)
         );
