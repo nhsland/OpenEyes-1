@@ -74,12 +74,16 @@ class TrialPatient extends BaseActiveRecordVersioned
             array('patient_id, patient_status', 'length', 'max' => 10),
             array('patient_status', 'in', 'range' => self::getAllowedStatusRange()),
             // The trial_id and the patient_id must be unique together
-            array('trial_id', 'unique', 'criteria' => array(
-                'condition' => '`patient_id`=:patientId',
-                'params' => array(
-                    ':patientId' => $this->patient_id
-                )
-            )),
+            array(
+                'trial_id',
+                'unique',
+                'criteria' => array(
+                    'condition' => '`patient_id`=:patientId',
+                    'params' => array(
+                        ':patientId' => $this->patient_id,
+                    ),
+                ),
+            ),
             array('last_modified_date, created_date', 'safe'),
         );
     }
@@ -172,8 +176,11 @@ class TrialPatient extends BaseActiveRecordVersioned
         );
     }
 
-    public static function canPatientBeAssignedToTrial()
+    public static function checkTrialPatientAccess($user, $trial_patient_id, $permission)
     {
+        /* @var TrialPatient $model */
+        $model = TrialPatient::model()->findByPk($trial_patient_id);
 
+        return Trial::checkTrialAccess($user, $model->trial_id, $permission);
     }
 }

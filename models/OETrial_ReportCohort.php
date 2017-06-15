@@ -1,11 +1,11 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: andre
  * Date: 15/06/2017
  * Time: 10:47 AM
  */
-
 class OETrial_ReportCohort extends BaseReport
 {
     public $trialID;
@@ -37,7 +37,7 @@ class OETrial_ReportCohort extends BaseReport
         $whereParams = array(':id' => $this->trialID);
 
         $query->select($select);
-        $condition = '( '.implode(' and ', $or_conditions).' )';
+        $condition = '( ' . implode(' and ', $or_conditions) . ' )';
 
         $query->where($condition, $whereParams);
 
@@ -49,6 +49,7 @@ class OETrial_ReportCohort extends BaseReport
     public function description()
     {
         $trial = Trial::model()->findByPk($this->trialID);
+
         return "Patients shortlisted for $trial->name";
     }
 
@@ -71,12 +72,14 @@ class OETrial_ReportCohort extends BaseReport
      */
     public function toCSV()
     {
-        $output = $this->description()."\n\n";
+        $output = $this->description() . "\n\n";
 
-        $output .= Patient::model()->getAttributeLabel('hos_num').','.Patient::model()->getAttributeLabel('dob').','.Patient::model()->getAttributeLabel('first_name').','.Patient::model()->getAttributeLabel('last_name')."\n";
+        $output .= Patient::model()->getAttributeLabel('hos_num') . ',' . Patient::model()->getAttributeLabel('dob') . ',' . Patient::model()->getAttributeLabel('first_name') . ',' . Patient::model()->getAttributeLabel('last_name') . "\n";
 
         foreach ($this->patients as $ts => $patient) {
-            $output .= "\"{$patient['hos_num']}\",\"".($patient['dob'] ? date('j M Y', strtotime($patient['dob'])) : 'Unknown')."\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"".date('j M Y', $ts)."\"\n";
+            $output .= "\"{$patient['hos_num']}\",\"" . ($patient['dob'] ? date('j M Y',
+                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"" . date('j M Y',
+                    $ts) . "\"\n";
         }
 
         return $output;

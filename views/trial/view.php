@@ -1,7 +1,7 @@
 <?php
 /* @var $this TrialController */
 /* @var $model Trial
- * @var $canUpdateTrial boolean
+ * @var $userPermission integer
  * @var $shortlistedPatientDataProvider CActiveDataProvider
  * @var $acceptedPatientDataProvider CActiveDataProvider
  * @var $rejectedPatientDataProvider CActiveDataProvider
@@ -15,9 +15,10 @@
 
     <div class="box admin">
       <h1 class="text-center"><?php echo $model->name; ?>
-          <?php if ($canUpdateTrial) {
-              echo Chtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id));
-          } ?></h1>
+          <?php if ($userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
+              <?php echo Chtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
+          <?php endif; ?>
+      </h1>
       <div class="box-info"><?php echo $model->getTrialTypeOptions()[$model->trial_type]; ?></div>
 
         <?php if (strlen($model->description) > 0): ?>
@@ -54,16 +55,31 @@
 
     </div>
 
-
   </div><!-- /.large-9.column -->
-  <div class="large-3 column">
-    <div class="box generic">
-      <p>
-        <span class="highlight"><?php echo CHtml::link('Search for patients to add',
-                Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?></span>
-      </p>
-        <?php echo CHtml::beginForm($this->createUrl('report/downloadReport')); ?>
-      <p>
+
+    <?php if ($userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
+      <div class="large-3 column">
+        <div class="box generic">
+            <?php if ($userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
+              <p>
+                    <span class="highlight">
+                        <?php echo CHtml::link('Search for patients to add',
+                            Yii::app()->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $model->id))); ?>
+                    </span>
+              </p>
+            <?php endif; ?>
+
+            <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
+              <p>
+                    <span class="highlight">
+                        <?php echo CHtml::link('Share this trial with other users',
+                            Yii::app()->createUrl('/OETrial/trial/permissions', array('id' => $model->id))); ?>
+                    </span>
+              </p>
+            <?php endif; ?>
+
+            <?php echo CHtml::beginForm($this->createUrl('report/downloadReport')); ?>
+          <p>
 
 
           <span class="highlight">
@@ -72,11 +88,12 @@
               <?php echo CHtml::linkButton('Download Report'); ?>
           </span>
 
-      </p>
-        <?php echo CHtml::endForm(); ?>
-    </div>
-  </div>
+          </p>
+            <?php echo CHtml::endForm(); ?>
 
+        </div>
+      </div>
+    <?php endif; ?>
 </div>
 
 <?php

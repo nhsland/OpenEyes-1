@@ -20,6 +20,7 @@
  * @property User $createdUser
  * @property User $lastModifiedUser
  * @property TrialPatient[] $trialPatients
+ * @property UserTrialPermission[] $userPermissions
  */
 class Trial extends BaseActiveRecordVersioned
 {
@@ -72,7 +73,11 @@ class Trial extends BaseActiveRecordVersioned
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('id, name, description, owner_user_id, status, last_modified_date, last_modified_user_id, created_user_id, created_date', 'safe', 'on' => 'search'),
+            array(
+                'id, name, description, owner_user_id, status, last_modified_date, last_modified_user_id, created_user_id, created_date',
+                'safe',
+                'on' => 'search',
+            ),
         );
     }
 
@@ -80,7 +85,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array of all of the allowable values of "status"
      * @return int[] The list of statuses
      */
-    public function getAllowedStatusRange()
+    public static function getAllowedStatusRange()
     {
         return array(
             self::STATUS_OPEN,
@@ -94,7 +99,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array withs keys of the allowable values of status and values of the label for that status
      * @return array The array of status id/label key/value pairs
      */
-    public function getStatusOptions()
+    public static function getStatusOptions()
     {
         return array(
             self::STATUS_OPEN => 'Open"',
@@ -108,7 +113,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array of all of the allowable values of "trial_type"
      * @return int[] The list of types
      */
-    public function getAllowedTrialTypeRange()
+    public static function getAllowedTrialTypeRange()
     {
         return array(
             self::TRIAL_TYPE_NON_INTERVENTION,
@@ -120,7 +125,7 @@ class Trial extends BaseActiveRecordVersioned
      * Returns an array withs keys of the allowable values of the trial status and values of the label for that type
      * @return array The array of trial type id/label key/value pairs
      */
-    public function getTrialTypeOptions()
+    public static function getTrialTypeOptions()
     {
         return array(
             self::TRIAL_TYPE_NON_INTERVENTION => 'Non-Intervention',
@@ -141,6 +146,7 @@ class Trial extends BaseActiveRecordVersioned
             'createdUser' => array(self::BELONGS_TO, 'User', 'created_user_id'),
             'lastModifiedUser' => array(self::BELONGS_TO, 'User', 'last_modified_user_id'),
             'trialPatients' => array(self::HAS_MANY, 'TrialPatient', 'trial_id'),
+            'userPermissions' => array(self::HAS_MANY, 'UserTrialPermission', 'trial_id'),
         );
     }
 
@@ -211,22 +217,46 @@ class Trial extends BaseActiveRecordVersioned
      * Returns whether or not the given user can access the given trial using the given action
      * @param $user User The user to check access for
      * @param $trial_id int The ID of the trial
-     * @param $action string The ID of the controller action
+     * @param $permission integer The ID of the controller action
      * @return bool True if access is permitted, otherwise false
      * @throws CHttpException
      */
-    public static function canUserAccessTrial($user, $trial_id, $action)
+    public static function checkTrialAccess($user, $trial_id, $permission)
     {
+        /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
         if ($model === null) {
             throw new CHttpException(404);
         }
 
-        return $model->owner_user_id === $user->id;
+        if ($model->owner_user_id === $user->id) {
+            return true;
+        }
+
+        return UserTrialPermission::model()->exists(
+            'user_id = :userId AND trial_id = :trialId AND permission >= :permission',
+            array(
+                ':userId' => $user->id,
+                ':trialId' => $trial_id,
+                ':permission' => $permission,
+            )
+        );
+    }
+
+    public function getTrialAccess($user_id)
+    {
+        if ($this->owner_user_id === $user_id) {
+            return UserTrialPermission::PERMISSION_MANAGE;
+        }
+
+        $sql = 'SELECT MAX(permission) FROM user_trial_permission WHERE user_id = :userId AND trial_id = :trialId';
+        $query = $this->getDbConnection()->createCommand($sql);
+
+        return $query->queryScalar(array(':userId' => $user_id, ':trialId' => $this->id));
     }
 
     public function canPatientBeAssigned($patient_id)
     {
-        return self::canUserAccessTrial(Yii::app()->user, $this->id, 'update');
+        return self::checkTrialAccess(Yii::app()->user, $this->id, UserTrialPermission::PERMISSION_EDIT);
     }
 }

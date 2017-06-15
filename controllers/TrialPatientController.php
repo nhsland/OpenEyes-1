@@ -30,11 +30,13 @@ class TrialPatientController extends BaseModuleController
     public function accessRules()
     {
         return array(
-            array('allow',  // allow all users to perform the 'index' action
+            array(
+                'allow',
                 'actions' => array('changeStatus', 'updateExternalId'),
-                'users' => array('*'),
+                'expression' => 'TrialPatient::checkTrialPatientAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_EDIT . ')',
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
@@ -53,6 +55,7 @@ class TrialPatientController extends BaseModuleController
         if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
         }
+
         return $model;
     }
 
@@ -83,6 +86,7 @@ class TrialPatientController extends BaseModuleController
             $model->patient->isCurrentlyInInterventionTrial()
         ) {
             echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION;
+
             return;
         }
 
@@ -102,5 +106,4 @@ class TrialPatientController extends BaseModuleController
         $model->external_trial_identifier = $new_external_id;
         $model->save();
     }
-
 }

@@ -29,23 +29,33 @@ class TrialController extends BaseModuleController
     public function accessRules()
     {
         return array(
-            array('allow',  // allow authenticated users to perform the 'index' action
+            array(
+                'allow',  // allow authenticated users to perform the 'index' action
                 'actions' => array('index'),
                 'users' => array('@'),
             ),
-            array('allow',
+            array(
+                'allow',
                 'actions' => array('view'),
-                'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "view")',
+                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_VIEW)',
             ),
-            array('allow',
+            array(
+                'allow',
                 'actions' => array('update', 'addPatient', 'removePatient'),
-                'expression' => 'Trial::canUserAccessTrial($user, Yii::app()->getRequest()->getQuery("id"), "update")',
+                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_EDIT)',
             ),
-            array('allow', // allow authenticated user to perform the 'create'  action
+            array(
+                'allow',
+                'actions' => array('permissions', 'addPermission', 'removePermission'),
+                'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_MANAGE)',
+            ),
+            array(
+                'allow', // allow authenticated user to perform the 'create'  action
                 'actions' => array('create'),
                 'users' => array('@'),
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
@@ -76,9 +86,8 @@ class TrialController extends BaseModuleController
         $params = array_merge(
             array(
                 'model' => $model,
-                'canManage' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'manage'),
-                'canUpdateTrial' => Trial::canUserAccessTrial(Yii::app()->user, $id, 'update'),
-                'report' => $report
+                'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
+                'report' => $report,
             ),
             $this->getPatientDataProviders($model)
         );
@@ -184,9 +193,15 @@ class TrialController extends BaseModuleController
      */
     public function actionIndex()
     {
+        $condition = 'trial_type = :trialType AND (
+                    owner_user_id = :userId
+                    OR EXISTS (
+                        SELECT * FROM user_trial_permission utp WHERE utp.user_id = :userId AND utp.trial_id = t.id
+                    ))';
+
         $interventionTrialDataProvider = new CActiveDataProvider('Trial', array(
             'criteria' => array(
-                'condition' => 'owner_user_id = :userId AND trial_type = :trialType',
+                'condition' => $condition,
                 'params' => array(
                     ':userId' => Yii::app()->user->id,
                     ':trialType' => Trial::TRIAL_TYPE_INTERVENTION,
@@ -196,7 +211,7 @@ class TrialController extends BaseModuleController
 
         $nonInterventionTrialDataProvider = new CActiveDataProvider('Trial', array(
             'criteria' => array(
-                'condition' => 'owner_user_id = :userId AND trial_type = :trialType',
+                'condition' => $condition,
                 'params' => array(
                     ':userId' => Yii::app()->user->id,
                     ':trialType' => Trial::TRIAL_TYPE_NON_INTERVENTION,
@@ -207,8 +222,8 @@ class TrialController extends BaseModuleController
         $this->render('index', array(
             'interventionTrialDataProvider' => $interventionTrialDataProvider,
             'nonInterventionTrialDataProvider' => $nonInterventionTrialDataProvider,
-            'sort_by' => (integer) \Yii::app()->request->getParam('sort_by', null),
-            'sort_dir' => (integer) \Yii::app()->request->getParam('sort_dir', null),
+            'sort_by' => (integer)Yii::app()->request->getParam('sort_by', null),
+            'sort_dir' => (integer)Yii::app()->request->getParam('sort_dir', null),
         ));
     }
 
@@ -230,43 +245,37 @@ class TrialController extends BaseModuleController
 
 
     /**
-     * @param $id integer
-     * @param $patient_id integer
-     * @throws ChttpException
+     * Adds a patient to the trial
+     *
+     * @param $id integer The ID of the Trial to add to
+     * @param $patient_id integer THe ID of the patient to add
+     * @param $patient_status integer The initial trial status for the patient (default to shortlisted)
+     * @throws Exception Thrown if an error occurs when saving the TrialPatient record
      */
-    public function actionAddPatient($id, $patient_id)
+    public function actionAddPatient($id, $patient_id, $patient_status = TrialPatient::STATUS_SHORTLISTED)
     {
-        if (!Trial::canUserAccessTrial(Yii::app()->user, $id, 'update')) {
-            throw new ChttpException(403);
-        }
-
         $trial = Trial::model()->findByPk($id);
         $patient = Patient::model()->findByPk($patient_id);
 
         $trialPatient = new TrialPatient();
         $trialPatient->trial_id = $trial->id;
         $trialPatient->patient_id = $patient->id;
-        $trialPatient->patient_status = TrialPatient::STATUS_SHORTLISTED;
+        $trialPatient->patient_status = $patient_status;
 
         if (!$trialPatient->save()) {
-            throw new \Exception('Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+            throw new Exception('Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
         }
-        //var_dump($trialPatient);
     }
 
 
     /**
      * @param $id integer The id of the trial to remove
      * @param $patient_id integer The id of the patient to remove
-     * @throws ChttpException Raised when the record cannot be found
+     * @throws CHttpException Raised when the record cannot be found
      * @throws Exception Raised when an error occurs when removing the record
      */
     public function actionRemovePatient($id, $patient_id)
     {
-        if (!Trial::canUserAccessTrial(Yii::app()->user, $id, 'update')) {
-            throw new ChttpException(403);
-        }
-
         $trialPatient = TrialPatient::model()->find(
             'patient_id = :patientId AND trial_id = :trialId',
             array(
@@ -285,6 +294,48 @@ class TrialController extends BaseModuleController
         }
     }
 
+    public function actionPermissions($id)
+    {
+        $model = Trial::model()->findByPk($id);
+
+        $newPermission = new UserTrialPermission();
+
+        $this->render('permissions', array(
+            'model' => $model,
+            'newPermission' => $newPermission,
+        ));
+    }
+
+
+    public function actionAddPermission($id)
+    {
+        $permission = new UserTrialPermission();
+        $permission->trial_id = $_POST['trial_id'];
+        $permission->user_id = $_POST['user_id'];
+        $permission->permission = $_POST['permission'];
+        if (!$permission->save()) {
+            var_dump($permission->getErrors());
+
+            //throw new CHttpException(400);
+            return;
+        }
+
+        $this->redirect(array('/OETrial/trial/permissions', 'id' => $id));
+    }
+
+    public function actionRemovePermission($id, $permission_id)
+    {
+        /* @var UserTrialPermission $permission */
+        $permission = UserTrialPermission::model()->findByPk($permission_id);
+        if ($permission->trial->id != $id) {
+            throw new CHttpException(400);
+        }
+
+        $permission->delete();
+
+        return "success";
+    }
+
     /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
@@ -294,6 +345,7 @@ class TrialController extends BaseModuleController
      */
     public function loadModel($id)
     {
+        /* @var Trial $model */
         $model = Trial::model()->findByPk($id);
         if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
@@ -313,5 +365,4 @@ class TrialController extends BaseModuleController
             Yii::app()->end();
         }
     }
-
 }
