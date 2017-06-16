@@ -6,12 +6,6 @@
 class TrialController extends BaseModuleController
 {
     /**
-     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
-     */
-    public $layout = '//layouts/main';
-
-    /**
      * @return array action filters
      */
     public function filters()
@@ -62,22 +56,9 @@ class TrialController extends BaseModuleController
     }
 
     /**
-     * Gets the data providers for each patient status
-     * @param $model Trial The trial to get the patients for
-     * @return array An array of data providers with one for each patient status
-     */
-    private function getPatientDataProviders($model)
-    {
-        return array(
-            'shortlistedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_SHORTLISTED),
-            'acceptedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_ACCEPTED),
-            'rejectedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_REJECTED),
-        );
-    }
-
-    /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
+     * @throws CException Thrown if an error occurs when loading the data providers
      */
     public function actionView($id)
     {
@@ -91,7 +72,41 @@ class TrialController extends BaseModuleController
             ),
             $this->getPatientDataProviders($model)
         );
+
         $this->render('view', $params);
+    }
+
+    /**
+     * Returns the data model based on the primary key given in the GET variable.
+     * If the data model is not found, an HTTP exception will be raised.
+     * @param integer $id the ID of the model to be loaded
+     * @return Trial the loaded model
+     * @throws CHttpException
+     */
+    public function loadModel($id)
+    {
+        /* @var Trial $model */
+        $model = Trial::model()->findByPk($id);
+        if ($model === null) {
+            throw new CHttpException(404, 'The requested page does not exist.');
+        }
+
+        return $model;
+    }
+
+    /**
+     * Gets the data providers for each patient status
+     * @param $model Trial The trial to get the patients for
+     * @return array An array of data providers with one for each patient status
+     * @throws CException Thrown if an error occurs when created the data providers
+     */
+    private function getPatientDataProviders($model)
+    {
+        return array(
+            'shortlistedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_SHORTLISTED),
+            'acceptedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_ACCEPTED),
+            'rejectedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_REJECTED),
+        );
     }
 
     /**
@@ -101,7 +116,7 @@ class TrialController extends BaseModuleController
      * @return CActiveDataProvider The data provider of patients with the given status
      * @throws CException Thrown if the patient_status is invalid
      */
-    public function getPatientDataProvider($model, $patient_status)
+    private function getPatientDataProvider($model, $patient_status)
     {
         if (!array_key_exists($patient_status, TrialPatient::getAllowedStatusRange())) {
             throw new CException("Unknown Trial Patient status: $patient_status");
@@ -123,7 +138,6 @@ class TrialController extends BaseModuleController
         return $patientDataProvider;
     }
 
-
     /**
      * Creates a new model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -133,9 +147,6 @@ class TrialController extends BaseModuleController
         $model = new Trial;
         $model->status = Trial::STATUS_OPEN;
         $model->owner_user_id = Yii::app()->user->id;
-
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
 
         if (isset($_POST['Trial'])) {
             $model->attributes = $_POST['Trial'];
@@ -153,13 +164,11 @@ class TrialController extends BaseModuleController
      * Updates a particular model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id the ID of the model to be updated
+     * @throws CHttpException Thrown if the model cannot be loaded
      */
     public function actionUpdate($id)
     {
         $model = $this->loadModel($id);
-
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
 
         if (isset($_POST['Trial'])) {
             $model->attributes = $_POST['Trial'];
@@ -177,6 +186,8 @@ class TrialController extends BaseModuleController
      * Deletes a particular model.
      * If deletion is successful, the browser will be redirected to the 'admin' page.
      * @param integer $id the ID of the model to be deleted
+     * @throws CHttpException Thrown if the model cannot be loaded
+     * @throws CDbException Thrown if the model cannot be loaded
      */
     public function actionDelete($id)
     {
@@ -243,7 +254,6 @@ class TrialController extends BaseModuleController
         ));
     }
 
-
     /**
      * Adds a patient to the trial
      *
@@ -263,10 +273,9 @@ class TrialController extends BaseModuleController
         $trialPatient->patient_status = $patient_status;
 
         if (!$trialPatient->save()) {
-            throw new Exception('Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+            throw new CHttpException(400, 'Unable to create TrialPatient: ' . print_r($trialPatient->getErrors()));
         }
     }
-
 
     /**
      * @param $id integer The id of the trial to remove
@@ -284,16 +293,21 @@ class TrialController extends BaseModuleController
             )
         );
 
-        if ($trialPatient == null) {
+        if ($trialPatient === null) {
             throw new CHttpException(400, "Patient $patient_id cannot be removed from Trial $id");
         }
 
 
         if (!$trialPatient->delete()) {
-            throw new Exception('Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+            throw new CHttpException(400, 'Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors()));
         }
     }
 
+    /**
+     * Displays the permissions screen
+     *
+     * @param integer $id The ID of the Trial
+     */
     public function actionPermissions($id)
     {
         $model = Trial::model()->findByPk($id);
@@ -306,7 +320,12 @@ class TrialController extends BaseModuleController
         ));
     }
 
-
+    /**
+     * Creates a new Trial Permission using values in $_POST
+     *
+     * @param integer $id The Trial ID
+     * @throws CHttpException Thrown if the permission couldn't be saved
+     */
     public function actionAddPermission($id)
     {
         $permission = new UserTrialPermission();
@@ -314,44 +333,33 @@ class TrialController extends BaseModuleController
         $permission->user_id = $_POST['user_id'];
         $permission->permission = $_POST['permission'];
         if (!$permission->save()) {
-            var_dump($permission->getErrors());
-
-            //throw new CHttpException(400);
-            return;
+            throw new CHttpException(400,
+                'nable to creat UserTrialPermission: ' . print_r($permission->getErrors(), true));
         }
 
         $this->redirect(array('/OETrial/trial/permissions', 'id' => $id));
     }
 
+    /**
+     * Removes a UserTrialPermission
+     *
+     * @param integer $id The ID of the trial
+     * @param integer $permission_id The ID of the permission to remove
+     * @return string 'success' if the permission is removed successfully
+     * @throws CHttpException Thrown if the permission cannot be found
+     * @throws CDbException Thrown if the permission cannot be deleted
+     */
     public function actionRemovePermission($id, $permission_id)
     {
         /* @var UserTrialPermission $permission */
         $permission = UserTrialPermission::model()->findByPk($permission_id);
-        if ($permission->trial->id != $id) {
+        if ($permission->trial->id !== $id) {
             throw new CHttpException(400);
         }
 
         $permission->delete();
 
-        return "success";
-    }
-
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer $id the ID of the model to be loaded
-     * @return Trial the loaded model
-     * @throws CHttpException
-     */
-    public function loadModel($id)
-    {
-        /* @var Trial $model */
-        $model = Trial::model()->findByPk($id);
-        if ($model === null) {
-            throw new CHttpException(404, 'The requested page does not exist.');
-        }
-
-        return $model;
+        return 'success';
     }
 
     /**
