@@ -44,8 +44,14 @@ class Trial extends BaseActiveRecordVersioned
      */
     const STATUS_CANCELLED = 3;
 
+    /**
+     * The trial type for non-Intervention trial (meaning there are no restrictions on assigning patients to this the trial)
+     */
     const TRIAL_TYPE_NON_INTERVENTION = 0;
 
+    /**
+     * The trial type for Intervention trials (meaning a patient can only be assigned to one ongoing Intervention trial at a time)
+     */
     const TRIAL_TYPE_INTERVENTION = 1;
 
     /**
@@ -133,6 +139,25 @@ class Trial extends BaseActiveRecordVersioned
         );
     }
 
+    /**
+     * Returns the trial type as a string
+     *
+     * @return string The trial type
+     */
+    public function getTypeString()
+    {
+        return self::getTrialTypeOptions()[$this->trial_type];
+    }
+
+    /**
+     * Returns the date this trial was created as a string
+     *
+     * @return string The created date
+     */
+    public function getCreatedDateForDisplay()
+    {
+        return Helper::formatFuzzyDate($this->created_date);
+    }
 
     /**
      * @return array relational rules.
