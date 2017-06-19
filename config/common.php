@@ -10,5 +10,12 @@ return array(
                 'restricted' => array('TaskAdministerTrials'),
             ),
         ),
+        'module_partials' => array(
+            'patient_summary_column1' => array(
+                'OETrial' => array(
+                    '_patient_trials',
+                ),
+            ),
+        ),
     ),
 );

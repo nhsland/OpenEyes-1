@@ -54,6 +54,29 @@ class TrialPatient extends BaseActiveRecordVersioned
         );
     }
 
+
+    /**
+     * @return array
+     */
+    public static function getStatusOptions()
+    {
+        return array(
+            self::STATUS_SHORTLISTED => 'Shortlisted',
+            self::STATUS_ACCEPTED => 'Accepted',
+            self::STATUS_REJECTED => 'Rejected',
+        );
+    }
+
+    /**
+     * Returns the status as a displayable string
+     *
+     * @return string The status string
+     */
+    public function getStatusForDisplay()
+    {
+        return self::getStatusOptions()[$this->patient_status];
+    }
+
     /**
      * @return string the associated database table name
      */
