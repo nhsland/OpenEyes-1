@@ -78,8 +78,7 @@ class OETrial_ReportCohort extends BaseReport
 
         foreach ($this->patients as $ts => $patient) {
             $output .= "\"{$patient['hos_num']}\",\"" . ($patient['dob'] ? date('j M Y',
-                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"" . date('j M Y',
-                    $ts) . "\"\n";
+                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\"" . "\n";
         }
 
         return $output;
