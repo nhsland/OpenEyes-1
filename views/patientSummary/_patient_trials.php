@@ -46,7 +46,7 @@
           <td><?php echo $trialPatient->getStatusForDisplay(); ?></td>
           <td><?php echo $trialPatient->trial->getTypeString(); ?></td>
           <td><?php echo $trialPatient->trial->getCreatedDateForDisplay(); ?></td>
-          <td><?php echo 'TODO'; //TODO; ?></td>
+          <td><?php echo $trialPatient->trial->getClosedDateForDisplay(); ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>

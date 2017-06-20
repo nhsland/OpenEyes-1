@@ -75,6 +75,7 @@ class TrialPatientController extends BaseModuleController
      * Changes the status of a patient in a trial to a given value
      * @param $id integer The id of the TrialPatient to change the status for
      * @param $new_status integer The new status of the TrialPatient
+     * @throws CHttpException Thrown the model cannot be saved
      */
     public function actionChangeStatus($id, $new_status)
     {
@@ -86,12 +87,13 @@ class TrialPatientController extends BaseModuleController
             $model->patient->isCurrentlyInInterventionTrial()
         ) {
             echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION;
-
             return;
         }
 
         $model->patient_status = $new_status;
-        $model->save();
+        if (!$model->save()) {
+            throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));
+        }
 
         echo TrialPatient::STATUS_CHANGE_CODE_OK;
     }
@@ -104,6 +106,9 @@ class TrialPatientController extends BaseModuleController
         }
 
         $model->external_trial_identifier = $new_external_id;
-        $model->save();
+
+        if (!$model->save()) {
+            throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));
+        }
     }
 }

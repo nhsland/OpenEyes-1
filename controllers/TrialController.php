@@ -5,6 +5,9 @@
  */
 class TrialController extends BaseModuleController
 {
+    const RETURN_CODE_OK = '0';
+    const RETURN_CODE_CANT_OPEN_SHORTLISTED_TRIAL = '1';
+
     /**
      * @return array action filters
      */
@@ -40,7 +43,7 @@ class TrialController extends BaseModuleController
             ),
             array(
                 'allow',
-                'actions' => array('permissions', 'addPermission', 'removePermission'),
+                'actions' => array('permissions', 'addPermission', 'removePermission', 'transitionState'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_MANAGE)',
             ),
             array(
@@ -372,5 +375,30 @@ class TrialController extends BaseModuleController
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionTransitionState($id, $new_state)
+    {
+        /* @var Trial $model */
+        $model = Trial::model()->findByPk($id);
+
+        if ($new_state == Trial::STATUS_OPEN && $model->hasShortlistedPatients()) {
+            echo self::RETURN_CODE_CANT_OPEN_SHORTLISTED_TRIAL;
+
+            return;
+        }
+
+        if ($new_state == Trial::STATUS_CLOSED || $new_state == Trial::STATUS_CANCELLED) {
+            $model->closed_date = date('Y-m-d 00:00:00');
+        } else {
+            $model->closed_date = null;
+        }
+
+        $model->status = $new_state;
+        if (!$model->save()) {
+            throw new CHttpException(403, 'An error occurred when attempting to change the status');
+        }
+
+        echo self::RETURN_CODE_OK;
     }
 }

@@ -19,7 +19,7 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
         </h3>
 
           <?php if ($isInAnotherInterventionTrial) { ?>
-            <div id="deceased-notice" class="alert-box alert with-icon">
+            <div class="alert-box alert with-icon">
               This patient is already in an Intervention trial
             </div>
           <?php } ?>
@@ -35,7 +35,7 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
           <?php echo CHtml::encode($data->getAttributeLabel('external_trial_identifier')); ?>:
         <span
             id="ext-trial-id-<?php echo $data->id; ?>"><?php echo CHtml::encode($data->external_trial_identifier); ?></span>
-          <?php if ($canEditPatient): ?>
+          <?php if ($canEditPatient && $data->trial->status != Trial::STATUS_CANCELLED): ?>
             <a id="ext-trial-id-link-<?php echo $data->id; ?>" href="javascript:void(0)"
                onclick="editExternalTrialIdentifier(<?php echo $data->id; ?>)">edit</a>
 
@@ -56,7 +56,7 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
       </div>
     </div>
 
-      <?php if ($canEditPatient): ?>
+      <?php if ($canEditPatient && $data->trial->status == Trial::STATUS_OPEN && $data->trial->status == Trial::STATUS_IN_PROGRESS): ?>
         <div class="large-2 column">
           <div class="box">
               <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>

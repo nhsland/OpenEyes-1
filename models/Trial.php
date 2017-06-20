@@ -10,6 +10,7 @@
  * @property integer $owner_user_id
  * @property integer $status
  * @property integer $trial_type
+ * @property string $closed_date
  * @property string $last_modified_date
  * @property string $last_modified_user_id
  * @property integer $created_user_id
@@ -75,7 +76,7 @@ class Trial extends BaseActiveRecordVersioned
             array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),
             array('status', 'in', 'range' => self::getAllowedStatusRange()),
             array('trial_type', 'in', 'range' => self::getAllowedTrialTypeRange()),
-            array('last_modified_date, created_date', 'safe'),
+            array('last_modified_date, created_date, closed_date', 'safe'),
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -160,6 +161,17 @@ class Trial extends BaseActiveRecordVersioned
     }
 
     /**
+     * Returns the date this trial was closed as a string
+     *
+     * @return string The closed date
+     */
+    public function getClosedDateForDisplay()
+    {
+        return $this->closed_date ? Helper::formatFuzzyDate($this->closed_date) : 'present';
+    }
+
+
+    /**
      * @return array relational rules.
      */
     public function relations()
@@ -187,6 +199,7 @@ class Trial extends BaseActiveRecordVersioned
             'owner_user_id' => 'Owner User',
             'status' => 'Status',
             'trial_type' => 'Trial Type',
+            'closed_date' => 'Closed Date',
             'last_modified_date' => 'Last Modified Date',
             'last_modified_user_id' => 'Last Modified User',
             'created_user_id' => 'Created User',
@@ -280,8 +293,9 @@ class Trial extends BaseActiveRecordVersioned
         return $query->queryScalar(array(':userId' => $user_id, ':trialId' => $this->id));
     }
 
-    public function canPatientBeAssigned($patient_id)
+    public function hasShortlistedPatients()
     {
-        return self::checkTrialAccess(Yii::app()->user, $this->id, UserTrialPermission::PERMISSION_EDIT);
+        return TrialPatient::model()->exists('trial_id = :trialId AND patient_status = :patientStatus',
+            array(':trialId' => $this->id, ':patientStatus' => TrialPatient::STATUS_SHORTLISTED));
     }
 }
