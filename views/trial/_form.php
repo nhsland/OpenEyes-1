@@ -23,7 +23,7 @@
     <div class="large-6 column">
       <div class="row field-row">
           <?php echo $form->labelEx($model, 'name'); ?>
-          <?php echo $form->textField($model, 'name', array('size' => 60, 'maxlength' => 64)); ?>
+          <?php echo $form->textField($model, 'name', array('size' => 64, 'maxlength' => 64)); ?>
           <?php echo $form->error($model, 'name'); ?>
       </div>
     </div>
@@ -31,7 +31,7 @@
 
   <div class="row field-row">
       <?php echo $form->labelEx($model, 'description'); ?>
-      <?php echo $form->textArea($model, 'description', array('size' => 60, 'maxlength' => 64)); ?>
+      <?php echo $form->textArea($model, 'description'); ?>
       <?php echo $form->error($model, 'description'); ?>
   </div>
 

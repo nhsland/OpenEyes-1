@@ -72,11 +72,11 @@ class Trial extends BaseActiveRecordVersioned
         // will receive user inputs.
         return array(
             array('name, owner_user_id, status', 'required'),
-            array('name, description', 'length', 'max' => 64),
+            array('name', 'length', 'max' => 64),
             array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),
             array('status', 'in', 'range' => self::getAllowedStatusRange()),
             array('trial_type', 'in', 'range' => self::getAllowedTrialTypeRange()),
-            array('last_modified_date, created_date, closed_date', 'safe'),
+            array('description, last_modified_date, created_date, closed_date', 'safe'),
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
