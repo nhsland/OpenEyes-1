@@ -131,14 +131,13 @@
 
         <?php echo CHtml::beginForm($this->createUrl('report/downloadReport')); ?>
       <p>
-
-
           <span class="highlight">
               <?php echo CHtml::hiddenField('report-name', 'Cohort'); ?>
               <?php echo CHtml::hiddenField('trialID', $model->id); ?>
-              <?php echo CHtml::linkButton('Download Report'); ?>
+              <?php if (Yii::app()->user->checkAccess('OprnGenerateReport')):?>
+                  <?php echo CHtml::linkButton('Download Report'); ?>
+              <?php endif; ?>
           </span>
-
       </p>
         <?php echo CHtml::endForm(); ?>
 
