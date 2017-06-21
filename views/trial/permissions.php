@@ -32,7 +32,7 @@
             <?php $this->widget('zii.widgets.CListView', array(
                 'id' => 'permissionList',
                 'dataProvider' => $permissionDataProvider,
-                'itemView' => '/UserTrialPermission/_view',
+                'itemView' => '/userTrialPermission/_view',
             )); ?>
             </tbody>
           </table>
