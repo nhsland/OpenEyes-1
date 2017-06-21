@@ -75,8 +75,8 @@ class UserTrialPermission extends BaseActiveRecordVersioned
     public static function getPermissionOptions()
     {
         return array(
-            self::PERMISSION_MANAGE => 'Manage',
-            self::PERMISSION_EDIT => 'Edit',
+            self::PERMISSION_MANAGE => 'Manage, Edit and View',
+            self::PERMISSION_EDIT => 'Edit and View',
             self::PERMISSION_VIEW => 'View',
         );
     }

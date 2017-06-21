@@ -2,6 +2,7 @@
 /* @var $this TrialController */
 /* @var $model Trial
  * @var UserTrialPermission $newPermission
+ * @var CDataProvider $permissionDataProvider
  */
 
 ?>
@@ -11,39 +12,36 @@
   <div class="large-9 column">
 
     <div class="box admin">
-      <h1 class="text-center"><?php echo $model->name; ?></h1>
+      <div class="row">
+        <div class="large-9 column">
+          <h1 style="display: inline"><?php echo $model->name; ?></h1>
+        </div>
+      </div>
 
+      <div class="row">
+        <div class="large-9 column">
+          <table id="currentPermissions">
+            <thead>
+            <tr>
+              <th>User</th>
+              <th>Permission</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php $this->widget('zii.widgets.CListView', array(
+                'id' => 'permissionList',
+                'dataProvider' => $permissionDataProvider,
+                'itemView' => '/UserTrialPermission/_view',
+            )); ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      <table class="plain patient-data" id="currentPermissions">
-        <thead>
-        <tr>
-          <th>User</th>
-          <th>Permission</th>
-          <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($model->userPermissions as $userPermission): ?>
-            <?php $this->renderPartial('/userTrialPermission/_view', array('userPermission' => $userPermission)); ?>
-        <?php endforeach; ?>
-        </tbody>
-      </table>
-
-      <div id="add_permission">
-          <?php
-          $form = $this->beginWidget('FormLayout', array(
-              'id' => 'add-permission',
-              'enableAjaxValidation' => false,
-              'htmlOptions' => array('class' => 'form add-data'),
-              'action' => array('trial/addPermission', 'id' => $model->id),
-              'layoutColumns' => array(
-                  'label' => 3,
-                  'field' => 9,
-              ),
-          )) ?>
-
-        <div class="large-4 column end"><?php
-            echo $form->error($newPermission, 'user_id');
+      <div class="row">
+        <div class="large-6 column">
+            <?php
             $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
                 'name' => 'user_id',
                 'id' => 'autocomplete_user_id',
@@ -56,7 +54,7 @@
                     'select' => "js:function(event, ui) {
                                     removeSelectedUser();
                                     addItem('selected_user_wrapper', ui);
-                                    
+                                    $('#autocomplete_user_id').val($('#user_name').text());
                                     return false;
                     }",
                     'response' => 'js:function(event, ui){
@@ -70,37 +68,28 @@
                 'htmlOptions' => array(
                     'placeholder' => 'search Users',
                 ),
-
             )); ?>
         </div>
-      </div>
-      <div id="selected_user_wrapper" class="row field-row <?php echo !$newPermission->user_id ? 'hide' : '' ?>">
-        <div class="large-offset-4 large-8 column selected_user end alert-box">
-          <span class="name"><?php echo $newPermission->user_id ? $newPermission->user->getFullName() : '' ?></span>
-          <a href="javascript:void(0)" class="remove right">remove</a>
+        <div class="large-4 column left">
+            <?php echo CHtml::dropDownList('permission', 'Select One...', UserTrialPermission::getPermissionOptions(),
+                array('id' => 'permission')); ?>
         </div>
-          <?php echo CHtml::hiddenField('user_id', $newPermission->user_id, array('class' => 'hidden_id')); ?>
       </div>
-      <div id="no_gp_result" class="row field-row hide">
-        <div class="large-offset-4 large-8 column selected_user end">No result</div>
+      <br/>
+      <div class="row field-row">
+        <div id="selected_user_wrapper" class="large-6 column <?php echo !$newPermission->user_id ? 'hide' : '' ?>">
+          <button class="secondary small btn_save_permission">Share with <span
+                id="user_name"><?php echo $newPermission->user_id ? $newPermission->user->getFullName() : '' ?></span>
+          </button>
+          &nbsp;
+          <a href="javascript:void(0)" class="button event-action cancel small" onclick="removeSelectedUser()">Clear</a>
+            <?php echo CHtml::hiddenField('user_id', $newPermission->user_id, array('class' => 'hidden_id')); ?>
+        </div>
       </div>
-
-
-        <?php echo CHtml::dropDownList('permission', 'Select One...', UserTrialPermission::getPermissionOptions(),
-            array('id' => 'permission')); ?>
-
-      <div class="buttons">
-        <img src="<?php echo Yii::app()->assetManager->createUrl('img/ajax-loader.gif') ?>"
-             class="add_allergy_loader" style="display: none;"/>
-        <button class="secondary small btn_save_permission" type="submit">Add</button>
-      </div>
-
         <?php echo CHtml::hiddenField('trial_id', $model->id, array('class' => 'hidden_id')); ?>
-        <?php $this->endWidget() ?>
-    </div><!-- /.large-9.column -->
+    </div>
   </div>
 </div>
-
 
 <!-- Confirm permission deletion dialog (copied from allergy dialog)-->
 <div id="confirm_remove_permission_dialog" title="Confirm remove permission" style="display: none;">
@@ -118,20 +107,20 @@
   </div>
 </div>
 
-
-<script>
+<script type="text/javascript">
   function addItem(wrapper_id, ui) {
     var $wrapper = $('#' + wrapper_id);
 
-    $wrapper.find('span.name').text(ui.item.label);
+    $('#user_name').text(ui.item.label);
     $wrapper.show();
     $wrapper.find('.hidden_id').val(ui.item.id);
   }
 
   function removeSelectedUser() {
     $('#no_user_result').hide();
-    $('.selected_user span.name').text('');
+    $('#user_name').text('');
     $('#selected_user_wrapper').hide();
+    $('#autocomplete_user_id').val('');
   }
 
   $(document).ready(function () {
@@ -147,8 +136,34 @@
         }).open();
         return false;
       }
-      $('img.add_permission_loader').show();
-      return true;
+
+      $.ajax({
+        'type': 'GET',
+        'url': '<?php echo $this->createUrl('addPermission'); ?>',
+        'data': {id: <?php echo $model->id; ?>, user_id: $('#user_id').val(), permission: $('#permission').val()},
+          'success'
+      :
+      function (html) {
+        if (html == <?php echo TrialController::RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS; ?>) {
+          new OpenEyes.UI.Dialog.Alert({
+            content: "That patient has already been shared to this trial. To change their permissions, please remove them first and try again."
+          }).open();
+        } else {
+          location.reload();
+        }
+      }
+      ,
+      'error'
+      :
+      function () {
+        new OpenEyes.UI.Dialog.Alert({
+          content: "Sorry, an internal error occurred and we were unable to remove the permission.\n\nPlease contact support for assistance."
+        }).open();
+      }
+    })
+      ;
+
+      return false;
     });
 
   });

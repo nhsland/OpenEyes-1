@@ -13,6 +13,7 @@
 <div class="row">
   <div class="large-9 column">
     <div class="box admin">
+
         <?php if ($model->trial_type == Trial::TRIAL_TYPE_INTERVENTION): ?>
           <div class="alert-box alert with-icon">
             This is an Intervention Trial. Patients accepted into this Trial cannot be accepted into other Intervention
@@ -29,22 +30,29 @@
             can make any changes.
           </div>
         <?php endif; ?>
+      <div class="row">
+        <div class="large-9 column">
+          <h1 style="display: inline"><?php echo $model->name; ?>
 
-      <h1 class="text-center"><?php echo $model->name; ?>
-          <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
-              <?php echo Chtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
-          <?php endif; ?>
-      </h1>
+          </h1>
+            <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
+              <h3 style="display: inline">
+                  <?php echo CHtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
+              </h3>
+            <?php endif; ?>
+        </div>
+        <div class="large-3 column">
+            <?php echo $model->getCreatedDateForDisplay(); ?> &mdash; <?php echo $model->getClosedDateForDisplay() ?>
+        </div>
+      </div>
 
         <?php if (strlen($model->description) > 0): ?>
-          <b><?php echo CHtml::encode($model->getAttributeLabel('description')); ?>:</b>
-            <?php echo CHtml::encode($model->description); ?>
-          <br/>
+          <div class="row">
+            <div class="large-12 column">
+              <p><?php echo CHtml::encode($model->description); ?></p>
+            </div>
+          </div>
         <?php endif; ?>
-
-      <b>Duration: </b>
-        <?php echo $model->getCreatedDateForDisplay(); ?> &mdash; <?php echo $model->getClosedDateForDisplay() ?>
-      <br/>
 
         <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
           <br/>

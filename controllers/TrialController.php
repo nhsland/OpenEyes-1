@@ -7,6 +7,7 @@ class TrialController extends BaseModuleController
 {
     const RETURN_CODE_OK = '0';
     const RETURN_CODE_CANT_OPEN_SHORTLISTED_TRIAL = '1';
+    const RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS = '2';
 
     /**
      * @return array action filters
@@ -315,11 +316,22 @@ class TrialController extends BaseModuleController
     {
         $model = Trial::model()->findByPk($id);
 
+        $permissionDataProvider = new CActiveDataProvider('UserTrialPermission', array(
+            'criteria' => array(
+                'condition' => 'trial_id = :trialId',
+                'params' => array(
+                    ':trialId' => $model->id,
+                ),
+                'order' => 'permission DESC',
+            ),
+        ));
+
         $newPermission = new UserTrialPermission();
 
         $this->render('permissions', array(
             'model' => $model,
             'newPermission' => $newPermission,
+            'permissionDataProvider' => $permissionDataProvider,
         ));
     }
 
@@ -329,18 +341,30 @@ class TrialController extends BaseModuleController
      * @param integer $id The Trial ID
      * @throws CHttpException Thrown if the permission couldn't be saved
      */
-    public function actionAddPermission($id)
+    public function actionAddPermission($id, $user_id, $permission)
     {
-        $permission = new UserTrialPermission();
-        $permission->trial_id = $_POST['trial_id'];
-        $permission->user_id = $_POST['user_id'];
-        $permission->permission = $_POST['permission'];
-        if (!$permission->save()) {
-            throw new CHttpException(400,
-                'nable to creat UserTrialPermission: ' . print_r($permission->getErrors(), true));
+        if (UserTrialPermission::model()->exists(
+            'trial_id = :trialId AND user_id = :userId',
+            array(
+                ':trialId' => $id,
+                ':userId' => $user_id,
+            ))
+        ) {
+            echo self::RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS;
+            return;
         }
 
-        $this->redirect(array('/OETrial/trial/permissions', 'id' => $id));
+        $userPermission = new UserTrialPermission();
+        $userPermission->trial_id = $id;
+        $userPermission->user_id = $user_id;
+        $userPermission->permission = $permission;
+
+        if (!$userPermission->save()) {
+            throw new CHttpException(400,
+                'Unable to create UserTrialPermission: ' . print_r($permission->getErrors(), true));
+        }
+
+        echo self::RETURN_CODE_OK;
     }
 
     /**
