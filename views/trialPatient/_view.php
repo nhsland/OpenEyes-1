@@ -56,7 +56,7 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
       </div>
     </div>
 
-      <?php if ($canEditPatient && $data->trial->status == Trial::STATUS_OPEN && $data->trial->status == Trial::STATUS_IN_PROGRESS): ?>
+      <?php if ($canEditPatient && ($data->trial->status == Trial::STATUS_OPEN || $data->trial->status == Trial::STATUS_IN_PROGRESS)): ?>
         <div class="large-2 column">
           <div class="box">
               <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>
