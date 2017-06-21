@@ -3,11 +3,11 @@
 /* @var UserTrialPermission $userPermission */
 ?>
 
-<tr data-permission-id="<?php echo $userPermission->id; ?>">
-  <td><?php echo $userPermission->user->getFullName(); ?></td>
-  <td><?php echo UserTrialPermission::getPermissionOptions()[$userPermission->permission]; ?></td>
+<tr data-permission-id="<?php echo $data->id; ?>">
+  <td><?php echo $data->user->getFullName(); ?></td>
+  <td><?php echo UserTrialPermission::getPermissionOptions()[$data->permission]; ?></td>
   <td>
-    <a href="#" rel="<?php echo $userPermission->id; ?>" class="small removePermission">
+    <a href="#" rel="<?php echo $data->id; ?>" class="small removePermission">
       Remove
     </a>
   </td>

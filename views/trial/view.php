@@ -37,7 +37,7 @@
           </h1>
             <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
               <h3 style="display: inline">
-                  <?php echo Chtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
+                  <?php echo CHtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
               </h3>
             <?php endif; ?>
         </div>
