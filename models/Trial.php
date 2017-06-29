@@ -298,4 +298,49 @@ class Trial extends BaseActiveRecordVersioned
         return TrialPatient::model()->exists('trial_id = :trialId AND patient_status = :patientStatus',
             array(':trialId' => $this->id, ':patientStatus' => TrialPatient::STATUS_SHORTLISTED));
     }
+
+
+    /**
+     * Gets the data providers for each patient status
+     * @return array An array of data providers with one for each patient status
+     * @throws CException Thrown if an error occurs when created the data providers
+     */
+    public function getPatientDataProviders()
+    {
+        $dataProviders = array();
+
+        foreach (TrialPatient::getAllowedStatusRange() as $index => $status) {
+            $dataProviders[$status] = $this->getPatientDataProvider($status);
+        }
+
+        return $dataProviders;
+    }
+
+    /**
+     * Create a data provider for patients in the Trial
+     * @param $patient_status int The status of patients of
+     * @return CActiveDataProvider The data provider of patients with the given status
+     * @throws CException Thrown if the patient_status is invalid
+     */
+    private function getPatientDataProvider($patient_status)
+    {
+        if (!in_array($patient_status, TrialPatient::getAllowedStatusRange())) {
+            throw new CException("Unknown Trial Patient status: $patient_status");
+        }
+
+        $patientDataProvider = new CActiveDataProvider('TrialPatient', array(
+            'criteria' => array(
+                'condition' => 'trial_id = :trialId AND patient_status = :patientStatus',
+                'params' => array(
+                    ':trialId' => $this->id,
+                    ':patientStatus' => $patient_status,
+                ),
+            ),
+            'pagination' => array(
+                'pageSize' => 10,
+            ),
+        ));
+
+        return $patientDataProvider;
+    }
 }
