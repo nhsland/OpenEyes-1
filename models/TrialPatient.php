@@ -188,17 +188,6 @@ class TrialPatient extends BaseActiveRecordVersioned
         return parent::model($className);
     }
 
-    public static function isPatientInTrial($patient_id, $trial_id)
-    {
-        return TrialPatient::model()->exists(
-            'patient_id = :patientId AND trial_id = :trialId',
-            array(
-                ':patientId' => $patient_id,
-                ':trialId' => $trial_id,
-            )
-        );
-    }
-
     public static function checkTrialPatientAccess($user, $trial_patient_id, $permission)
     {
         /* @var TrialPatient $model */
