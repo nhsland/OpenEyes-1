@@ -68,16 +68,13 @@ class TrialController extends BaseModuleController
     {
         $model = $this->loadModel($id);
         $report = new OETrial_ReportCohort();
-        $params = array_merge(
-            array(
-                'model' => $model,
-                'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
-                'report' => $report,
-            ),
-            $this->getPatientDataProviders($model)
-        );
 
-        $this->render('view', $params);
+        $this->render('view', array(
+            'model' => $model,
+            'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
+            'report' => $report,
+            'dataProviders' => $model->getPatientDataProviders(),
+        ));
     }
 
     /**
@@ -98,49 +95,6 @@ class TrialController extends BaseModuleController
         return $model;
     }
 
-    /**
-     * Gets the data providers for each patient status
-     * @param $model Trial The trial to get the patients for
-     * @return array An array of data providers with one for each patient status
-     * @throws CException Thrown if an error occurs when created the data providers
-     */
-    private function getPatientDataProviders($model)
-    {
-        return array(
-            'shortlistedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_SHORTLISTED),
-            'acceptedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_ACCEPTED),
-            'rejectedPatientDataProvider' => $this->getPatientDataProvider($model, TrialPatient::STATUS_REJECTED),
-        );
-    }
-
-    /**
-     * Create a data provider for patients in the Trial
-     * @param $model Trial The Trial model to find the patients for
-     * @param $patient_status int The status of patients of
-     * @return CActiveDataProvider The data provider of patients with the given status
-     * @throws CException Thrown if the patient_status is invalid
-     */
-    private function getPatientDataProvider($model, $patient_status)
-    {
-        if (!array_key_exists($patient_status, TrialPatient::getAllowedStatusRange())) {
-            throw new CException("Unknown Trial Patient status: $patient_status");
-        }
-
-        $patientDataProvider = new CActiveDataProvider('TrialPatient', array(
-            'criteria' => array(
-                'condition' => 'trial_id = :trialId AND patient_status = :patientStatus',
-                'params' => array(
-                    ':trialId' => $model->id,
-                    ':patientStatus' => $patient_status,
-                ),
-            ),
-            'pagination' => array(
-                'pageSize' => 10,
-            ),
-        ));
-
-        return $patientDataProvider;
-    }
 
     /**
      * Creates a new model.
@@ -351,6 +305,7 @@ class TrialController extends BaseModuleController
             ))
         ) {
             echo self::RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS;
+
             return;
         }
 

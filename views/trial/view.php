@@ -2,11 +2,8 @@
 /* @var $this TrialController */
 /* @var $model Trial
  * @var $userPermission integer
- * @var $shortlistedPatientDataProvider CActiveDataProvider
- * @var $acceptedPatientDataProvider CActiveDataProvider
- * @var $rejectedPatientDataProvider CActiveDataProvider
+ * @var $dataProviders CActiveDataProvider[]
  */
-
 ?>
 
 <h1 class="badge">Trial</h1>
@@ -87,21 +84,21 @@
       <h2>Shortlisted Patients</h2>
         <?php $this->widget('zii.widgets.CListView', array(
             'id' => 'shortlistedPatientList',
-            'dataProvider' => $shortlistedPatientDataProvider,
+            'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
             'itemView' => '/trialPatient/_view',
         )); ?>
       <hr/>
       <h2>Accepted Patients</h2>
         <?php $this->widget('zii.widgets.CListView', array(
             'id' => 'acceptedPatientList',
-            'dataProvider' => $acceptedPatientDataProvider,
+            'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
             'itemView' => '/trialPatient/_view',
         )); ?>
       <hr/>
       <h2>Rejected Patients</h2>
         <?php $this->widget('zii.widgets.CListView', array(
             'id' => 'rejectedPatientList',
-            'dataProvider' => $rejectedPatientDataProvider,
+            'dataProvider' => $dataProviders[TrialPatient::STATUS_REJECTED],
             'itemView' => '/trialPatient/_view',
         )); ?>
 
@@ -134,7 +131,7 @@
           <span class="highlight">
               <?php echo CHtml::hiddenField('report-name', 'Cohort'); ?>
               <?php echo CHtml::hiddenField('trialID', $model->id); ?>
-              <?php if (Yii::app()->user->checkAccess('OprnGenerateReport')):?>
+              <?php if (Yii::app()->user->checkAccess('OprnGenerateReport')): ?>
                   <?php echo CHtml::linkButton('Download Report'); ?>
               <?php endif; ?>
           </span>
