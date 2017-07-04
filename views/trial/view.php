@@ -203,6 +203,30 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
     });
   }
 
+  function updateTreatmentType(treatment_type_picker) {
+    var trial_patient_id = $(treatment_type_picker).attr('data-trial-patient-id');
+    var treatment_type = $(treatment_type_picker).val();
+
+    $('#treatment-type-loader-' + trial_patient_id).show();
+    $('#treatment-type-success-' + trial_patient_id).hide();
+
+    $.ajax({
+      url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/updateTreatmentType'); ?>',
+      data: {id: trial_patient_id, treatment_type: treatment_type},
+      type: 'GET',
+      success: function (response) {
+        $('#treatment-type-loader-' + trial_patient_id).hide();
+        $('#treatment-type-success-' + trial_patient_id).show();
+      },
+      error: function (response) {
+        new OpenEyes.UI.Dialog.Alert({
+          content: "Sorry, an internal error occurred and we were unable to change the treatment type.\n\nPlease contact support for assistance."
+        }).open();
+      }
+    });
+  }
+
+
   function changeTrialState(trial_id, new_state) {
 
     $.ajax({

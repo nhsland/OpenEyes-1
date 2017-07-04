@@ -9,6 +9,7 @@
  * @property integer $trial_id
  * @property integer $patient_id
  * @property integer $patient_status
+ * @property integer $treatment_type
  * @property integer $last_modified_user_id
  * @property string $last_modified_date
  * @property integer $created_user_id
@@ -40,9 +41,21 @@ class TrialPatient extends BaseActiveRecordVersioned
     const STATUS_CHANGE_CODE_OK = "0";
     const STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION = "1";
 
+    /**
+     * The treatment type when users don't know whether the patient had intervention treatment or not (also the default value)
+     */
+    const TREATMENT_TYPE_UNKNOWN = 0;
+    /**
+     * The treatment type when it is known that the patient had intervention surgery or medication
+     */
+    const TREATMENT_TYPE_INTERVENTION = 1;
+    /**
+     * The treatment type when the patient had a placebo instead of intervention surgery or medicine
+     */
+    const TREATMENT_TYPE_PLACEBO = 2;
 
     /**
-     * Gets an array of the available statues of a patient
+     * Gets an array of the different possible patient statuses
      * @return array The array of statues
      */
     public static function getAllowedStatusRange()
@@ -54,9 +67,10 @@ class TrialPatient extends BaseActiveRecordVersioned
         );
     }
 
-
     /**
-     * @return array
+     * Gets an array with keys as the different possible patient statuses, and the values as the label for that status
+     *
+     * @return int[] The status options
      */
     public static function getStatusOptions()
     {
@@ -68,6 +82,33 @@ class TrialPatient extends BaseActiveRecordVersioned
     }
 
     /**
+     * Gets an array of the different possible treatment types
+     * @return array The array of statues
+     */
+    public static function getAllowedTreatmentTypeRange()
+    {
+        return array(
+            self::TREATMENT_TYPE_UNKNOWN,
+            self::TREATMENT_TYPE_INTERVENTION,
+            self::TREATMENT_TYPE_PLACEBO,
+        );
+    }
+
+    /**
+     * Gets an array with keys as the different possible treatment types, and the values as the label for that treatment type
+     *
+     * @return int[] The treatment options
+     */
+    public static function getTreatmentTypeOptions()
+    {
+        return array(
+            self::TREATMENT_TYPE_UNKNOWN => 'Unknown',
+            self::TREATMENT_TYPE_INTERVENTION => 'Intervention',
+            self::TREATMENT_TYPE_PLACEBO => 'Placebo',
+        );
+    }
+
+    /**
      * Returns the status as a displayable string
      *
      * @return string The status string
@@ -75,6 +116,16 @@ class TrialPatient extends BaseActiveRecordVersioned
     public function getStatusForDisplay()
     {
         return self::getStatusOptions()[$this->patient_status];
+    }
+
+    /**
+     * Returns the treatment type as a displayable string
+     *
+     * @return string The treatment type string
+     */
+    public function getTreatmentTypeForDisplay()
+    {
+        return self::getTreatmentTypeOptions()[$this->treatment_type];
     }
 
     /**
@@ -96,6 +147,7 @@ class TrialPatient extends BaseActiveRecordVersioned
             array('external_trial_identifier', 'length', 'max' => 64),
             array('patient_id, patient_status', 'length', 'max' => 10),
             array('patient_status', 'in', 'range' => self::getAllowedStatusRange()),
+            array('treatment_type', 'in', 'range' => self::getAllowedTreatmentTypeRange()),
             // The trial_id and the patient_id must be unique together
             array(
                 'trial_id',
@@ -137,6 +189,7 @@ class TrialPatient extends BaseActiveRecordVersioned
             'trial_id' => 'Trial',
             'patient_id' => 'Patient',
             'patient_status' => 'Patient Status',
+            'treatment_type' => 'Treatment Type',
             'last_modified_user_id' => 'Last Modified User',
             'last_modified_date' => 'Last Modified Date',
             'created_user_id' => 'Created User',
