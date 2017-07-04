@@ -115,7 +115,11 @@ class TrialPatient extends BaseActiveRecordVersioned
      */
     public function getStatusForDisplay()
     {
-        return self::getStatusOptions()[$this->patient_status];
+        if (array_key_exists($this->patient_status, self::getStatusOptions())) {
+            return self::getStatusOptions()[$this->patient_status];
+        }
+
+        return $this->patient_status;
     }
 
     /**
@@ -125,7 +129,11 @@ class TrialPatient extends BaseActiveRecordVersioned
      */
     public function getTreatmentTypeForDisplay()
     {
-        return self::getTreatmentTypeOptions()[$this->treatment_type];
+        if (array_key_exists($this->treatment_type, self::getTreatmentTypeOptions())) {
+            return self::getTreatmentTypeOptions()[$this->treatment_type];
+        }
+
+        return $this->treatment_type;
     }
 
     /**
