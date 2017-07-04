@@ -17,5 +17,12 @@ return array(
                 ),
             ),
         ),
+        'CaseSearch' => array(
+            'parameters' => array(
+                'OETrial' => array(
+                    'PreviousTrial'
+                )
+            ),
+        ),
     ),
 );
