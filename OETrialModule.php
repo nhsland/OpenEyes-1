@@ -11,6 +11,8 @@ class OETrialModule extends CWebModule
         $this->setImport(array(
             'OETrial.models.*',
             'OETrial.components.*',
+            'OECaseSearch.components.DBProviderInterface',
+            'OECaseSearch.models.CaseSearchParameter'
         ));
     }
 

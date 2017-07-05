@@ -16,6 +16,7 @@ class TrialController extends BaseModuleController
     {
         return array(
             'accessControl',
+            'ajaxOnly + getTrialList'
         );
     }
 
@@ -29,7 +30,7 @@ class TrialController extends BaseModuleController
         return array(
             array(
                 'allow',  // allow authenticated users to perform the 'index' action
-                'actions' => array('index'),
+                'actions' => array('index', 'getTrialList'),
                 'users' => array('@'),
             ),
             array(
@@ -379,5 +380,16 @@ class TrialController extends BaseModuleController
         }
 
         echo self::RETURN_CODE_OK;
+    }
+
+    public function actionGetTrialList($trialID, $type)
+    {
+        $model = new PreviousTrialParameter();
+        $model->id = $trialID;
+        $trialModels = Trial::model()->findAll('trial_type=:type', array(':type' => $type));
+        $trials = CHtml::listData($trialModels, 'id', 'name');
+        $dropDown = CHtml::activeDropDownList($model, "[$trialID]trial", $trials, array('empty' => 'Any'));
+
+        echo '<div class="large-3 column trial-list">' . $dropDown . '</div>';
     }
 }
