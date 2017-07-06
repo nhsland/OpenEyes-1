@@ -18,7 +18,7 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
         $this->name = 'previous_trial';
     }
 
-    public function getKey()
+    public function getLabel()
     {
         // This is a human-readable value, so feel free to change this as required.
         return 'Previous Trial';
@@ -61,7 +61,7 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
         ?>
 
       <div class="large-2 column">
-          <?php echo CHtml::label($this->getKey(), false); ?>
+          <?php echo CHtml::label($this->getLabel(), false); ?>
       </div>
       <div class="large-3 column">
           <?php echo CHtml::activeDropDownList($this, "[$id]operation", $ops, array('prompt' => 'Select One...')); ?>
