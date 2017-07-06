@@ -32,8 +32,8 @@ class TrialPatientController extends BaseModuleController
         return array(
             array(
                 'allow',
-                'actions' => array('changeStatus', 'updateExternalId'),
-                'expression' => 'TrialPatient::checkTrialPatientAccess($user, Yii::app()->getRequest()->getQuery("id"), ' . UserTrialPermission::PERMISSION_EDIT . ')',
+                'actions' => array('changeStatus', 'updateExternalId', 'updateTreatmentType'),
+                'expression' => 'TrialPatient::checkTrialPatientAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_EDIT)',
             ),
             array(
                 'deny',  // deny all users
@@ -87,6 +87,7 @@ class TrialPatientController extends BaseModuleController
             $model->patient->isCurrentlyInInterventionTrial()
         ) {
             echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION;
+
             return;
         }
 
@@ -106,6 +107,28 @@ class TrialPatientController extends BaseModuleController
         }
 
         $model->external_trial_identifier = $new_external_id;
+
+        if (!$model->save()) {
+            throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));
+        }
+    }
+
+    /**
+     * Updates the treatment type of a trial-patient with a new treatment type
+     *
+     * @param integer $id The ID of the TrialPatient model to update
+     * @param integer $treatment_type The new treatment type
+     * @throws CHttpException Thrown if an error occurs when saving the TrialPatient
+     */
+    public function actionUpdateTreatmentType($id, $treatment_type)
+    {
+        $model = $this->loadModel($id);
+
+        if ($model->trial->status != Trial::STATUS_CLOSED) {
+            throw new CHttpException(400, 'You cannot change the treatment type until the trial is closed.');
+        }
+
+        $model->treatment_type = $treatment_type;
 
         if (!$model->save()) {
             throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));

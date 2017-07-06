@@ -232,7 +232,7 @@ class TrialController extends BaseModuleController
         $trialPatient->patient_status = $patient_status;
 
         if (!$trialPatient->save()) {
-            throw new CHttpException(400, 'Unable to create TrialPatient: ' . print_r($trialPatient->getErrors()));
+            throw new CHttpException(400, 'Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
         }
     }
 
@@ -258,7 +258,7 @@ class TrialController extends BaseModuleController
 
 
         if (!$trialPatient->delete()) {
-            throw new CHttpException(400, 'Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors()));
+            throw new CHttpException(400, 'Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors(), true));
         }
     }
 

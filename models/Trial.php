@@ -147,7 +147,11 @@ class Trial extends BaseActiveRecordVersioned
      */
     public function getTypeString()
     {
-        return self::getTrialTypeOptions()[$this->trial_type];
+        if (array_key_exists($this->trial_type, self::getTrialTypeOptions())) {
+            return self::getTrialTypeOptions()[$this->trial_type];
+        }
+
+        return $this->trial_type;
     }
 
     /**
