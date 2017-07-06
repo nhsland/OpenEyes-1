@@ -8,11 +8,11 @@
 			Show/hide this section
 		</span>
   </a>
-    <a href="#" class="toggle-trigger toggle-hide js-toggle">
+  <a href="#" class="toggle-trigger toggle-hide js-toggle">
       <span class="icon-showhide">
         Show/hide this section
       </span>
-    </a>
+  </a>
   </header>
 
   <div class="js-toggle-body">
@@ -21,6 +21,7 @@
       <thead>
       <tr>
         <th>Trial</th>
+        <th>Principle Investigator</th>
         <th>Control Status</th>
         <th>Trial Status</th>
         <th>Trial Type</th>
@@ -29,7 +30,10 @@
       </tr>
       </thead>
       <tbody>
-      <?php foreach ($this->patient->trials as $trialPatient): ?>
+      <?php
+      /* @var TrialPatient $trialPatient */
+      foreach ($this->patient->trials as $trialPatient):
+          ?>
         <tr>
           <td><?php
               if (Trial::checkTrialAccess(Yii::app()->user, $trialPatient->trial_id,
@@ -42,7 +46,12 @@
               }
               ?>
           </td>
-          <td><?php echo 'TODO'; //TODO; ?></td>
+          <td>
+              <?php
+              $PI = $trialPatient->trial->ownerUser;
+              echo $PI->last_name . ', ' . $PI->first_name;
+              ?>
+          </td>
           <td><?php echo $trialPatient->getStatusForDisplay(); ?></td>
           <td><?php echo $trialPatient->trial->getTypeString(); ?></td>
           <td><?php echo $trialPatient->trial->getCreatedDateForDisplay(); ?></td>
