@@ -34,7 +34,10 @@
           </h1>
             <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
               <h3 style="display: inline">
-                  <?php echo CHtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
+                  <?php echo CHtml::link('[edit]', array(
+                          '/OETrial/trial/update',
+                          'id' => $model->id,
+                      )) . ' owned by ' . $model->ownerUser->first_name . ' ' . $model->ownerUser->last_name; ?>
               </h3>
             <?php endif; ?>
         </div>
