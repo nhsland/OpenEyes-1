@@ -256,8 +256,31 @@ class Trial extends BaseActiveRecordVersioned
     }
 
     /**
+     * Overrides CActiveModel::afterSave()
+     *
+     * @throws Exception Thrown if a new permission cannot be created
+     */
+    protected function afterSave()
+    {
+        parent::afterSave();
+
+        if ($this->getIsNewRecord()) {
+
+            // Create a new permission assignment for the user that created the Trial
+            $newPermission = new UserTrialPermission();
+            $newPermission->user_id = Yii::app()->user->id;
+            $newPermission->trial_id = $this->id;
+            $newPermission->permission = UserTrialPermission::PERMISSION_MANAGE;
+            if (!$newPermission->save()) {
+                throw new Exception('The owner permission for the new trial could not be saved: '
+                    . print_r($newPermission->errors(), true));
+            }
+        }
+    }
+
+    /**
      * Returns whether or not the given user can access the given trial using the given action
-     * @param $user User The user to check access for
+     * @param $user CWebUser The user to check access for
      * @param $trial_id int The ID of the trial
      * @param $permission integer The ID of the controller action
      * @return bool True if access is permitted, otherwise false
@@ -267,36 +290,31 @@ class Trial extends BaseActiveRecordVersioned
     {
         /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
-        if ($model === null) {
-            throw new CHttpException(404);
-        }
-
-        if ($model->owner_user_id === $user->id) {
-            return true;
-        }
-
-        return UserTrialPermission::model()->exists(
-            'user_id = :userId AND trial_id = :trialId AND permission >= :permission',
-            array(
-                ':userId' => $user->id,
-                ':trialId' => $trial_id,
-                ':permission' => $permission,
-            )
-        );
+        return $model->getTrialAccess($user) >= $permission;
     }
 
-    public function getTrialAccess($user_id)
+    /**
+     * @param CWebUser $user The user to get access for
+     * @return int The user permission if they have one otherwise null)
+     */
+    public function getTrialAccess($user)
     {
-        if ($this->owner_user_id === $user_id) {
-            return UserTrialPermission::PERMISSION_MANAGE;
+        if (!$user->checkAccess('TaskViewTrial')) {
+            echo 'erhmerghesh';
+            return null;
         }
 
         $sql = 'SELECT MAX(permission) FROM user_trial_permission WHERE user_id = :userId AND trial_id = :trialId';
         $query = $this->getDbConnection()->createCommand($sql);
 
-        return $query->queryScalar(array(':userId' => $user_id, ':trialId' => $this->id));
+        return $query->queryScalar(array(':userId' => $user->id, ':trialId' => $this->id));
     }
 
+    /**
+     * Returns whether or not this trial has any shortlisted patients
+     *
+     * @return bool True if the trial has one or more shortlisted patients, otherwise false
+     */
     public function hasShortlistedPatients()
     {
         return TrialPatient::model()->exists('trial_id = :trialId AND patient_status = :patientStatus',

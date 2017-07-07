@@ -7,7 +7,7 @@ return array(
                 'title' => 'Trials',
                 'uri' => 'OETrial',
                 'position' => 6,
-                'restricted' => array('TaskAdministerTrials'),
+                'restricted' => array('TaskCreateTrial', 'TaskViewTrial'),
             ),
         ),
         'module_partials' => array(

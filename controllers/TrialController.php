@@ -5,9 +5,35 @@
  */
 class TrialController extends BaseModuleController
 {
+    /**
+     * The return code for actionTransitionState() if the transition was a success
+     */
     const RETURN_CODE_OK = '0';
+    /**
+     * The return code for actionTransitionState() if the user tried to transition an open trial to in progress
+     * while a patient is still shortlisted
+     */
     const RETURN_CODE_CANT_OPEN_SHORTLISTED_TRIAL = '1';
+
+    /**
+     * The return code for actionAddPermission() if the user tried to share the trial with a user that it is
+     * already shared with
+     */
     const RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS = '2';
+
+
+    /**
+     * The return code for actionRemovePermission() if all went well
+     */
+    const REMOVE_PERMISSION_RESULT_SUCCESS = 'success';
+    /**
+     * The return code for actionRemovePermission() if the user tried to remove the last user with manage privileges
+     */
+    const REMOVE_PERMISSION_RESULT_CANT_REMOVE_LAST = 'remove_last_fail';
+    /**
+     * The return code for actionRemovePermission() if the user tried to remove themselves from the Trial
+     */
+    const REMOVE_PERMISSION_RESULT_CANT_REMOVE_SELF = 'remove_self_fail';
 
     /**
      * @return array action filters
@@ -16,7 +42,7 @@ class TrialController extends BaseModuleController
     {
         return array(
             'accessControl',
-            'ajaxOnly + getTrialList'
+            'ajaxOnly + getTrialList',
         );
     }
 
@@ -29,29 +55,37 @@ class TrialController extends BaseModuleController
     {
         return array(
             array(
-                'allow',  // allow authenticated users to perform the 'index' action
-                'actions' => array('index', 'getTrialList'),
+                'allow',
+                'actions' => array('getTrialList'),
                 'users' => array('@'),
             ),
             array(
                 'allow',
+                'actions' => array('index', 'userAutoComplete'),
+                'roles' => array('TaskCreateTrial', 'TaskViewTrial'),
+            ),
+            array(
+                'allow',
                 'actions' => array('view'),
+                'roles' => array('TaskViewTrial'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_VIEW)',
             ),
             array(
                 'allow',
                 'actions' => array('update', 'addPatient', 'removePatient'),
+                'roles' => array('TaskViewTrial'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_EDIT)',
             ),
             array(
                 'allow',
                 'actions' => array('permissions', 'addPermission', 'removePermission', 'transitionState'),
+                'roles' => array('TaskViewTrial'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_MANAGE)',
             ),
             array(
-                'allow', // allow authenticated user to perform the 'create'  action
+                'allow',
                 'actions' => array('create'),
-                'users' => array('@'),
+                'roles' => array('TaskCreateTrial'),
             ),
             array(
                 'deny',  // deny all users
@@ -72,7 +106,7 @@ class TrialController extends BaseModuleController
 
         $this->render('view', array(
             'model' => $model,
-            'userPermission' => $model->getTrialAccess(Yii::app()->user->id),
+            'userPermission' => $model->getTrialAccess(Yii::app()->user),
             'report' => $report,
             'dataProviders' => $model->getPatientDataProviders(),
         ));
@@ -163,11 +197,9 @@ class TrialController extends BaseModuleController
      */
     public function actionIndex()
     {
-        $condition = 'trial_type = :trialType AND (
-                    owner_user_id = :userId
-                    OR EXISTS (
+        $condition = 'trial_type = :trialType AND EXISTS (
                         SELECT * FROM user_trial_permission utp WHERE utp.user_id = :userId AND utp.trial_id = t.id
-                    ))';
+                    )';
 
         $interventionTrialDataProvider = new CActiveDataProvider('Trial', array(
             'criteria' => array(
@@ -232,7 +264,8 @@ class TrialController extends BaseModuleController
         $trialPatient->patient_status = $patient_status;
 
         if (!$trialPatient->save()) {
-            throw new CHttpException(400, 'Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+            throw new CHttpException(400,
+                'Unable to create TrialPatient: ' . print_r($trialPatient->getErrors(), true));
         }
     }
 
@@ -258,7 +291,8 @@ class TrialController extends BaseModuleController
 
 
         if (!$trialPatient->delete()) {
-            throw new CHttpException(400, 'Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors(), true));
+            throw new CHttpException(400,
+                'Unable to delete TrialPatient: ' . print_r($trialPatient->getErrors(), true));
         }
     }
 
@@ -328,7 +362,6 @@ class TrialController extends BaseModuleController
      *
      * @param integer $id The ID of the trial
      * @param integer $permission_id The ID of the permission to remove
-     * @return string 'success' if the permission is removed successfully
      * @throws CHttpException Thrown if the permission cannot be found
      * @throws CDbException Thrown if the permission cannot be deleted
      */
@@ -340,9 +373,33 @@ class TrialController extends BaseModuleController
             throw new CHttpException(400);
         }
 
-        $permission->delete();
+        if ($permission->user_id === Yii::app()->user->id) {
+            echo self::REMOVE_PERMISSION_RESULT_CANT_REMOVE_SELF;
 
-        return 'success';
+            return;
+        }
+
+        $count = UserTrialPermission::model()->count('trial_id = :trialId AND permission = :permission',
+            array(
+                ':trialId' => $id,
+                ':permission' => UserTrialPermission::PERMISSION_MANAGE,
+            )
+        );
+
+        if ($count <= 1) {
+            echo self::REMOVE_PERMISSION_RESULT_CANT_REMOVE_LAST;
+
+            return;
+        }
+
+
+        if (!$permission->delete()) {
+            throw new CHttpException(500,
+                'An error occurred when attempting to delete the permission: '
+                . print_r($permission->getErrors(), true));
+        }
+
+        echo self::REMOVE_PERMISSION_RESULT_SUCCESS;
     }
 
     /**
@@ -357,6 +414,14 @@ class TrialController extends BaseModuleController
         }
     }
 
+    /**
+     * Transitions the given Trial to a new state.
+     * A different return code is echoed out depending on whether the transition was successful
+     *
+     * @param integer $id The ID of the trial to transition
+     * @param integer $new_state The new state to transition to (must be a valid state within Trial::getAllowedStatusRange()
+     * @throws CHttpException Thrown if an error occurs when saving
+     */
     public function actionTransitionState($id, $new_state)
     {
         /* @var Trial $model */
@@ -391,5 +456,55 @@ class TrialController extends BaseModuleController
         $dropDown = CHtml::activeDropDownList($model, "[$trialID]trial", $trials, array('empty' => 'Any'));
 
         echo '<div class="large-3 column trial-list">' . $dropDown . '</div>';
+    }
+
+    /**
+     * Quries users that can be assigned to the Trial and that match the search term.
+     * Users will not be returned if they are already assigned to the trial, or if they don't have the "View Trial" permission.
+     *
+     * @param integer $id The trial ID
+     * @param string $term The term to search for
+     * @return string A JSON encoded array of users with id, label, username and value
+     */
+    public function actionUserAutoComplete($id, $term)
+    {
+        $model = $this->loadModel($id);
+
+        $res = array();
+        $term = strtolower($term);
+
+        $criteria = new \CDbCriteria;
+        $criteria->compare('LOWER(username)', $term, true, 'OR');
+        $criteria->compare('LOWER(first_name)', $term, true, 'OR');
+        $criteria->compare('LOWER(last_name)', $term, true, 'OR');
+
+        $criteria->addCondition('id NOT IN (SELECT user_id FROM user_trial_permission WHERE trial_id = ' . $model->id . ')');
+        $criteria->addCondition("EXISTS( SELECT * FROM authassignment WHERE userid = id AND itemname = 'View Trial')");
+        
+        $words = explode(' ', $term);
+        if (count($words) > 1) {
+            $first_criteria = new \CDbCriteria();
+            $first_criteria->compare('LOWER(first_name)', $words[0], true);
+            $first_criteria->compare('LOWER(last_name)', implode(" ", array_slice($words, 1, count($words) - 1)), true);
+            $last_criteria = new \CDbCriteria();
+            $last_criteria->compare('LOWER(first_name)', $words[count($words) - 1], true);
+            $last_criteria->compare('LOWER(last_name)', implode(" ", array_slice($words, 0, count($words) - 2)), true);
+            $first_criteria->mergeWith($last_criteria, 'OR');
+            $criteria->mergeWith($first_criteria, 'OR');
+        }
+        
+        $criteria->compare('active', true);
+
+        foreach (\User::model()->findAll($criteria) as $user) {
+            
+            $res[] = array(
+                'id' => $user->id,
+                'label' => $user->getFullNameAndTitle(),
+                'value' => $user->getFullName(),
+                'username' => $user->username,
+            );
+        }
+
+        echo \CJSON::encode($res);
     }
 }

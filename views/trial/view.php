@@ -117,7 +117,7 @@
           </p>
         <?php endif; ?>
 
-        <?php if ($model->status != Trial::STATUS_CANCELLED && $model->status != Trial::STATUS_CLOSED && $userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
+        <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
           <p>
                 <span class="highlight">
                     <?php echo CHtml::link('Share this trial with other users',

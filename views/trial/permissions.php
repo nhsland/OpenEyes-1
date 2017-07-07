@@ -14,7 +14,7 @@
     <div class="box admin">
       <div class="row">
         <div class="large-9 column">
-          <h1 style="display: inline"><?php echo $model->name; ?></h1>
+          <h1 style="display: inline">Users shared with <?php echo CHtml::encode($model->name); ?></h1>
         </div>
       </div>
 
@@ -39,15 +39,17 @@
         </div>
       </div>
 
+      <h2>Share with another user:</h2>
       <div class="row">
-        <div class="large-6 column">
+        <div class="large-4 column">
             <?php
             $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
                 'name' => 'user_id',
                 'id' => 'autocomplete_user_id',
                 'source' => "js:function(request, response) {
-                                    $.getJSON('/user/autoComplete', {
-                                            term : request.term
+                                    $.getJSON('" . $this->createUrl('userAutoComplete') . "', {
+                                        id : $model->id,
+                                        term : request.term
                                     }, response);
                             }",
                 'options' => array(
@@ -70,7 +72,10 @@
                 ),
             )); ?>
         </div>
-        <div class="large-4 column left">
+        <div class="small-1 column">
+          can
+        </div>
+        <div class="large-3 column left">
             <?php echo CHtml::dropDownList('permission', 'Select One...', UserTrialPermission::getPermissionOptions(),
                 array('id' => 'permission')); ?>
         </div>
@@ -87,6 +92,12 @@
         </div>
       </div>
         <?php echo CHtml::hiddenField('trial_id', $model->id, array('class' => 'hidden_id')); ?>
+
+      <div class="alert-box info with-icon">
+        Can't find the user you're looking for? They might not have the permission to view trials.
+        <br/>
+        Please contact an administrator and ask them to give that user the "View Trial" role.
+      </div>
     </div>
   </div>
 </div>
@@ -141,26 +152,22 @@
         'type': 'GET',
         'url': '<?php echo $this->createUrl('addPermission'); ?>',
         'data': {id: <?php echo $model->id; ?>, user_id: $('#user_id').val(), permission: $('#permission').val()},
-          'success'
-      :
-      function (html) {
-        if (html == <?php echo TrialController::RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS; ?>) {
-          new OpenEyes.UI.Dialog.Alert({
-            content: "That patient has already been shared to this trial. To change their permissions, please remove them first and try again."
-          }).open();
-        } else {
-          location.reload();
+        'success': function (html) {
+          if (html == <?php echo TrialController::RETURN_CODE_USER_PERMISSION_ALREADY_EXISTS; ?>) {
+            new OpenEyes.UI.Dialog.Alert({
+              content: "That patient has already been shared to this trial. To change their permissions, please remove them first and try again."
+            }).open();
+          } else {
+            location.reload();
+          }
         }
-      }
-      ,
-      'error'
-      :
-      function () {
-        new OpenEyes.UI.Dialog.Alert({
-          content: "Sorry, an internal error occurred and we were unable to remove the permission.\n\nPlease contact support for assistance."
-        }).open();
-      }
-    })
+        ,
+        'error': function () {
+          new OpenEyes.UI.Dialog.Alert({
+            content: "Sorry, an internal error occurred and we were unable to remove the permission.\n\nPlease contact support for assistance."
+          }).open();
+        }
+      })
       ;
 
       return false;
@@ -189,11 +196,25 @@
       'type': 'GET',
       'url': baseUrl + '<?php echo Yii::app()->controller->createUrl('/OETrial/trial/removePermission',
           array('id' => $model->id)); ?>' + '?permission_id=' + permission_id,
-      'success': function (html) {
-        var row = $('#currentPermissions tr[data-permission-id="' + permission_id + '"]');
-        row.hide('slow', function () {
-          row.remove();
-        });
+      'success': function (result) {
+        if (result === '<?php echo TrialController::REMOVE_PERMISSION_RESULT_SUCCESS; ?>') {
+          var row = $('#currentPermissions tr[data-permission-id="' + permission_id + '"]');
+          row.hide('slow', function () {
+            row.remove();
+          });
+        } else if (result === '<?php echo TrialController::REMOVE_PERMISSION_RESULT_CANT_REMOVE_SELF; ?>') {
+          new OpenEyes.UI.Dialog.Alert({
+            content: "You can't remove yourself from this Trial.\n\nYou will have to get another user with Manage privileges to remove you."
+          }).open();
+        } else if (result === '<?php echo TrialController::REMOVE_PERMISSION_RESULT_CANT_REMOVE_LAST; ?>') {
+          new OpenEyes.UI.Dialog.Alert({
+            content: "You can't remove the last user from the Trial.\n\nThere must always be at least one person assigned to a Trial."
+          }).open();
+        } else {
+          new OpenEyes.UI.Dialog.Alert({
+            content: "Sorry, an internal error occurred and we were unable to remove the permission.\n\nPlease contact support for assistance."
+          }).open();
+        }
       },
       'error': function () {
         new OpenEyes.UI.Dialog.Alert({
