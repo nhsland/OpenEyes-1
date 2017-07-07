@@ -267,7 +267,6 @@ class Trial extends BaseActiveRecordVersioned
     public function getTrialAccess($user)
     {
         if (!$user->checkAccess('TaskViewTrial')) {
-            echo 'erhmerghesh';
             return null;
         }
 
