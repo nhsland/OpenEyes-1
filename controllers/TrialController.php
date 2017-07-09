@@ -176,23 +176,6 @@ class TrialController extends BaseModuleController
     }
 
     /**
-     * Deletes a particular model.
-     * If deletion is successful, the browser will be redirected to the 'admin' page.
-     * @param integer $id the ID of the model to be deleted
-     * @throws CHttpException Thrown if the model cannot be loaded
-     * @throws CDbException Thrown if the model cannot be loaded
-     */
-    public function actionDelete($id)
-    {
-        $this->loadModel($id)->delete();
-
-        // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-        if (!isset($_GET['ajax'])) {
-            $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-        }
-    }
-
-    /**
      * Lists all models.
      */
     public function actionIndex()
@@ -230,27 +213,11 @@ class TrialController extends BaseModuleController
     }
 
     /**
-     * Manages all models.
-     */
-    public function actionAdmin()
-    {
-        $model = new Trial('search');
-        $model->unsetAttributes();  // clear any default values
-        if (isset($_GET['Trial'])) {
-            $model->attributes = $_GET['Trial'];
-        }
-
-        $this->render('admin', array(
-            'model' => $model,
-        ));
-    }
-
-    /**
      * Adds a patient to the trial
      *
-     * @param $id integer The ID of the Trial to add to
-     * @param $patient_id integer THe ID of the patient to add
-     * @param $patient_status integer The initial trial status for the patient (default to shortlisted)
+     * @param integer $id The ID of the Trial to add to
+     * @param integer $patient_id THe ID of the patient to add
+     * @param integer $patient_status The initial trial status for the patient (default to shortlisted)
      * @throws Exception Thrown if an error occurs when saving the TrialPatient record
      */
     public function actionAddPatient($id, $patient_id, $patient_status = TrialPatient::STATUS_SHORTLISTED)
@@ -270,8 +237,8 @@ class TrialController extends BaseModuleController
     }
 
     /**
-     * @param $id integer The id of the trial to remove
-     * @param $patient_id integer The id of the patient to remove
+     * @param integer $id The id of the trial to remove
+     * @param integer $patient_id The id of the patient to remove
      * @throws CHttpException Raised when the record cannot be found
      * @throws Exception Raised when an error occurs when removing the record
      */
@@ -459,7 +426,7 @@ class TrialController extends BaseModuleController
     }
 
     /**
-     * Quries users that can be assigned to the Trial and that match the search term.
+     * Gets a JSON encoded list of users that can be assigned to the Trial and that match the search term.
      * Users will not be returned if they are already assigned to the trial, or if they don't have the "View Trial" permission.
      *
      * @param integer $id The trial ID
@@ -480,7 +447,7 @@ class TrialController extends BaseModuleController
 
         $criteria->addCondition('id NOT IN (SELECT user_id FROM user_trial_permission WHERE trial_id = ' . $model->id . ')');
         $criteria->addCondition("EXISTS( SELECT * FROM authassignment WHERE userid = id AND itemname = 'View Trial')");
-        
+
         $words = explode(' ', $term);
         if (count($words) > 1) {
             $first_criteria = new \CDbCriteria();
@@ -492,11 +459,11 @@ class TrialController extends BaseModuleController
             $first_criteria->mergeWith($last_criteria, 'OR');
             $criteria->mergeWith($first_criteria, 'OR');
         }
-        
+
         $criteria->compare('active', true);
 
         foreach (\User::model()->findAll($criteria) as $user) {
-            
+
             $res[] = array(
                 'id' => $user->id,
                 'label' => $user->getFullNameAndTitle(),

@@ -90,7 +90,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns an array of all of the allowable values of "status"
-     * @return int[] The list of statuses
+     * @return integer[] The list of statuses
      */
     public static function getAllowedStatusRange()
     {
@@ -118,7 +118,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns an array of all of the allowable values of "trial_type"
-     * @return int[] The list of types
+     * @return integer[] The list of types
      */
     public static function getAllowedTrialTypeRange()
     {
@@ -247,9 +247,9 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns whether or not the given user can access the given trial using the given action
-     * @param $user CWebUser The user to check access for
-     * @param $trial_id int The ID of the trial
-     * @param $permission integer The ID of the controller action
+     * @param CWebUser $user The user to check access for
+     * @param integer $trial_id The ID of the trial
+     * @param integer $permission The ID of the controller action
      * @return bool True if access is permitted, otherwise false
      * @throws CHttpException
      */
@@ -257,12 +257,14 @@ class Trial extends BaseActiveRecordVersioned
     {
         /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
+
         return $model->getTrialAccess($user) >= $permission;
     }
 
     /**
      * @param CWebUser $user The user to get access for
-     * @return int The user permission if they have one otherwise null)
+     * @return integer The user permission if they have one otherwise null)
+     * @throws CDbException Thrown if an error occurs when executing the SQL statement
      */
     public function getTrialAccess($user)
     {
@@ -306,7 +308,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Create a data provider for patients in the Trial
-     * @param $patient_status int The status of patients of
+     * @param integer $patient_status The status of patients of
      * @return CActiveDataProvider The data provider of patients with the given status
      * @throws CException Thrown if the patient_status is invalid
      */
