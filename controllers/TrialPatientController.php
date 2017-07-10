@@ -21,7 +21,6 @@ class TrialPatientController extends BaseModuleController
     {
         return array(
             'accessControl',
-            'ajaxOnly + accept',
         );
     }
 
