@@ -34,12 +34,12 @@
           </h1>
           <h3 style="display: inline">
             <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
-                  <?php echo CHtml::link('[edit]', array(
+                  <?php echo CHtml::link('<u>edit</u>', array(
                           '/OETrial/trial/update',
                           'id' => $model->id,
                       )); ?>
             <?php endif; ?>
-            <?php echo 'owned by ' . $model->ownerUser->first_name . ' ' . $model->ownerUser->last_name; ?>
+            <?php echo Chtml::encode('owned by ' . $model->ownerUser->first_name . ' ' . $model->ownerUser->last_name); ?>
           </h3>
         </div>
         <div class="large-3 column">
