@@ -57,7 +57,7 @@ class UserTrialPermission extends BaseActiveRecordVersioned
 
     /**
      * Returns an array of all of the allowable values of "permission"
-     * @return int[] The list of permissions
+     * @return integer[] The list of permissions
      */
     public static function getAllowedPermissionRange()
     {

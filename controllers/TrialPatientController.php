@@ -6,10 +6,13 @@
 class TrialPatientController extends BaseModuleController
 {
     /**
-     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
+     * The return value for a actionChangeStatus() if the status change is successful
      */
-    public $layout = '//layouts/column2';
+    const STATUS_CHANGE_CODE_OK = '0';
+    /**
+     * The return code for actionChangeStatus() if the patient is already in another intervention trial
+     */
+    const STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION = '1';
 
     /**
      * @return array action filters
@@ -17,8 +20,7 @@ class TrialPatientController extends BaseModuleController
     public function filters()
     {
         return array(
-            'accessControl', // perform access control for CRUD operations
-            'ajaxOnly + accept',
+            'accessControl',
         );
     }
 
@@ -51,6 +53,7 @@ class TrialPatientController extends BaseModuleController
      */
     public function loadModel($id)
     {
+        /* @var TrialPatient $model */
         $model = TrialPatient::model()->findByPk($id);
         if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
@@ -73,43 +76,48 @@ class TrialPatientController extends BaseModuleController
 
     /**
      * Changes the status of a patient in a trial to a given value
-     * @param $id integer The id of the TrialPatient to change the status for
-     * @param $new_status integer The new status of the TrialPatient
+     * @param integer $id The id of the TrialPatient to change the status for
+     * @param integer $new_status The new status of the TrialPatient
      * @throws CHttpException Thrown the model cannot be saved
      */
     public function actionChangeStatus($id, $new_status)
     {
-        /** @var TrialPatient $model */
-        $model = TrialPatient::model()->findByPk($id);
+        $model = $this->loadModel($id);
 
         if ($new_status == TrialPatient::STATUS_ACCEPTED &&
             $model->trial->trial_type == Trial::TRIAL_TYPE_INTERVENTION &&
             $model->patient->isCurrentlyInInterventionTrial()
         ) {
-            echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION;
+            echo self::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION;
 
             return;
         }
 
         $model->patient_status = $new_status;
         if (!$model->save()) {
-            throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));
+            throw new CHttpException(400,
+                'An error occurred when saving the model: ' . print_r($model->getErrors(), true));
         }
 
-        echo TrialPatient::STATUS_CHANGE_CODE_OK;
+        echo self::STATUS_CHANGE_CODE_OK;
     }
 
+
+    /**
+     * Changes the external_trial_identifier of a TrialPatient record
+     *
+     * @param integer $id The ID of the TrialPatient record
+     * @param string $new_external_id The new external reference
+     * @throws CHttpException Thrown if an error occurs when saving the model or if it cannot be found
+     */
     public function actionUpdateExternalId($id, $new_external_id)
     {
-        $model = TrialPatient::model()->findByPk($id);
-        if ($model == null) {
-            throw new HttpException(404);
-        }
-
+        $model = $this->loadModel($id);
         $model->external_trial_identifier = $new_external_id;
 
         if (!$model->save()) {
-            throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));
+            throw new CHttpException(400,
+                'An error occurred when saving the model: ' . print_r($model->getErrors(), true));
         }
     }
 
@@ -131,7 +139,8 @@ class TrialPatientController extends BaseModuleController
         $model->treatment_type = $treatment_type;
 
         if (!$model->save()) {
-            throw new CHttpException(400, 'An error occurred when saving the model: ' . print_r($model->getErrors()));
+            throw new CHttpException(400,
+                'An error occurred when saving the model: ' . print_r($model->getErrors(), true));
         }
     }
 }

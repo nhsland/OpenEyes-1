@@ -117,7 +117,7 @@
           </p>
         <?php endif; ?>
 
-        <?php if ($model->status != Trial::STATUS_CANCELLED && $model->status != Trial::STATUS_CLOSED && $userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
+        <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
           <p>
                 <span class="highlight">
                     <?php echo CHtml::link('Share this trial with other users',
@@ -154,11 +154,11 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
       url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
       type: 'GET',
       success: function (response) {
-        if (response == '<?php echo TrialPatient::STATUS_CHANGE_CODE_OK; ?>') {
+        if (response == '<?php echo TrialPatientController::STATUS_CHANGE_CODE_OK; ?>') {
           $.fn.yiiListView.update('shortlistedPatientList');
           $.fn.yiiListView.update('acceptedPatientList');
           $.fn.yiiListView.update('rejectedPatientList');
-        } else if (response == '<?php echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION; ?>') {
+        } else if (response == '<?php echo TrialPatientController::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION; ?>') {
           new OpenEyes.UI.Dialog.Alert({
             content: "You can't accept this patient into your Trial because the patient has already been accepted into another Intervention trial."
           }).open();

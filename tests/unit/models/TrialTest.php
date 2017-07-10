@@ -115,9 +115,9 @@ class TrialTest extends CDbTestCase
     {
         /* @var Trial $trial */
         $trial = $this->trial('trial1');
-        $this->assertEquals(UserTrialPermission::PERMISSION_MANAGE, $trial->getTrialAccess($this->user('user1')->id));
-        $this->assertEquals(UserTrialPermission::PERMISSION_VIEW, $trial->getTrialAccess($this->user('user2')->id));
-        $this->assertEquals(UserTrialPermission::PERMISSION_EDIT, $trial->getTrialAccess($this->user('user3')->id));
+        $this->assertEquals(UserTrialPermission::PERMISSION_MANAGE, $trial->getTrialAccess($this->user('user1')));
+        $this->assertEquals(UserTrialPermission::PERMISSION_VIEW, $trial->getTrialAccess($this->user('user2')));
+        $this->assertEquals(UserTrialPermission::PERMISSION_EDIT, $trial->getTrialAccess($this->user('user3')));
     }
 
     public function tearDown()

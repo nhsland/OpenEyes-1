@@ -28,11 +28,13 @@
       ?>
 
   </div><!-- /.large-9.column -->
-  <div class="large-3 column">
-    <div class="box generic">
-      <p><span class="highlight"><?php echo CHtml::link('Create a New Trial', array('create')) ?></span></p>
-    </div>
-  </div>
+    <?php if (Yii::app()->user->checkAccess('TaskCreateTrial')): ?>
+      <div class="large-3 column">
+        <div class="box generic">
+          <p><span class="highlight"><?php echo CHtml::link('Create a New Trial', array('create')) ?></span></p>
+        </div>
+      </div>
+    <?php endif; ?>
 </div>
 
 

@@ -38,9 +38,6 @@ class TrialPatient extends BaseActiveRecordVersioned
      */
     const STATUS_REJECTED = 2;
 
-    const STATUS_CHANGE_CODE_OK = "0";
-    const STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION = "1";
-
     /**
      * The treatment type when users don't know whether the patient had intervention treatment or not (also the default value)
      */
@@ -70,7 +67,7 @@ class TrialPatient extends BaseActiveRecordVersioned
     /**
      * Gets an array with keys as the different possible patient statuses, and the values as the label for that status
      *
-     * @return int[] The status options
+     * @return integer[] The status options
      */
     public static function getStatusOptions()
     {
@@ -97,7 +94,7 @@ class TrialPatient extends BaseActiveRecordVersioned
     /**
      * Gets an array with keys as the different possible treatment types, and the values as the label for that treatment type
      *
-     * @return int[] The treatment options
+     * @return integer[] The treatment options
      */
     public static function getTreatmentTypeOptions()
     {
@@ -206,39 +203,6 @@ class TrialPatient extends BaseActiveRecordVersioned
     }
 
     /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     *
-     * Typical usecase:
-     * - Initialize the model fields with values from filter form.
-     * - Execute this method to get CActiveDataProvider instance which will filter
-     * models according to data in model fields.
-     * - Pass data provider to CGridView, CListView or any similar widget.
-     *
-     * @return CActiveDataProvider the data provider that can return the models
-     * based on the search/filter conditions.
-     */
-    public function search()
-    {
-        // @todo Please modify the following code to remove attributes that should not be searched.
-
-        $criteria = new CDbCriteria;
-
-        $criteria->compare('id', $this->id);
-        $criteria->compare('external_trial_identifier', $this->external_trial_identifier, true);
-        $criteria->compare('trial_id', $this->trial_id);
-        $criteria->compare('patient_id', $this->patient_id, true);
-        $criteria->compare('patient_status', $this->patient_status, true);
-        $criteria->compare('last_modified_user_id', $this->last_modified_user_id, true);
-        $criteria->compare('last_modified_date', $this->last_modified_date, true);
-        $criteria->compare('created_user_id', $this->created_user_id, true);
-        $criteria->compare('created_date', $this->created_date, true);
-
-        return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
-    }
-
-    /**
      * Returns the static model of the specified AR class.
      * Please note that you should have this exact method in all your CActiveRecord descendants!
      * @param string $className active record class name.
@@ -249,6 +213,15 @@ class TrialPatient extends BaseActiveRecordVersioned
         return parent::model($className);
     }
 
+    /**
+     * Checks whether a user has access to a certain TrialPatient
+     *
+     * @param CWebuser $user The user to check access for
+     * @param integer $trial_patient_id The ID of the TrialPatient to check access for
+     * @param integer $permission The permission to check
+     * @return bool True if $user is allowed to perform $permission on $trial_patient_id, otherwise false
+     * @throws CHttpException Thrown by Trial::checkTrialAccess()
+     */
     public static function checkTrialPatientAccess($user, $trial_patient_id, $permission)
     {
         /* @var TrialPatient $model */

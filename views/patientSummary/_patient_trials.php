@@ -35,16 +35,15 @@
       foreach ($this->patient->trials as $trialPatient):
           ?>
         <tr>
-          <td><?php
-              if (Trial::checkTrialAccess(Yii::app()->user, $trialPatient->trial_id,
+          <td><?php if (Trial::checkTrialAccess(Yii::app()->user, $trialPatient->trial_id,
                   UserTrialPermission::PERMISSION_VIEW)
-              ) {
-                  echo Chtml::link(CHtml::encode($trialPatient->trial->name),
-                      Yii::app()->controller->createUrl('/OETrial/trial/view', array('id' => $trialPatient->trial_id)));
-              } else {
-                  echo CHtml::encode($trialPatient->trial->name);
-              }
-              ?>
+              ): ?>
+                  <?php echo Chtml::link(CHtml::encode($trialPatient->trial->name),
+                      Yii::app()->controller->createUrl('/OETrial/trial/view',
+                          array('id' => $trialPatient->trial_id))); ?>
+              <?php else: ?>
+                  <?php echo CHtml::encode($trialPatient->trial->name); ?>
+              <?php endif; ?>
           </td>
           <td>
               <?php

@@ -90,7 +90,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns an array of all of the allowable values of "status"
-     * @return int[] The list of statuses
+     * @return integer[] The list of statuses
      */
     public static function getAllowedStatusRange()
     {
@@ -109,7 +109,7 @@ class Trial extends BaseActiveRecordVersioned
     public static function getStatusOptions()
     {
         return array(
-            self::STATUS_OPEN => 'Open"',
+            self::STATUS_OPEN => 'Open',
             self::STATUS_IN_PROGRESS => 'In Progress',
             self::STATUS_CLOSED => 'Closed',
             self::STATUS_CANCELLED => 'Cancelled',
@@ -118,7 +118,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns an array of all of the allowable values of "trial_type"
-     * @return int[] The list of types
+     * @return integer[] The list of types
      */
     public static function getAllowedTrialTypeRange()
     {
@@ -152,6 +152,20 @@ class Trial extends BaseActiveRecordVersioned
         }
 
         return $this->trial_type;
+    }
+
+    /**
+     * Returns the status as a string
+     *
+     * @return string The trial status
+     */
+    public function getStatusString()
+    {
+        if (array_key_exists($this->status, self::getStatusOptions())) {
+            return self::getStatusOptions()[$this->status];
+        }
+
+        return $this->status;
     }
 
     /**
@@ -212,39 +226,6 @@ class Trial extends BaseActiveRecordVersioned
     }
 
     /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     *
-     * Typical usecase:
-     * - Initialize the model fields with values from filter form.
-     * - Execute this method to get CActiveDataProvider instance which will filter
-     * models according to data in model fields.
-     * - Pass data provider to CGridView, CListView or any similar widget.
-     *
-     * @return CActiveDataProvider the data provider that can return the models
-     * based on the search/filter conditions.
-     */
-    public function search()
-    {
-        // @todo Please modify the following code to remove attributes that should not be searched.
-
-        $criteria = new CDbCriteria;
-
-        $criteria->compare('id', $this->id, true);
-        $criteria->compare('name', $this->name, true);
-        $criteria->compare('description', $this->description, true);
-        $criteria->compare('owner_user_id', $this->owner_user_id, true);
-        $criteria->compare('status', $this->status, true);
-        $criteria->compare('last_modified_date', $this->last_modified_date, true);
-        $criteria->compare('last_modified_user_id', $this->last_modified_user_id, true);
-        $criteria->compare('created_user_id', $this->created_user_id, true);
-        $criteria->compare('created_date', $this->created_date, true);
-
-        return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
-    }
-
-    /**
      * Returns the static model of the specified AR class.
      * Please note that you should have this exact method in all your CActiveRecord descendants!
      * @param string $className active record class name.
@@ -256,10 +237,33 @@ class Trial extends BaseActiveRecordVersioned
     }
 
     /**
+     * Overrides CActiveModel::afterSave()
+     *
+     * @throws Exception Thrown if a new permission cannot be created
+     */
+    protected function afterSave()
+    {
+        parent::afterSave();
+
+        if ($this->getIsNewRecord()) {
+
+            // Create a new permission assignment for the user that created the Trial
+            $newPermission = new UserTrialPermission();
+            $newPermission->user_id = Yii::app()->user->id;
+            $newPermission->trial_id = $this->id;
+            $newPermission->permission = UserTrialPermission::PERMISSION_MANAGE;
+            if (!$newPermission->save()) {
+                throw new Exception('The owner permission for the new trial could not be saved: '
+                    . print_r($newPermission->errors(), true));
+            }
+        }
+    }
+
+    /**
      * Returns whether or not the given user can access the given trial using the given action
-     * @param $user User The user to check access for
-     * @param $trial_id int The ID of the trial
-     * @param $permission integer The ID of the controller action
+     * @param CWebUser $user The user to check access for
+     * @param integer $trial_id The ID of the trial
+     * @param integer $permission The ID of the controller action
      * @return bool True if access is permitted, otherwise false
      * @throws CHttpException
      */
@@ -267,36 +271,32 @@ class Trial extends BaseActiveRecordVersioned
     {
         /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
-        if ($model === null) {
-            throw new CHttpException(404);
-        }
 
-        if ($model->owner_user_id === $user->id) {
-            return true;
-        }
-
-        return UserTrialPermission::model()->exists(
-            'user_id = :userId AND trial_id = :trialId AND permission >= :permission',
-            array(
-                ':userId' => $user->id,
-                ':trialId' => $trial_id,
-                ':permission' => $permission,
-            )
-        );
+        return $model->getTrialAccess($user) >= $permission;
     }
 
-    public function getTrialAccess($user_id)
+    /**
+     * @param CWebUser $user The user to get access for
+     * @return integer The user permission if they have one otherwise null)
+     * @throws CDbException Thrown if an error occurs when executing the SQL statement
+     */
+    public function getTrialAccess($user)
     {
-        if ($this->owner_user_id === $user_id) {
-            return UserTrialPermission::PERMISSION_MANAGE;
+        if (!$user->checkAccess('TaskViewTrial')) {
+            return null;
         }
 
         $sql = 'SELECT MAX(permission) FROM user_trial_permission WHERE user_id = :userId AND trial_id = :trialId';
         $query = $this->getDbConnection()->createCommand($sql);
 
-        return $query->queryScalar(array(':userId' => $user_id, ':trialId' => $this->id));
+        return $query->queryScalar(array(':userId' => $user->id, ':trialId' => $this->id));
     }
 
+    /**
+     * Returns whether or not this trial has any shortlisted patients
+     *
+     * @return bool True if the trial has one or more shortlisted patients, otherwise false
+     */
     public function hasShortlistedPatients()
     {
         return TrialPatient::model()->exists('trial_id = :trialId AND patient_status = :patientStatus',
@@ -322,7 +322,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Create a data provider for patients in the Trial
-     * @param $patient_status int The status of patients of
+     * @param integer $patient_status The status of patients of
      * @return CActiveDataProvider The data provider of patients with the given status
      * @throws CException Thrown if the patient_status is invalid
      */
