@@ -180,13 +180,38 @@ class TrialController extends BaseModuleController
      */
     public function actionIndex()
     {
-        $condition = 'trial_type = :trialType AND EXISTS (
+        // Get the sort direction, defaulting to ascending
+        $sortDir = Yii::app()->request->getParam('sort_dir', '0') === '0' ? 'asc' : 'desc';
+
+        // Get the column to sort by (the 't' table is the trial table, 'u' is the user that owns the trial)
+        // Default to sorting by status
+        $sortBy = Yii::app()->request->getParam('sort_by', -1);
+        switch ($sortBy) {
+            case 0:
+                $sortBy = 't.name';
+                break;
+            case 1:
+                $sortBy = 't.created_date';
+                break;
+            case 2:
+                $sortBy = "u.first_name $sortDir, u.last_name";
+                break;
+            case 3:
+                $sortBy = 't.status';
+                break;
+            default:
+                $sortBy = 't.status';
+                break;
+        }
+
+        $condition = "trial_type = :trialType AND EXISTS (
                         SELECT * FROM user_trial_permission utp WHERE utp.user_id = :userId AND utp.trial_id = t.id
-                    )';
+                    ) ORDER BY $sortBy $sortDir";
 
         $interventionTrialDataProvider = new CActiveDataProvider('Trial', array(
             'criteria' => array(
                 'condition' => $condition,
+                'join' => 'JOIN user u ON u.id = t.owner_user_id',
                 'params' => array(
                     ':userId' => Yii::app()->user->id,
                     ':trialType' => Trial::TRIAL_TYPE_INTERVENTION,
@@ -197,6 +222,7 @@ class TrialController extends BaseModuleController
         $nonInterventionTrialDataProvider = new CActiveDataProvider('Trial', array(
             'criteria' => array(
                 'condition' => $condition,
+                'join' => 'JOIN user u ON u.id = t.owner_user_id',
                 'params' => array(
                     ':userId' => Yii::app()->user->id,
                     ':trialType' => Trial::TRIAL_TYPE_NON_INTERVENTION,

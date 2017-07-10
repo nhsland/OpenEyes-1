@@ -30,12 +30,17 @@
       <table id="patient-grid" class="grid">
         <thead>
         <tr>
-            <?php foreach (array('Name', 'Date Created', 'Owner') as $i => $field) { ?>
+            <?php foreach (array('Name', 'Date Created', 'Owner', 'Status') as $i => $field) { ?>
               <th id="patient-grid_c<?php echo $i; ?>">
                   <?php
                   $new_sort_dir = ($i == $sort_by) ? 1 - $sort_dir : 0;
+                  $sort_symbol = '';
+                  if ($i == $sort_by) {
+                      $sort_symbol = $sort_dir == 1 ? '&#x25B2;' : '&#x25BC';
+                  }
+
                   echo CHtml::link(
-                      $field,
+                      $field . $sort_symbol,
                       Yii::app()->createUrl('/OETrial/trial/index',
                           array('sort_by' => $i, 'sort_dir' => $new_sort_dir, 'page_num' => $page_num))
                   );
@@ -45,11 +50,14 @@
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($dataProvided as $i => $trial) { ?>
+
+        <?php /* @var Trial $trial */
+        foreach ($dataProvided as $i => $trial) { ?>
           <tr id="r<?php echo $trial->id; ?>" class="clickable">
             <td><?php echo $trial->name; ?></td>
             <td><?php echo date('d/m/Y', strtotime($trial->created_date)); ?></td>
             <td><?php echo $trial->ownerUser->getFullName(); ?></td>
+            <td><?php echo $trial->getStatusString(); ?></td>
           </tr>
         <?php } ?>
         </tbody>

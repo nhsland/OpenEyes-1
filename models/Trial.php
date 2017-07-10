@@ -109,7 +109,7 @@ class Trial extends BaseActiveRecordVersioned
     public static function getStatusOptions()
     {
         return array(
-            self::STATUS_OPEN => 'Open"',
+            self::STATUS_OPEN => 'Open',
             self::STATUS_IN_PROGRESS => 'In Progress',
             self::STATUS_CLOSED => 'Closed',
             self::STATUS_CANCELLED => 'Cancelled',
@@ -152,6 +152,20 @@ class Trial extends BaseActiveRecordVersioned
         }
 
         return $this->trial_type;
+    }
+
+    /**
+     * Returns the status as a string
+     *
+     * @return string The trial status
+     */
+    public function getStatusString()
+    {
+        if (array_key_exists($this->status, self::getStatusOptions())) {
+            return self::getStatusOptions()[$this->status];
+        }
+
+        return $this->status;
     }
 
     /**
