@@ -67,19 +67,21 @@ class TrialController extends BaseModuleController
             array(
                 'allow',
                 'actions' => array('view'),
-                'roles' => array('TaskViewTrial'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_VIEW)',
             ),
             array(
                 'allow',
                 'actions' => array('update', 'addPatient', 'removePatient'),
-                'roles' => array('TaskViewTrial'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_EDIT)',
             ),
             array(
                 'allow',
-                'actions' => array('permissions', 'addPermission', 'removePermission', 'transitionState'),
+                'actions' => array('permissions'),
                 'roles' => array('TaskViewTrial'),
+            ),
+            array(
+                'allow',
+                'actions' => array('addPermission', 'removePermission', 'transitionState'),
                 'expression' => 'Trial::checkTrialAccess($user, Yii::app()->getRequest()->getQuery("id"), UserTrialPermission::PERMISSION_MANAGE)',
             ),
             array(
