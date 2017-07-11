@@ -148,27 +148,4 @@ WHERE $condition";
 
         $this->assertNotEquals($incorrect, $this->object->bindValues());
     }
-
-    /**
-     * @covers PreviousTrialParameter::alias()
-     */
-    public function testAlias()
-    {
-        // Ensure that the alias correctly utilises the ID.
-        $expected = 'p_t_0';
-        $this->assertEquals($expected, $this->object->alias());
-    }
-
-    /**
-     * @covers PreviousTrialParameter::join()
-     */
-    public function testJoin()
-    {
-        $this->object->operation = '=';
-        $innerSql = $this->object->query($this->searchProvider);
-
-        // Ensure that the JOIN string is correct.
-        $expected = " JOIN ($innerSql) p_t_0 ON p_t_1.id = p_t_0.id";
-        $this->assertEquals($expected, $this->object->join('p_t_1', array('id' => 'id'), $this->searchProvider));
-    }
 }
