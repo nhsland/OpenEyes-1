@@ -371,17 +371,20 @@ class TrialController extends BaseModuleController
             return;
         }
 
-        $count = UserTrialPermission::model()->count('trial_id = :trialId AND permission = :permission',
-            array(
-                ':trialId' => $id,
-                ':permission' => UserTrialPermission::PERMISSION_MANAGE,
-            )
-        );
+        // THe last Manage permission in a trial can't be removed (there always has to be one manager for a trial)
+        if ($permission->permission == UserTrialPermission::PERMISSION_MANAGE) {
+            $count = UserTrialPermission::model()->count('trial_id = :trialId AND permission = :permission',
+                array(
+                    ':trialId' => $id,
+                    ':permission' => UserTrialPermission::PERMISSION_MANAGE,
+                )
+            );
 
-        if ($count <= 1) {
-            echo self::REMOVE_PERMISSION_RESULT_CANT_REMOVE_LAST;
+            if ($count <= 1) {
+                echo self::REMOVE_PERMISSION_RESULT_CANT_REMOVE_LAST;
 
-            return;
+                return;
+            }
         }
 
 
