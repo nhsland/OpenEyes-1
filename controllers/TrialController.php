@@ -188,13 +188,13 @@ class TrialController extends BaseModuleController
         $sortBy = Yii::app()->request->getParam('sort_by', -1);
         switch ($sortBy) {
             case 0:
-                $sortBy = 't.name';
+                $sortBy = 'LOWER(t.name)';
                 break;
             case 1:
                 $sortBy = 't.created_date';
                 break;
             case 2:
-                $sortBy = "u.first_name $sortDir, u.last_name";
+                $sortBy = "LOWER(u.first_name) $sortDir, LOWER(u.last_name)";
                 break;
             case 3:
                 $sortBy = 't.status';
