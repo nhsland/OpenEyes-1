@@ -49,7 +49,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
         </div>
       </div>
 
-        <?php if (strlen($model->description) > 0): ?>
+        <?php if ($model->description !== ''): ?>
           <div class="row">
             <div class="large-12 column">
               <p><?php echo CHtml::encode($model->description); ?></p>
@@ -57,7 +57,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
           </div>
         <?php endif; ?>
 
-        <?php if (strlen($model->external_reference) > 0): ?>
+        <?php if ($model->external_reference !== ''): ?>
           <div class="row">
             <div class="large-12 column">
               <p><?php echo CHtml::encode($model->external_reference); ?></p>
@@ -65,7 +65,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
           </div>
         <?php endif; ?>
 
-        <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
+        <?php if ($hasManagePermissions): ?>
           <br/>
             <?php if (in_array($model->status,
                 array(Trial::STATUS_OPEN, Trial::STATUS_CANCELLED, Trial::STATUS_CLOSED))): ?>
