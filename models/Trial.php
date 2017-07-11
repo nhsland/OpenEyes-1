@@ -265,14 +265,14 @@ class Trial extends BaseActiveRecordVersioned
      * @param integer $trial_id The ID of the trial
      * @param integer $permission The ID of the controller action
      * @return bool True if access is permitted, otherwise false
-     * @throws CHttpException
+     * @throws CDbException Thrown if an error occurs when looking up the user permissions
      */
     public static function checkTrialAccess($user, $trial_id, $permission)
     {
         /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
-
-        return $model->getTrialAccess($user) >= $permission;
+        $access_level = $model->getTrialAccess($user);
+        return !is_null($access_level) && $access_level >= $permission;
     }
 
     /**
