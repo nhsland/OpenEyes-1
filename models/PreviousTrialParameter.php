@@ -114,7 +114,7 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
             switch ($this->operation) {
                 case '=':
                     $joinCondition = 'JOIN';
-                    if ($this->type !== '' and isset($this->type)) {
+                    if ($this->type !== '' && $this->type !== null) {
                         if ($this->trial === '') {
                             // Any intervention/non-intervention trial
                             $condition = "t.trial_type = :p_t_type_$this->id";
@@ -130,13 +130,14 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
                     break;
                 case '!=':
                     $joinCondition = 'LEFT JOIN';
-                    if ($this->type !== '' and isset($this->type)) {
+                    if ($this->type !== '' && $this->type !== null) {
+                        $condition = 't_p.trial_id IS NULL OR ';
                         if ($this->trial === '') {
                             // Not in any intervention/non-intervention trial
-                            $condition = "t_p.trial_id IS NULL OR t.trial_type != :p_t_type_$this->id";
+                            $condition .= "t.trial_type != :p_t_type_$this->id";
                         } else {
                             // Not in a specific trial
-                            $condition = "t_p.trial_id IS NULL OR t_p.trial_id != :p_t_trial_$this->id";
+                            $condition .= "t_p.trial_id != :p_t_trial_$this->id";
                         }
                     } else {
                         // not in any trial
@@ -170,47 +171,12 @@ WHERE $condition";
         // Construct your list of bind values here. Use the format "bind" => "value".
         $binds = array();
 
-        if ($this->trial !== '' and $this->trial !== null and isset($this->trial)) {
+        if ($this->trial !== '' and $this->trial !== null) {
             $binds[":p_t_trial_$this->id"] = $this->trial;
-        } elseif ($this->type !== '' and $this->type !== null and isset($this->type)) {
+        } elseif ($this->type !== '' and $this->type !== null) {
             $binds[":p_t_type_$this->id"] = $this->type;
         }
 
         return $binds;
-    }
-
-    /**
-     * Generate a SQL fragment representing a JOIN condition to a subquery.
-     * @param $joinAlias string The alias of the table being joined to.
-     * @param $criteria array An array of join conditions. The ID for each element is the column name from the aliased table.
-     * @param $searchProvider SearchProvider The search provider. This is used for an internal query invocation for subqueries.
-     * @return string A SQL string representing a complete join condition. Join type is specified within the subclass definition.
-     */
-    public function join($joinAlias, $criteria, $searchProvider)
-    {
-        // Construct your JOIN condition here. Generally this involves wrapping the query in a JOIN condition.
-        $subQuery = $this->query($searchProvider);
-        $query = '';
-        $alias = $this->alias();
-        foreach ($criteria as $key => $column) {
-            // if the string isn't empty, the condition is not the first so prepend it with an AND.
-            if (!empty($query)) {
-                $query .= ' AND ';
-            }
-            $query .= "$joinAlias.$key = $alias.$column";
-        }
-
-        $query = " JOIN ($subQuery) $alias ON " . $query;
-
-        return $query;
-    }
-
-    /**
-     * Get the alias of the database table being used by this parameter instance.
-     * @return string The alias of the table for use in the SQL query.
-     */
-    public function alias()
-    {
-        return "p_t_$this->id";
     }
 }
