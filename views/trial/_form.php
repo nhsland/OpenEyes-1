@@ -28,7 +28,15 @@
       </div>
     </div>
   </div>
-
+  <div class="row field-row">
+    <div class="large-6 column">
+      <div class="row field-row">
+        <?php echo $form->labelEx($model, 'external_reference'); ?>
+        <?php echo $form->textField($model, 'external_reference', array('size' => 100, 'maxlength' => 100)); ?>
+        <?php echo $form->error($model, 'external_reference'); ?>
+      </div>
+    </div>
+  </div>
   <div class="row field-row">
       <?php echo $form->labelEx($model, 'description'); ?>
       <?php echo $form->textArea($model, 'description'); ?>
