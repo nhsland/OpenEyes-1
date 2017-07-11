@@ -1,9 +1,11 @@
 <?php
 /* @var $this TrialController */
 /* @var $model Trial
- * @var $userPermission integer
  * @var $dataProviders CActiveDataProvider[]
  */
+
+$hasEditPermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, UserTrialPermission::PERMISSION_EDIT);
+$hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, UserTrialPermission::PERMISSION_MANAGE);
 ?>
 
 <h1 class="badge">Trial</h1>
@@ -32,8 +34,8 @@
           <h1 style="display: inline"><?php echo $model->name; ?>
 
           </h1>
-          <h3 style="display: inline">
-            <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
+            <h3 style="display: inline">
+            <?php if ($model->status != Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
                   <?php echo CHtml::link('<u>edit</u>', array(
                           '/OETrial/trial/update',
                           'id' => $model->id,
@@ -55,7 +57,7 @@
           </div>
         <?php endif; ?>
 
-        <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
+        <?php if ($hasManagePermissions): ?>
           <br/>
             <?php if (in_array($model->status,
                 array(Trial::STATUS_OPEN, Trial::STATUS_CANCELLED, Trial::STATUS_CLOSED))): ?>
@@ -112,7 +114,7 @@
 
   <div class="large-3 column">
     <div class="box generic">
-        <?php if ($model->status != Trial::STATUS_CANCELLED && $userPermission >= UserTrialPermission::PERMISSION_EDIT): ?>
+        <?php if ($model->status != Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
           <p>
                 <span class="highlight">
                     <?php echo CHtml::link('Search for patients to add',
@@ -121,7 +123,7 @@
           </p>
         <?php endif; ?>
 
-        <?php if ($userPermission >= UserTrialPermission::PERMISSION_MANAGE): ?>
+        <?php if ($hasManagePermissions): ?>
           <p>
                 <span class="highlight">
                     <?php echo CHtml::link('Share this trial with other users',

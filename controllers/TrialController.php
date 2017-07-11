@@ -106,7 +106,6 @@ class TrialController extends BaseModuleController
 
         $this->render('view', array(
             'model' => $model,
-            'userPermission' => $model->getTrialAccess(Yii::app()->user),
             'report' => $report,
             'dataProviders' => $model->getPatientDataProviders(),
         ));
