@@ -34,11 +34,15 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
           <h1 style="display: inline"><?php echo $model->name; ?>
 
           </h1>
+            <h3 style="display: inline">
             <?php if ($model->status != Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
-              <h3 style="display: inline">
-                  <?php echo CHtml::link('[edit]', array('/OETrial/trial/update', 'id' => $model->id)); ?>
-              </h3>
+                  <?php echo CHtml::link('<u>edit</u>', array(
+                          '/OETrial/trial/update',
+                          'id' => $model->id,
+                      )); ?>
             <?php endif; ?>
+            <?php echo Chtml::encode('owned by ' . $model->ownerUser->first_name . ' ' . $model->ownerUser->last_name); ?>
+          </h3>
         </div>
         <div class="large-3 column">
             <?php echo $model->getCreatedDateForDisplay(); ?> &mdash; <?php echo $model->getClosedDateForDisplay() ?>
