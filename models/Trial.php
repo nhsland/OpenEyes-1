@@ -256,8 +256,8 @@ class Trial extends BaseActiveRecordVersioned
             $newPermission->trial_id = $this->id;
             $newPermission->permission = UserTrialPermission::PERMISSION_MANAGE;
             if (!$newPermission->save()) {
-                throw new Exception('The owner permission for the new trial could not be saved: '
-                    . print_r($newPermission->errors(), true));
+                throw new CHttpException(500, 'The owner permission for the new trial could not be saved: '
+                    . print_r($newPermission->getErrors(), true));
             }
         }
     }
