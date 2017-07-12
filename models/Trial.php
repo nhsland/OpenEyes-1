@@ -264,7 +264,7 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Returns whether or not the given user can access the given trial using the given action
-     * @param CWebUser $user The user to check access for
+     * @param User $user The user to check access for
      * @param integer $trial_id The ID of the trial
      * @param integer $permission The ID of the controller action
      * @return bool True if access is permitted, otherwise false
@@ -275,20 +275,17 @@ class Trial extends BaseActiveRecordVersioned
         /* @var Trial $model */
         $model = Trial::model()->findByPk($trial_id);
         $access_level = $model->getTrialAccess($user);
-        return !is_null($access_level) && $access_level >= $permission;
+
+        return $access_level !== null && $access_level >= $permission;
     }
 
     /**
-     * @param CWebUser $user The user to get access for
+     * @param User $user The user to get access for
      * @return integer The user permission if they have one otherwise null)
      * @throws CDbException Thrown if an error occurs when executing the SQL statement
      */
     public function getTrialAccess($user)
     {
-        if (!$user->checkAccess('TaskViewTrial')) {
-            return null;
-        }
-
         $sql = 'SELECT MAX(permission) FROM user_trial_permission WHERE user_id = :userId AND trial_id = :trialId';
         $query = $this->getDbConnection()->createCommand($sql);
 
@@ -331,7 +328,7 @@ class Trial extends BaseActiveRecordVersioned
      */
     private function getPatientDataProvider($patient_status)
     {
-        if (!in_array($patient_status, TrialPatient::getAllowedStatusRange())) {
+        if (!in_array($patient_status, TrialPatient::getAllowedStatusRange(), false)) {
             throw new CException("Unknown Trial Patient status: $patient_status");
         }
 
