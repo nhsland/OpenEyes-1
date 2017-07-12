@@ -75,7 +75,7 @@ class TrialTest extends CDbTestCase
         $this->assertFalse($this->trial('trial2')->hasShortlistedPatients());
     }
 
-    public function testCheckTrialAccessForOwner()
+    public function testCheckTrialAccessManage()
     {
         $this->assertTrue(Trial::checkTrialAccess($this->user('user1'), $this->trial('trial1')->id,
             UserTrialPermission::PERMISSION_VIEW), 'user1 should have view access to trial1');
