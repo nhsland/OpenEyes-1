@@ -319,7 +319,7 @@ class TrialController extends BaseModuleController
      * @param integer $id The Trial ID
      * @throws CHttpException Thrown if the permission couldn't be saved
      */
-    public function actionAddPermission($id, $user_id, $permission)
+    public function actionAddPermission($id, $user_id, $permission, $role)
     {
         if (UserTrialPermission::model()->exists(
             'trial_id = :trialId AND user_id = :userId',
@@ -337,6 +337,7 @@ class TrialController extends BaseModuleController
         $userPermission->trial_id = $id;
         $userPermission->user_id = $user_id;
         $userPermission->permission = $permission;
+        $userPermission->role = $role;
 
         if (!$userPermission->save()) {
             throw new CHttpException(400,
