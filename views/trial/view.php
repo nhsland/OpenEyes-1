@@ -204,7 +204,7 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
         $("#ext-trial-id-form-" + trial_patient_id).hide();
 
         var id_label = $("#ext-trial-id-" + trial_patient_id);
-        id_label.html(external_id);
+        id_label.text(external_id);
         id_label.show();
 
         $('#ext-trial-id-link-' + trial_patient_id).show();
