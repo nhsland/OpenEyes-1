@@ -14,7 +14,7 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
 
         <h3 class="box-title">
             <?php echo CHtml::link(
-                $data->patient->contact->last_name . ', ' . $data->patient->contact->first_name . ($data->patient->is_deceased ? ' (Deceased)' : ''),
+                CHtml::encode($data->patient->last_name . ', ' . $data->patient->first_name . ($data->patient->is_deceased ? ' (Deceased)' : '')),
                 array('/patient/view', 'id' => $data->patient->id),
                 array('target' => '_blank')
             ); ?>
@@ -27,9 +27,9 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
           <?php } ?>
 
           <?php
-          echo $data->patient->getGenderString() . ' ' . '(' . $data->patient->getAge() . ') ';
+          echo CHtml::encode($data->patient->getGenderString() . ' ' . '(' . $data->patient->getAge() . ') ');
           if ($data->patient->ethnic_group) {
-              echo $data->patient->getEthnicGroupString();
+              echo CHtml::encode($data->patient->getEthnicGroupString());
           }
           ?>
         <br/>
@@ -44,7 +44,7 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
 
             <div id="ext-trial-id-form-<?php echo $data->id; ?>" style="display:none">
               <input id="trial-patient-ext-id-<?php echo $data->id; ?>" type="text"
-                     value="<?php echo $data->external_trial_identifier; ?>" width="50"/>
+                     value="<?php echo CHtml::encode($data->external_trial_identifier); ?>" width="50"/>
               <a id="ext-trial-id-save-<?php echo $data->id; ?>" href="javascript:void(0)"
                  onclick="saveExternalTrialIdentifier(<?php echo $data->id; ?>)">save</a>
             </div>

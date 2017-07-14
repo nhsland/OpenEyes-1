@@ -46,7 +46,7 @@
           <td>
               <?php
               $PI = $trialPatient->trial->ownerUser;
-              echo $PI->last_name . ', ' . $PI->first_name;
+              echo CHtml::encode($PI->last_name . ', ' . $PI->first_name);
               ?>
           </td>
           <td><?php echo $trialPatient->getStatusForDisplay(); ?></td>

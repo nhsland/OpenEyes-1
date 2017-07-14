@@ -31,7 +31,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
         <?php endif; ?>
       <div class="row">
         <div class="large-9 column">
-          <h1 style="display: inline"><?php echo $model->name; ?>
+          <h1 style="display: inline"><?php echo CHtml::encode($model->name); ?>
 
           </h1>
             <h3 style="display: inline">
@@ -41,7 +41,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
                           'id' => $model->id,
                       )); ?>
             <?php endif; ?>
-            <?php echo Chtml::encode('owned by ' . $model->ownerUser->first_name . ' ' . $model->ownerUser->last_name); ?>
+            <?php echo CHtml::encode('owned by ' . $model->ownerUser->getFullName()); ?>
           </h3>
         </div>
         <div class="large-3 column">
@@ -165,8 +165,9 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
 
   function changePatientStatus(object, trial_patient_id, new_status) {
     $.ajax({
-      url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/' + trial_patient_id + '?new_status=' + new_status,
-      type: 'GET',
+      url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/',
+      data: { id: trial_patient_id, new_status: new_status },
+	  type: 'GET',
       success: function (response) {
         if (response == '<?php echo TrialPatientController::STATUS_CHANGE_CODE_OK; ?>') {
           $.fn.yiiListView.update('shortlistedPatientList');
