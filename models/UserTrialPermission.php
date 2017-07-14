@@ -8,6 +8,7 @@
  * @property integer $user_id
  * @property integer $trial_id
  * @property string $permission
+ * @property string $role
  * @property string $last_modified_user_id
  * @property string $last_modified_date
  * @property string $created_user_id
@@ -44,14 +45,8 @@ class UserTrialPermission extends BaseActiveRecordVersioned
             array('user_id, trial_id, permission', 'required'),
             array('trial_id', 'numerical', 'integerOnly' => true),
             array('user_id, permission, last_modified_user_id, created_user_id', 'length', 'max' => 10),
+            array('role', 'length', 'max' => 255),
             array('last_modified_date, created_date', 'safe'),
-            // The following rule is used by search().
-            // @todo Please remove those attributes that should not be searched.
-            array(
-                'user_id, trial_id, permission, last_modified_user_id, last_modified_date, created_user_id, created_date',
-                'safe',
-                'on' => 'search',
-            ),
         );
     }
 
@@ -105,6 +100,7 @@ class UserTrialPermission extends BaseActiveRecordVersioned
             'user_id' => 'User',
             'trial_id' => 'Trial',
             'permission' => 'Permission',
+            'role' => 'User Role',
             'last_modified_user_id' => 'Last Modified User',
             'last_modified_date' => 'Last Modified Date',
             'created_user_id' => 'Created User',
