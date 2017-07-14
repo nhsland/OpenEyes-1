@@ -34,14 +34,14 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
           <h1 style="display: inline"><?php echo CHtml::encode($model->name); ?>
 
           </h1>
-            <h3 style="display: inline">
-            <?php if ($model->status != Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
+          <h3 style="display: inline">
+              <?php if ($model->status != Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
                   <?php echo CHtml::link('<u>edit</u>', array(
-                          '/OETrial/trial/update',
-                          'id' => $model->id,
-                      )); ?>
-            <?php endif; ?>
-            <?php echo CHtml::encode('owned by ' . $model->ownerUser->getFullName()); ?>
+                      '/OETrial/trial/update',
+                      'id' => $model->id,
+                  )); ?>
+              <?php endif; ?>
+              <?php echo CHtml::encode('owned by ' . $model->ownerUser->getFullName()); ?>
           </h3>
         </div>
         <div class="large-3 column">
@@ -166,8 +166,8 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
   function changePatientStatus(object, trial_patient_id, new_status) {
     $.ajax({
       url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/changeStatus'); ?>/',
-      data: { id: trial_patient_id, new_status: new_status },
-	  type: 'GET',
+      data: {id: trial_patient_id, new_status: new_status},
+      type: 'GET',
       success: function (response) {
         if (response == '<?php echo TrialPatientController::STATUS_CHANGE_CODE_OK; ?>') {
           $.fn.yiiListView.update('shortlistedPatientList');
@@ -190,27 +190,38 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
   }
 
   function editExternalTrialIdentifier(trial_patient_id) {
-    $("#ext-trial-id-form-" + trial_patient_id).show();
     $("#ext-trial-id-" + trial_patient_id).hide();
-    $('#ext-trial-id-link-' + trial_patient_id).hide();
+    $("#ext-trial-id-edit-" + trial_patient_id).hide();
+
+    $("#ext-trial-id-form-" + trial_patient_id).show();
+    $("#ext-trial-id-save-" + trial_patient_id).show();
   }
 
   function saveExternalTrialIdentifier(trial_patient_id) {
-    var external_id = $('#trial-patient-ext-id-' + trial_patient_id).val();
+    var external_id = $('#ext-trial-id-form-' + trial_patient_id).val();
+
+    $('.loader').show();
+
     $.ajax({
       url: '<?php echo Yii::app()->controller->createUrl('/OETrial/trialPatient/updateExternalId'); ?>',
       data: {id: trial_patient_id, new_external_id: external_id},
       type: 'GET',
       success: function (response) {
-        $("#ext-trial-id-form-" + trial_patient_id).hide();
+
+        $('.loader').hide();
 
         var id_label = $("#ext-trial-id-" + trial_patient_id);
         id_label.text(external_id);
         id_label.show();
 
-        $('#ext-trial-id-link-' + trial_patient_id).show();
+        $("#ext-trial-id-edit-" + trial_patient_id).show();
+
+        $("#ext-trial-id-form-" + trial_patient_id).hide();
+        $("#ext-trial-id-save-" + trial_patient_id).hide();
       },
       error: function (response) {
+        $('.loader').hide();
+
         new OpenEyes.UI.Dialog.Alert({
           content: "Sorry, an internal error occurred and we were unable to change the external trial identifier.\n\nPlease contact support for assistance."
         }).open();

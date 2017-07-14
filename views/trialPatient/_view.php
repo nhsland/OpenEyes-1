@@ -33,22 +33,36 @@ $canEditPatient = Trial::checkTrialAccess(Yii::app()->user, $data->trial_id, Use
           }
           ?>
         <br/>
+        <div class="row field-row">
+          <div class="large-3 column">
+              <?php echo CHtml::encode($data->getAttributeLabel('external_trial_identifier')); ?>:
+          </div>
 
-          <?php echo CHtml::encode($data->getAttributeLabel('external_trial_identifier')); ?>:
-        <span id="ext-trial-id-<?php echo $data->id; ?>">
-          <?php echo CHtml::encode($data->external_trial_identifier); ?>
-        </span>
-          <?php if ($canEditPatient && $data->trial->status != Trial::STATUS_CANCELLED): ?>
-            <a id="ext-trial-id-link-<?php echo $data->id; ?>" href="javascript:void(0)"
-               onclick="editExternalTrialIdentifier(<?php echo $data->id; ?>)">edit</a>
+          <div class="large-3 column left wrap">
+            <span id="ext-trial-id-<?php echo $data->id; ?>">
+              <?php echo CHtml::encode($data->external_trial_identifier); ?>
+            </span>
+              <?php if ($canEditPatient && $data->trial->status != Trial::STATUS_CANCELLED): ?>
 
-            <div id="ext-trial-id-form-<?php echo $data->id; ?>" style="display:none">
-              <input id="trial-patient-ext-id-<?php echo $data->id; ?>" type="text"
-                     value="<?php echo CHtml::encode($data->external_trial_identifier); ?>" width="50"/>
-              <a id="ext-trial-id-save-<?php echo $data->id; ?>" href="javascript:void(0)"
-                 onclick="saveExternalTrialIdentifier(<?php echo $data->id; ?>)">save</a>
-            </div>
-          <?php endif; ?>
+                <input id="ext-trial-id-form-<?php echo $data->id; ?>" type="text"
+                       value="<?php echo CHtml::encode($data->external_trial_identifier); ?>" width="50"
+                       style="display:none;"/>
+              <?php endif; ?>
+          </div>
+
+            <?php if ($canEditPatient && $data->trial->status != Trial::STATUS_CANCELLED): ?>
+              <div class="large-2 column left">
+
+                <a id="ext-trial-id-edit-<?php echo $data->id; ?>" href="javascript:void(0)"
+                   onclick="editExternalTrialIdentifier(<?php echo $data->id; ?>)">edit</a>
+                <a id="ext-trial-id-save-<?php echo $data->id; ?>" href="javascript:void(0)"
+                   onclick="saveExternalTrialIdentifier(<?php echo $data->id; ?>)" style="display:none;">save</a>
+                <img class="loader" src="<?php echo Yii::app()->assetManager->createUrl('img/ajax-loader.gif') ?>"
+                     alt="loading..." style="display: none;"/>
+              </div>
+            <?php endif; ?>
+        </div>
+
         <br/>
 
           <?php if ($data->trial->status == Trial::STATUS_CLOSED): ?>
