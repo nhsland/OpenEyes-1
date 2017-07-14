@@ -105,8 +105,10 @@ $canManageTrial = Trial::checkTrialAccess(Yii::app()->user, $model->id, UserTria
 
              <div class="row field-row">
             <div id="selected_user_wrapper" class="large-8 column <?php echo !$newPermission->user_id ? 'hide' : '' ?>">
-              <button class="secondary small btn_save_permission">Share with <span
-                    id="user_name"><?php echo $newPermission->user_id ? $newPermission->user->getFullName() : '' ?></span>
+              <button class="secondary small btn_save_permission">Share with 
+			    <span id="user_name">
+	              <?php echo CHtml::encode($newPermission->user_id ? $newPermission->user->getFullName() : ''); ?>
+				</span>
               </button>
               &nbsp;
               <a href="javascript:void(0)" class="button event-action cancel small"

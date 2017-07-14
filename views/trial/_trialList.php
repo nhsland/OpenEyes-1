@@ -23,7 +23,7 @@
         $to = min(($page_num + 1) * $items_per_page, $dataProvider->totalItemCount);
         ?>
       <h2>
-          <?php echo $title; ?>: viewing <?php echo $from ?> - <?php echo $to ?>
+          <?php echo $title; ?>: viewing <?php echo $from; ?> - <?php echo $to; ?>
         of <?php echo $dataProvider->totalItemCount ?>
       </h2>
 
@@ -54,9 +54,9 @@
         <?php /* @var Trial $trial */
         foreach ($dataProvided as $i => $trial) { ?>
           <tr id="r<?php echo $trial->id; ?>" class="clickable">
-            <td><?php echo $trial->name; ?></td>
+            <td><?php echo CHtml::encode($trial->name); ?></td>
             <td><?php echo date('d/m/Y', strtotime($trial->created_date)); ?></td>
-            <td><?php echo $trial->ownerUser->getFullName(); ?></td>
+            <td><?php echo CHtml::encode($trial->ownerUser->getFullName()); ?></td>
             <td><?php echo $trial->getStatusString(); ?></td>
           </tr>
         <?php } ?>
