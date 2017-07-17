@@ -1,6 +1,6 @@
 <?php
-/* @var integer $trial_id *?
 /* @var TrialController $this */
+/* @var integer $trial_id */
 /* @var CActiveDataProvider $dataProvider */
 /* @var string $listId */
 /* @var string $title */
@@ -56,17 +56,22 @@ if ($dataProvider->totalItemCount == 0): ?>
                   $new_sort_dir = ($i === $sort_by) ? 1 - $sort_dir : 0;
                   $sort_symbol = '';
                   if ($i === $sort_by) {
-                      $sort_symbol = $sort_dir === 1 ? '&#x25B2;' : '&#x25BC;';
+                      $sort_symbol = $sort_dir === 1 ? '&#x25BC;' /* down arrow */ : '&#x25B2;'; /* up arrow */
                   }
 
                   echo CHtml::link(
                       $field . $sort_symbol,
                       $this->createUrl('view',
-                          array('id' => $trial_id, 'sort_by' => $i, 'sort_dir' => $new_sort_dir, 'page_num' => $page_num))
+                          array(
+                              'id' => $trial_id,
+                              'sort_by' => $i,
+                              'sort_dir' => $new_sort_dir,
+                              'page_num' => $page_num,
+                          ))
                   );
                   ?>
               <?php else: ?>
-                <?php echo $field; ?>
+                  <?php echo $field; ?>
               <?php endif; ?>
           </th>
         <?php endforeach; ?>
