@@ -443,6 +443,10 @@ class TrialController extends BaseModuleController
         echo self::RETURN_CODE_OK;
     }
 
+    /**
+     * Get a HTML list of all trials for the specified trial type.
+     * @param $type string The trial type.
+     */
     public function actionGetTrialList($type)
     {
         $trials = Trial::getTrialList($type);
