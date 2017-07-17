@@ -440,15 +440,17 @@ class TrialController extends BaseModuleController
         echo self::RETURN_CODE_OK;
     }
 
-    public function actionGetTrialList($trialID, $type)
+    public function actionGetTrialList($type)
     {
-        $model = new PreviousTrialParameter();
-        $model->id = $trialID;
-        $trialModels = Trial::model()->findAll('trial_type=:type', array(':type' => $type));
-        $trials = CHtml::listData($trialModels, 'id', 'name');
-        $dropDown = CHtml::activeDropDownList($model, "[$trialID]trial", $trials, array('empty' => 'Any'));
+        $trials = Trial::getTrialList($type);
 
-        echo '<div class="large-3 column trial-list">' . $dropDown . '</div>';
+        // Always pass the default list option (Any)
+        echo CHtml::tag('option', array('value'=>''), CHtml::encode('Any'),true);
+
+        // Pass all distinct trials that fall under the selected type. Perfectly OK for there to be no values here.
+        foreach ($trials as $value => $key){
+            echo CHtml::tag('option', array('value'=>$value), CHtml::encode($key),true);
+        }
     }
 
     /**

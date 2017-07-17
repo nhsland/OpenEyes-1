@@ -32,7 +32,7 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
     {
         return array_merge(parent::attributeNames(), array(
                 'trial',
-                'type'
+                'type',
             )
         );
     }
@@ -58,6 +58,8 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
 
         $types = Trial::getTrialTypeOptions();
 
+        $trials = Trial::getTrialList($this->type);
+
         ?>
 
       <div class="large-2 column">
@@ -72,9 +74,10 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
           <?php echo CHtml::activeDropDownList($this, "[$id]type", $types,
               array('empty' => 'Any Trial', 'onchange' => 'getTrialList(this)')); ?>
       </div>
-
       <div class="large-3 column trial-list">
-        <p></p>
+          <?php echo CHtml::activeDropDownList($this, "[$id]trial", $trials,
+              array('empty' => 'Any', 'style' => 'display: none;')); ?>
+        <p></p><!--These empty p tags ensure that the Remove link is always aligned correctly on the right; even when the select is hidden.-->
       </div>
 
       <script type="text/javascript">
@@ -82,16 +85,19 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
           var type = parseInt($(target).val());
           var id = $(target).parent().parent().parent().attr('id');
 
-          if (type === null) {
-            $(target).parent().parent().find('.trial-list').replaceWith('<div class="large-3 column trial-list"><p></p></div>');
+          if (isNaN(type)) {
+            $(target).parent().parent().find('.trial-list select').empty();
+            $(target).parent().parent().find('.trial-list select').hide();
           }
           else {
             $.ajax({
               url: '<?php echo Yii::app()->createUrl('/OETrial/trial/getTrialList'); ?>',
               type: 'GET',
-              data: {trialID: id, type: type},
-              success: function(response) {
-                $(target).parent().parent().find('.trial-list').replaceWith(response);
+              data: {type: type},
+              success: function (response) {
+                $(target).parent().parent().find('.trial-list select').empty();
+                $(target).parent().parent().find('.trial-list select').append(response);
+                $(target).parent().parent().find('.trial-list select').show();
               }
             });
           }
@@ -99,6 +105,16 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
       </script>
 
         <?php
+        Yii::app()->clientScript->registerScript('GetTrials', '
+          $(".parameter").each(function() {
+            var typeElem = $(this).find("#PreviousTrialParameter_" + $(this).attr("id") + "_type");
+            // If typeElem is null, it means the parameter is not a previous trial parameter and so should be ignored.
+            if (typeElem !== null && $(typeElem).val() !== "") {
+              var trialElem = $(this).find("#PreviousTrialParameter_" + $(this).attr("id") + "_trial");
+              $(trialElem).show();
+            }
+          });
+        ', CClientScript::POS_READY); // Put this in $(document).ready() so it runs on every page churn from a search.
     }
 
     /**
