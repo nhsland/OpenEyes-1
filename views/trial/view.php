@@ -67,6 +67,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
 
         <?php if ($hasManagePermissions): ?>
           <br/>
+
             <?php if (in_array($model->status,
                 array(Trial::STATUS_OPEN, Trial::STATUS_CANCELLED, Trial::STATUS_CLOSED))): ?>
                 <?php echo CHtml::button($model->status == Trial::STATUS_OPEN ? 'Start Trial' : 'Re-open Trial',
@@ -93,27 +94,24 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
                     'onclick' => "changeTrialState($model->id, " . Trial::STATUS_CANCELLED . ')',
                 )); ?>
             <?php endif; ?>
+
+
         <?php endif; ?>
       <hr/>
-      <h2>Shortlisted Patients</h2>
-        <?php $this->widget('zii.widgets.CListView', array(
-            'id' => 'shortlistedPatientList',
+
+        <?php $this->renderPartial('_patientList', array(
+            'title' => 'Shortlisted Patients',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
-            'itemView' => '/trialPatient/_view',
         )); ?>
-      <hr/>
-      <h2>Accepted Patients</h2>
-        <?php $this->widget('zii.widgets.CListView', array(
-            'id' => 'acceptedPatientList',
+
+        <?php $this->renderPartial('_patientList', array(
+            'title' => 'Accepted Patients',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
-            'itemView' => '/trialPatient/_view',
         )); ?>
-      <hr/>
-      <h2>Rejected Patients</h2>
-        <?php $this->widget('zii.widgets.CListView', array(
-            'id' => 'rejectedPatientList',
+
+        <?php $this->renderPartial('_patientList', array(
+            'title' => 'Rejected Patients',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_REJECTED],
-            'itemView' => '/trialPatient/_view',
         )); ?>
 
     </div>
@@ -277,4 +275,14 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
       }
     });
   }
+
+  $(document).ready(function () {
+    $(".icon-alert-warning").hover(function () {
+        $(this).siblings(".warning").show('fast');
+      },
+      function () {
+        $(this).siblings(".warning").hide('fast');
+      }
+    );
+  });
 </script>
