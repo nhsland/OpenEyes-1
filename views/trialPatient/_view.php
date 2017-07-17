@@ -41,7 +41,7 @@ if ($isInAnotherInterventionTrial) {
       <?php echo CHtml::encode($data->patient->getEthnicGroupString()); ?>
   </td>
   <td> <!-- External Reference -->
-     <span id="ext-trial-id-<?php echo $data->id; ?>">
+    <span id="ext-trial-id-<?php echo $data->id; ?>">
               <?php echo CHtml::encode($data->external_trial_identifier); ?>
             </span>
       <?php if ($canEditPatient && $data->trial->status != Trial::STATUS_CANCELLED): ?>
@@ -63,37 +63,27 @@ if ($isInAnotherInterventionTrial) {
   </td>
   <td> <!-- Treatment Type -->
       <?php if ($data->trial->status == Trial::STATUS_CLOSED): ?>
-        <div class="row field-row">
-          <div class="large-3 column">
-            <b><?php echo CHtml::encode($data->getAttributeLabel('treatment_type')); ?>:</b>
-          </div>
-            <?php if ($canEditPatient): ?>
-              <div class="large-4 column">
-                  <?php echo CHtml::dropDownList(
-                      'treatment-type',
-                      $data->treatment_type,
-                      TrialPatient::getTreatmentTypeOptions(),
-                      array(
-                          'id' => "treatment-type-$data->id",
-                          'data-trial-patient-id' => $data->id,
-                          'onchange' => 'updateTreatmentType(this)',
-                      )
-                  ); ?>
-              </div>
-              <div class="large-1 column end">
-                <img id="treatment-type-loader-<?php echo $data->id; ?>"
-                     src="<?php echo Yii::app()->assetManager->createUrl('img/ajax-loader.gif') ?>" alt="Working..."
-                     class="hidden"/>
-                <img id="treatment-type-success-<?php echo $data->id; ?>"
-                     src="<?php echo Yii::app()->assetManager->createUrl('img/_elements/icons/event-optional/element-added.png'); ?>"
-                     alt="Success" class="hidden"/>
-              </div>
-            <?php else: /* can't edit */ ?>
-              <div class="large-4 column left">
-                  <?php echo $data->getTreatmentTypeForDisplay(); ?>
-              </div>
-            <?php endif; ?>
-        </div>
+
+          <?php if ($canEditPatient): ?>
+              <?php echo CHtml::dropDownList(
+                  'treatment-type',
+                  $data->treatment_type,
+                  TrialPatient::getTreatmentTypeOptions(),
+                  array(
+                      'id' => "treatment-type-$data->id",
+                      'data-trial-patient-id' => $data->id,
+                      'onchange' => 'updateTreatmentType(this)',
+                  )
+              ); ?>
+          <img id="treatment-type-loader-<?php echo $data->id; ?>"
+               src="<?php echo Yii::app()->assetManager->createUrl('img/ajax-loader.gif') ?>" alt="Working..."
+               class="hidden"/>
+          <img id="treatment-type-success-<?php echo $data->id; ?>"
+               src="<?php echo Yii::app()->assetManager->createUrl('img/_elements/icons/event-optional/element-added.png'); ?>"
+               alt="Success" class="hidden"/>
+          <?php else: /* can't edit */ ?>
+              <?php echo $data->getTreatmentTypeForDisplay(); ?>
+          <?php endif; ?>
       <?php endif; ?>
   </td>
   <td> <!-- Diagnoses and Medication show/hide actions -->
@@ -112,31 +102,29 @@ if ($isInAnotherInterventionTrial) {
   </td>
   <td> <!-- Accept/Reject/Shortlist actions -->
       <?php if ($canEditPatient && ($data->trial->status == Trial::STATUS_OPEN || $data->trial->status == Trial::STATUS_IN_PROGRESS)): ?>
-        <div class="large-2 column">
-          <div class="box">
-              <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>
-                <a href="javascript:void(0)"
-                   onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
-                   class="accept-patient-link">Accept
-                </a>
-                <br/>
-              <?php endif; ?>
 
-              <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED): ?>
-                <a href="javascript:void(0)"
-                   onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_REJECTED; ?>)"
-                   class="accept-patient-link">Reject
-                </a>
-              <?php endif; ?>
+          <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED && !$isInAnotherInterventionTrial): ?>
+          <a href="javascript:void(0)"
+             onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_ACCEPTED; ?>)"
+             class="accept-patient-link">Accept
+          </a>
+          <br/>
+          <?php endif; ?>
 
-              <?php if ($data->patient_status == TrialPatient::STATUS_REJECTED): ?>
-                <a href="javascript:void(0)"
-                   onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_SHORTLISTED; ?>)"
-                   class="accept-patient-link">Re-Shortlist
-                </a>
-              <?php endif; ?>
-          </div>
-        </div>
+          <?php if ($data->patient_status == TrialPatient::STATUS_SHORTLISTED || $data->patient_status == TrialPatient::STATUS_ACCEPTED): ?>
+          <a href="javascript:void(0)"
+             onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_REJECTED; ?>)"
+             class="accept-patient-link">Reject
+          </a>
+          <?php endif; ?>
+
+          <?php if ($data->patient_status == TrialPatient::STATUS_REJECTED): ?>
+          <a href="javascript:void(0)"
+             onclick="changePatientStatus(this, <?php echo $data->id; ?>, <?php echo TrialPatient::STATUS_SHORTLISTED; ?>)"
+             class="accept-patient-link">Re-Shortlist
+          </a>
+          <?php endif; ?>
+
       <?php endif; ?>
   </td>
 </tr>

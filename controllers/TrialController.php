@@ -104,7 +104,10 @@ class TrialController extends BaseModuleController
         $this->render('view', array(
             'model' => $model,
             'report' => $report,
-            'dataProviders' => $model->getPatientDataProviders(),
+            'dataProviders' => $model->getPatientDataProviders(Yii::app()->request->getParam('sort_by', -1),
+                Yii::app()->request->getParam('sort_dir', '0')),
+            'sort_by' => (integer)Yii::app()->request->getParam('sort_by', null),
+            'sort_dir' => (integer)Yii::app()->request->getParam('sort_dir', null),
         ));
     }
 

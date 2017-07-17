@@ -100,18 +100,30 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
       <hr/>
 
         <?php $this->renderPartial('_patientList', array(
+            'trial_id' => $model->id,
+            'listId' => 'shortlistedPatientList',
             'title' => 'Shortlisted Patients',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
+            'sort_by' => $sort_by,
+            'sort_dir' => $sort_dir,
         )); ?>
 
         <?php $this->renderPartial('_patientList', array(
+            'trial_id' => $model->id,
+            'listId' => 'acceptedPatientList',
             'title' => 'Accepted Patients',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
+            'sort_by' => $sort_by,
+            'sort_dir' => $sort_dir,
         )); ?>
 
         <?php $this->renderPartial('_patientList', array(
+            'trial_id' => $model->id,
+            'listId' => 'rejectedPatientList',
             'title' => 'Rejected Patients',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_REJECTED],
+            'sort_by' => $sort_by,
+            'sort_dir' => $sort_dir,
         )); ?>
 
     </div>
@@ -168,9 +180,7 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
       type: 'GET',
       success: function (response) {
         if (response == '<?php echo TrialPatientController::STATUS_CHANGE_CODE_OK; ?>') {
-          $.fn.yiiListView.update('shortlistedPatientList');
-          $.fn.yiiListView.update('acceptedPatientList');
-          $.fn.yiiListView.update('rejectedPatientList');
+          window.location.reload(false);
         } else if (response == '<?php echo TrialPatientController::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION; ?>') {
           new OpenEyes.UI.Dialog.Alert({
             content: "You can't accept this patient into your Trial because the patient has already been accepted into another Intervention trial."
