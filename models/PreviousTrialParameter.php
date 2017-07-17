@@ -88,17 +88,17 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
           var list = $(target).parent().parent().find('.trial-list select');
 
           if (isNaN(type)) {
-            $(list).empty();
-            $(list).hide();
+            list.empty();
+            list.hide();
           } else {
             $.ajax({
               url: '<?php echo Yii::app()->createUrl('/OETrial/trial/getTrialList'); ?>',
               type: 'GET',
               data: {type: type},
               success: function (response) {
-                $(list).empty();
-                $(list).append(response);
-                $(list).show();
+                list.empty();
+                list.append(response);
+                list.show();
               }
             });
           }
@@ -109,9 +109,9 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
         Yii::app()->clientScript->registerScript('GetTrials', '
           $(".previous_trial").each(function() {
             var typeElem = $(this).find(".trial-type select");
-            if ($(typeElem).val() !== "") {
+            if (typeElem.val() !== "") {
               var trialElem = $(this).find(".trial-list select");
-              $(trialElem).show();
+              trialElem.show();
             }
           });
         ', CClientScript::POS_READY); // Put this in $(document).ready() so it runs on every page churn from a search.
