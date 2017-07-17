@@ -77,27 +77,28 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
       <div class="large-3 column trial-list">
           <?php echo CHtml::activeDropDownList($this, "[$id]trial", $trials,
               array('empty' => 'Any', 'style' => 'display: none;')); ?>
-        <p></p><!--These empty p tags ensure that the Remove link is always aligned correctly on the right; even when the select is hidden.-->
+        <p></p>
+        <!--These empty p tags ensure that the Remove link is always aligned correctly on the right; even when the select is hidden.-->
       </div>
 
       <script type="text/javascript">
         function getTrialList(target) {
           var type = parseInt($(target).val());
           var id = $(target).parent().parent().parent().attr('id');
+          var list = $(target).parent().parent().find('.trial-list select');
 
           if (isNaN(type)) {
-            $(target).parent().parent().find('.trial-list select').empty();
-            $(target).parent().parent().find('.trial-list select').hide();
-          }
-          else {
+            $(list).empty();
+            $(list).hide();
+          } else {
             $.ajax({
               url: '<?php echo Yii::app()->createUrl('/OETrial/trial/getTrialList'); ?>',
               type: 'GET',
               data: {type: type},
               success: function (response) {
-                $(target).parent().parent().find('.trial-list select').empty();
-                $(target).parent().parent().find('.trial-list select').append(response);
-                $(target).parent().parent().find('.trial-list select').show();
+                $(list).empty();
+                $(list).append(response);
+                $(list).show();
               }
             });
           }
@@ -106,11 +107,10 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
 
         <?php
         Yii::app()->clientScript->registerScript('GetTrials', '
-          $(".parameter").each(function() {
-            var typeElem = $(this).find("#PreviousTrialParameter_" + $(this).attr("id") + "_type");
-            // If typeElem is null, it means the parameter is not a previous trial parameter and so should be ignored.
-            if (typeElem !== null && $(typeElem).val() !== "") {
-              var trialElem = $(this).find("#PreviousTrialParameter_" + $(this).attr("id") + "_trial");
+          $(".previous_trial").each(function() {
+            var typeElem = $(this).find(".trial-type select");
+            if ($(typeElem).val() !== "") {
+              var trialElem = $(this).find(".trial-list select");
               $(trialElem).show();
             }
           });
