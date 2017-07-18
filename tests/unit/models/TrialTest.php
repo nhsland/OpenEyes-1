@@ -39,40 +39,108 @@ class TrialTest extends CDbTestCase
 
     public function testDataProvidersExist()
     {
-        $providers = $this->trial('trial1')->getPatientDataProviders();
+        $providers = $this->trial('trial1')->getPatientDataProviders(null, null);
         $this->assertArrayHasKey(TrialPatient::STATUS_ACCEPTED, $providers);
 
-        $this->assertGreaterThan(0, count($providers));
+        $this->assertGreaterThan(0, count($providers), 'There should be at least one data provider returned');
 
         foreach (TrialPatient::getAllowedStatusRange() as $status) {
-            $this->assertArrayHasKey($status, $providers);
+            $this->assertArrayHasKey($status, $providers, 'A data provider of each patient status should be returned');
         }
     }
 
     public function testDataProviderContent()
     {
-        $providers = $this->trial('trial1')->getPatientDataProviders();
+        $providers = $this->trial('trial1')->getPatientDataProviders(null, null);
 
         /* @var CActiveDataProvider $shortlistedPatientProvider */
         $shortlistedPatientProvider = $providers[TrialPatient::STATUS_SHORTLISTED];
         $data = $shortlistedPatientProvider->getData();
-        $this->assertCount(2, $data);
+        $this->assertCount(2, $data, 'Trial1 should have exactly 2 shortlisted patients');
     }
 
     public function testNoPatientsInDataProvider()
     {
-        $providers = $this->trial('trial2')->getPatientDataProviders();
+        $providers = $this->trial('trial2')->getPatientDataProviders(null, null);
 
         /* @var CActiveDataProvider $shortlistedPatientProvider */
         $shortlistedPatientProvider = $providers[TrialPatient::STATUS_SHORTLISTED];
         $data = $shortlistedPatientProvider->getData();
-        $this->assertCount(0, $data);
+        $this->assertCount(0, $data, 'Trial2 should have no shortlisted patients');
+    }
+
+    public function testDataProviderNameOrdering()
+    {
+        $shortlistedPatientProvider = $this->trial('trial1')->getPatientDataProvider(TrialPatient::STATUS_SHORTLISTED,
+            'name', 'asc');
+        $data = $shortlistedPatientProvider->getData();
+        $this->assertCount(2, $data, 'There should be two patients in trial1');
+
+        $this->assertLessThan($data[1]->patient->last_name, $data[0]->patient->last_name,
+            'The list of patients should be sorted alphabetically by last name');
+    }
+
+    public function testDataProviderNameOrderingDesc()
+    {
+        $shortlistedPatientProvider = $this->trial('trial1')->getPatientDataProvider(TrialPatient::STATUS_SHORTLISTED,
+            'name', 'desc');
+        $data = $shortlistedPatientProvider->getData();
+        $this->assertCount(2, $data, 'There should be two patients in trial1');
+
+        $this->assertGreaterThan($data[1]->patient->last_name, $data[0]->patient->last_name,
+            'The list of patients should be sorted alphabetically descending by last name');
+    }
+
+    public function testDataProviderAgeOrdering()
+    {
+        $shortlistedPatientProvider = $this->trial('trial1')->getPatientDataProvider(TrialPatient::STATUS_SHORTLISTED,
+            'age', 'asc');
+        $data = $shortlistedPatientProvider->getData();
+        $this->assertCount(2, $data, 'There should be two patients in trial1');
+
+        $this->assertLessThan($data[1]->patient->getAge(), $data[0]->patient->getAge(),
+            'The list of patients should be sorted by age ascending');
+    }
+
+    public function testDataProviderAgeOrderingDesc()
+    {
+        $shortlistedPatientProvider = $this->trial('trial1')->getPatientDataProvider(TrialPatient::STATUS_SHORTLISTED,
+            'age', 'desc');
+        $data = $shortlistedPatientProvider->getData();
+        $this->assertCount(2, $data, 'There should be two patients in trial1');
+
+        $this->assertGreaterThan($data[1]->patient->getAge(), $data[0]->patient->getAge(),
+            'The list of patients should be sorted by age descending');
+    }
+
+    public function testDataProviderExternalRefOrdering()
+    {
+        $shortlistedPatientProvider = $this->trial('trial1')->getPatientDataProvider(TrialPatient::STATUS_SHORTLISTED,
+            'external_reference', 'asc');
+        $data = $shortlistedPatientProvider->getData();
+        $this->assertCount(2, $data, 'There should be two patients in trial1');
+
+        $this->assertLessThan($data[1]->external_trial_identifier, $data[0]->external_trial_identifier,
+            'The list of patients should be sorted by external id ascending');
+    }
+
+    public function testDataProviderExternalRefOrderingDesc()
+    {
+        $shortlistedPatientProvider = $this->trial('trial1')->getPatientDataProvider(TrialPatient::STATUS_SHORTLISTED,
+            'external_reference', 'desc');
+        $data = $shortlistedPatientProvider->getData();
+        $this->assertCount(2, $data, 'There should be two patients in trial1');
+
+        $this->assertGreaterThan($data[1]->external_trial_identifier, $data[0]->external_trial_identifier,
+            'The list of patients should be sorted by external id descending');
     }
 
     public function testHasShortlistedPatients()
     {
-        $this->assertTrue($this->trial('trial1')->hasShortlistedPatients());
-        $this->assertFalse($this->trial('trial2')->hasShortlistedPatients());
+        $this->assertTrue($this->trial('trial1')->hasShortlistedPatients(),
+            'Trial1 should have at least one shortlisted patient');
+        $this->assertFalse($this->trial('trial2')->hasShortlistedPatients(),
+            'Trial2 should have no shortlisted patients');
     }
 
     public function testCheckTrialAccessManage()
