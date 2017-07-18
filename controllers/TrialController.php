@@ -101,11 +101,35 @@ class TrialController extends BaseModuleController
         $model = $this->loadModel($id);
         $report = new OETrial_ReportCohort();
 
+        $sortDir = Yii::app()->request->getParam('sort_dir', '0') === '0' ? 'asc' : 'desc';
+        $sortBy = null;
+
+        switch (Yii::app()->request->getParam('sort_by', -1)) {
+            case 1:
+            default:
+                $sortBy = 'name';
+                break;
+            case 2:
+                $sortBy = 'gender';
+                break;
+            case 3:
+                $sortBy = 'age';
+                break;
+            case 4:
+                $sortBy = 'ethnicity';
+                break;
+            case 5:
+                $sortBy = 'external_reference';
+                break;
+            case 6:
+                $sortBy = 'treatment_type';
+                break;
+        }
+
         $this->render('view', array(
             'model' => $model,
             'report' => $report,
-            'dataProviders' => $model->getPatientDataProviders(Yii::app()->request->getParam('sort_by', -1),
-                Yii::app()->request->getParam('sort_dir', '0')),
+            'dataProviders' => $model->getPatientDataProviders($sortBy, $sortDir),
             'sort_by' => (integer)Yii::app()->request->getParam('sort_by', null),
             'sort_dir' => (integer)Yii::app()->request->getParam('sort_dir', null),
         ));
@@ -452,11 +476,11 @@ class TrialController extends BaseModuleController
         $trials = Trial::getTrialList($type);
 
         // Always pass the default list option (Any)
-        echo CHtml::tag('option', array('value'=>''), CHtml::encode('Any'),true);
+        echo CHtml::tag('option', array('value' => ''), CHtml::encode('Any'), true);
 
         // Pass all distinct trials that fall under the selected type. Perfectly OK for there to be no values here.
-        foreach ($trials as $value => $key){
-            echo CHtml::tag('option', array('value'=>$value), CHtml::encode($key),true);
+        foreach ($trials as $value => $key) {
+            echo CHtml::tag('option', array('value' => $value), CHtml::encode($key), true);
         }
     }
 

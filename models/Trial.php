@@ -306,46 +306,17 @@ class Trial extends BaseActiveRecordVersioned
 
     /**
      * Gets the data providers for each patient status
-     * @param string $sort_by The field index to sort the results by
+     * @param string $sort_by The field name to sort by
      * @param string $sort_dir The direction to sort the results by
      * @return array An array of data providers with one for each patient status
      * @throws CException Thrown if an error occurs when created the data providers
      */
     public function getPatientDataProviders($sort_by, $sort_dir)
     {
-        // Get the sort direction, defaulting to ascending
-        $sortDirSql = $sort_dir === '0' ? 'asc' : 'desc';
-
-        // Get the column to sort by ('t' => trial_patient, p => patient, e => ethnic_group, c => contact))
-        // Default to sorting by name
-        $sortBySql = null;
-        switch ($sort_by) {
-            case 1: // Name by default
-            default:
-                $sortBySql = "c.last_name $sortDirSql, c.first_name";
-                break;
-            case 2:// Gender
-                $sortBySql = 'p.gender';
-                break;
-            case 3: // Date of Birth
-                $sortBySql = 'NOW() - p.dob';
-                break;
-            case 4: // Ethnicity
-                $sortBySql = 'IFNULL(e.name, "Unknown")';
-                break;
-            case 5: // External Refernece
-                $sortBySql = 'ISNULL(t.external_trial_identifier), t.external_trial_identifier';
-                break;
-            case 6: //Treatment Type
-                $sortBySql = 'ISNULL(treatment_type), t.treatment_type';
-                break;
-        }
-
-        $sortExpr = "$sortBySql $sortDirSql, c.last_name ASC, c.first_name ASC";
 
         $dataProviders = array();
         foreach (TrialPatient::getAllowedStatusRange() as $index => $status) {
-            $dataProviders[$status] = $this->getPatientDataProvider($status, $sortExpr);
+            $dataProviders[$status] = $this->getPatientDataProvider($status, $sort_by, $sort_dir);
         }
 
         return $dataProviders;
@@ -354,15 +325,42 @@ class Trial extends BaseActiveRecordVersioned
     /**
      * Create a data provider for patients in the Trial
      * @param integer $patient_status The status of patients of
-     * @param string $sort_expr The SQL expression that the result will be sorted by
+     * @param string $sort_by The field name to sort by
+     * @param string $sort_dir The direction to sort the results by
      * @return CActiveDataProvider The data provider of patients with the given status
      * @throws CException Thrown if the patient_status is invalid
      */
-    private function getPatientDataProvider($patient_status, $sort_expr)
+    public function getPatientDataProvider($patient_status, $sort_by, $sort_dir)
     {
         if (!in_array($patient_status, TrialPatient::getAllowedStatusRange())) {
             throw new CException("Unknown Trial Patient status: $patient_status");
         }
+
+        // Get the column to sort by ('t' => trial_patient, p => patient, e => ethnic_group, c => contact))
+        $sortBySql = null;
+        switch ($sort_by) {
+            case 'name':
+            default:
+                $sortBySql = "c.last_name $sort_dir, c.first_name";
+                break;
+            case 'gender':
+                $sortBySql = 'p.gender';
+                break;
+            case 'age':
+                $sortBySql = 'NOW() - p.dob';
+                break;
+            case 'ethnicity':
+                $sortBySql = 'IFNULL(e.name, "Unknown")';
+                break;
+            case 'external_reference':
+                $sortBySql = 'ISNULL(t.external_trial_identifier), t.external_trial_identifier';
+                break;
+            case 'treatment_type':
+                $sortBySql = 'ISNULL(treatment_type), t.treatment_type';
+                break;
+        }
+
+        $sortExpr = "$sortBySql $sort_dir, c.last_name ASC, c.first_name ASC";
 
         $patientDataProvider = new CActiveDataProvider('TrialPatient', array(
             'criteria' => array(
@@ -370,7 +368,7 @@ class Trial extends BaseActiveRecordVersioned
                 'join' => 'JOIN patient p ON p.id = t.patient_id
                            JOIN contact c ON c.id = p.contact_id
                            LEFT JOIN ethnic_group e ON e.id = p.ethnic_group_id',
-                'order' => $sort_expr,
+                'order' => $sortExpr,
                 'params' => array(
                     ':trialId' => $this->id,
                     ':patientStatus' => $patient_status,

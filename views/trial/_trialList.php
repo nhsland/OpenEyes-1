@@ -1,6 +1,8 @@
 <?php
-/* @var $this TrialController */
-/* @var $dataProvider CActiveDataProvider */
+/* @var TrialController $this */
+/* @var CActiveDataProvider $dataProvider */
+/* @var integer $sort_by */
+/* @var integer $sort_dir */
 
 ?>
 <div class="box generic">
@@ -33,10 +35,10 @@
             <?php foreach (array('Name', 'Date Created', 'Owner', 'Status') as $i => $field) { ?>
               <th id="patient-grid_c<?php echo $i; ?>">
                   <?php
-                  $new_sort_dir = ($i == $sort_by) ? 1 - $sort_dir : 0;
+                  $new_sort_dir = ($i === $sort_by) ? 1 - $sort_dir : 0;
                   $sort_symbol = '';
-                  if ($i == $sort_by) {
-                      $sort_symbol = $sort_dir == 1 ? '&#x25B2;' : '&#x25BC';
+                  if ($i === $sort_by) {
+                      $sort_symbol = $sort_dir === 1 ? '&#x25BC;' /* down arrow */ : '&#x25B2;'; /* up arrow */
                   }
 
                   echo CHtml::link(
