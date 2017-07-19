@@ -136,7 +136,6 @@ if ($isInAnotherInterventionTrial) {
       <thead>
       <tr>
         <th>Diagnosis</th>
-        <th>Confirmed/Unconfirmed</th>
         <th>Date</th>
       </tr>
       </thead>
@@ -144,7 +143,6 @@ if ($isInAnotherInterventionTrial) {
       <?php foreach ($data->patient->secondarydiagnoses as $diagnosis): ?>
         <tr>
           <td><?php echo $diagnosis->disorder->fully_specified_name; ?></td>
-          <td><?php echo $diagnosis->isConfirmed() ? 'Confirmed' : 'Unconfirmed'; ?></td>
           <td><?php echo $diagnosis->dateText; ?></td>
         </tr>
       <?php endforeach; ?>
