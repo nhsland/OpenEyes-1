@@ -15,13 +15,22 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $trial->id, Us
       <?php if ($hasViewPermissions): ?>
         <p>
             <?php if ($this->action->id === 'view'): ?>
-              Trial Details
+              View Trial Details
             <?php else: ?>
               <span class="highlight">
-              <?php echo CHtml::link('Trial Details',
+              <?php echo CHtml::link('View Trial Details',
                   $this->createUrl('view', array('id' => $trial->id))); ?>
             </span>
             <?php endif; ?>
+        </p>
+      <?php endif; ?>
+
+      <?php if ((int)$trial->status !== Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
+        <p>
+          <span class="highlight">
+            <?php echo CHtml::link('Edit Trial Details',
+                $this->createUrl('update', array('id' => $trial->id))); ?>
+          </span>
         </p>
       <?php endif; ?>
 
