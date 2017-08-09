@@ -1,8 +1,9 @@
 <?php
-/* @var $this TrialController */
-/* @var $model Trial
- * @var $dataProviders CActiveDataProvider[]
- */
+/* @var TrialController $this */
+/* @var Trial $model */
+/* @var CActiveDataProvider[] $dataProviders * */
+/* @var string $sort_by */
+/* @var string $sort_dir */
 
 $hasEditPermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, UserTrialPermission::PERMISSION_EDIT);
 $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, UserTrialPermission::PERMISSION_MANAGE);
@@ -98,18 +99,18 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
 
         <?php $this->renderPartial('_patientList', array(
             'trial' => $model,
-            'listId' => 'shortlistedPatientList',
-            'title' => 'Shortlisted Participants',
-            'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
+            'listId' => 'acceptedPatientList',
+            'title' => 'Accepted Participants',
+            'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
             'sort_by' => $sort_by,
             'sort_dir' => $sort_dir,
         )); ?>
 
         <?php $this->renderPartial('_patientList', array(
             'trial' => $model,
-            'listId' => 'acceptedPatientList',
-            'title' => 'Accepted Participants',
-            'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
+            'listId' => 'shortlistedPatientList',
+            'title' => 'Shortlisted Participants',
+            'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
             'sort_by' => $sort_by,
             'sort_dir' => $sort_dir,
         )); ?>
