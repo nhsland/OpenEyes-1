@@ -48,7 +48,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $trial->id, Us
       <?php if ((int)$trial->status !== Trial::STATUS_CANCELLED && $hasEditPermissions): ?>
         <p>
           <span class="highlight">
-            <?php echo CHtml::link('Add patients',
+            <?php echo CHtml::link('Add Participants',
                 $this->createUrl('/OECaseSearch/caseSearch', array('trial_id' => $trial->id))); ?>
           </span>
         </p>

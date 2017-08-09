@@ -15,7 +15,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
 
         <?php if ((int)$model->trial_type === Trial::TRIAL_TYPE_INTERVENTION): ?>
           <div class="alert-box alert with-icon">
-            This is an Intervention Trial. Patients accepted into this Trial cannot be accepted into other Intervention
+            This is an Intervention Trial. Participants of this Trial cannot be accepted into other Intervention
             Trials
           </div>
         <?php endif; ?>
@@ -99,7 +99,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
         <?php $this->renderPartial('_patientList', array(
             'trial' => $model,
             'listId' => 'shortlistedPatientList',
-            'title' => 'Shortlisted Patients',
+            'title' => 'Shortlisted Participants',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
             'sort_by' => $sort_by,
             'sort_dir' => $sort_dir,
@@ -108,7 +108,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
         <?php $this->renderPartial('_patientList', array(
             'trial' => $model,
             'listId' => 'acceptedPatientList',
-            'title' => 'Accepted Patients',
+            'title' => 'Accepted Participants',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
             'sort_by' => $sort_by,
             'sort_dir' => $sort_dir,
@@ -117,7 +117,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
         <?php $this->renderPartial('_patientList', array(
             'trial' => $model,
             'listId' => 'rejectedPatientList',
-            'title' => 'Rejected Patients',
+            'title' => 'Rejected Participants',
             'dataProvider' => $dataProviders[TrialPatient::STATUS_REJECTED],
             'sort_by' => $sort_by,
             'sort_dir' => $sort_dir,
@@ -150,7 +150,7 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
           window.location.reload(false);
         } else if (response === '<?php echo TrialPatient::STATUS_CHANGE_CODE_ALREADY_IN_INTERVENTION; ?>') {
           new OpenEyes.UI.Dialog.Alert({
-            content: "You can't accept this patient into your Trial because the patient has already been accepted into another Intervention trial."
+            content: "You can't accept this participant into your Trial because that participant has already been accepted into another Intervention trial."
           }).open();
         } else {
           alert("Unknown response code: " + response_code);
@@ -159,7 +159,7 @@ Yii::app()->getClientScript()->registerScriptFile($assetPath . '/js/toggle-secti
       error: function (response) {
         $('#action-loader-' + trial_patient_id).hide();
         new OpenEyes.UI.Dialog.Alert({
-          content: "Sorry, an internal error occurred and we were unable to change the patient status.\n\nPlease contact support for assistance."
+          content: "Sorry, an internal error occurred and we were unable to change the participant status.\n\nPlease contact support for assistance."
         }).open();
       },
     });
