@@ -72,7 +72,7 @@
 <script>
   function checkUrl(urlField) {
     var urlText = urlField.value;
-    if (urlText.indexOf("http") === -1) {
+    if (urlText && urlText.indexOf("http") === -1) {
       urlText = "http://" + urlText;
     }
 
