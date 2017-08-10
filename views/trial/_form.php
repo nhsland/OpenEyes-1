@@ -41,6 +41,40 @@
   </div>
 
   <div class="row field-row">
+    <div class="large-2 column"><?php echo $form->labelEx($model, 'started_date'); ?></div>
+    <div class="large-2 column">
+        <?php
+        if ((bool)strtotime($model->started_date)) {
+            $dob = new DateTime($model->started_date);
+            $model->started_date = $dob->format('d/m/Y');
+        } else {
+            $model->started_date = str_replace('-', '/', $model->started_date);
+        }
+        ?>
+        <?php echo $form->textField($model, 'started_date'); ?>
+        <?php echo $form->error($model, 'started_date'); ?>
+    </div>
+    <div class="large-3 column end"><label><i>(dd/mm/yyyy)</i></label></div>
+  </div>
+
+  <div class="row field-row">
+    <div class="large-2 column"><?php echo $form->labelEx($model, 'closed_date'); ?></div>
+    <div class="large-2 column">
+        <?php
+        if ((bool)strtotime($model->closed_date)) {
+            $dob = new DateTime($model->closed_date);
+            $model->closed_date = $dob->format('d/m/Y');
+        } else {
+            $model->closed_date = str_replace('-', '/', $model->closed_date);
+        }
+        ?>
+        <?php echo $form->textField($model, 'closed_date'); ?>
+        <?php echo $form->error($model, 'closed_date'); ?>
+    </div>
+    <div class="large-3 column end"><label><i>(dd/mm/yyyy)</i></label></div>
+  </div>
+
+  <div class="row field-row">
     <div class="large-6 column">
       <div class="row field-row">
         <div class="large-3 column">

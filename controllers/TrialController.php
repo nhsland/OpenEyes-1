@@ -129,6 +129,7 @@ class TrialController extends BaseModuleController
     public function actionCreate()
     {
         $model = new Trial;
+        $model->setScenario('manual');
         $model->status = Trial::STATUS_OPEN;
         $model->trial_type = Trial::TRIAL_TYPE_NON_INTERVENTION;
         $model->owner_user_id = Yii::app()->user->id;
@@ -156,6 +157,7 @@ class TrialController extends BaseModuleController
     public function actionUpdate($id)
     {
         $model = $this->loadModel($id);
+        $model->setScenario('manual');
 
         if (isset($_POST['Trial'])) {
             $model->attributes = $_POST['Trial'];

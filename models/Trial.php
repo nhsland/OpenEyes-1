@@ -112,7 +112,8 @@ class Trial extends BaseActiveRecordVersioned
             array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),
             array('status', 'in', 'range' => self::getAllowedStatusRange()),
             array('trial_type', 'in', 'range' => self::getAllowedTrialTypeRange()),
-            array('description, last_modified_date, created_date, closed_date', 'safe'),
+            array('started_date, closed_date', 'dateFormatValidator', 'on' => 'manual'),
+            array('description, last_modified_date, created_date', 'safe'),
         );
     }
 
@@ -270,6 +271,43 @@ class Trial extends BaseActiveRecordVersioned
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
+    }
+
+    /**
+     * Overrides CActiveModel::beforeSave()
+     *
+     * @return bool A value indicating whether the model can be saved
+     */
+    public function beforeSave()
+    {
+        foreach (array('started_date', 'closed_date') as $date_column) {
+            $date = $this->{$date_column};
+            if (strtotime($date)) {
+                $this->{$date_column} = date('Y-m-d', strtotime($date));
+            } else {
+                $this->{$date_column} = null;
+            }
+        }
+
+        return parent::beforeSave();
+    }
+
+    /**
+     * Overrides CActiveModel::beforeValidate()
+     *
+     * @return bool A value indicating whether the trial passed validation
+     */
+    public function beforeValidate()
+    {
+        if (!parent::beforeValidate()) {
+            return false;
+        }
+
+        foreach (array('started_date', 'closed_date') as $date_column) {
+            $this->$date_column = str_replace('/', '-', $this->$date_column);
+        }
+
+        return true;
     }
 
     /**
@@ -576,14 +614,14 @@ class Trial extends BaseActiveRecordVersioned
             return self::RETURN_CODE_CANT_OPEN_SHORTLISTED_TRIAL;
         }
 
-        if ((int)$new_state === Trial::STATUS_CLOSED || (int)$new_state === Trial::STATUS_CANCELLED) {
-            $this->closed_date = date('Y-m-d H:i:s');
-        } else {
-            $this->closed_date = null;
+        if (($this->closed_date === null || $this->closed_date === '')
+            && ((int)$new_state === Trial::STATUS_CLOSED || (int)$new_state === Trial::STATUS_CANCELLED)) {
+            $this->closed_date = date('d-m-Y');
         }
 
-        if ((int)$this->status === Trial::STATUS_OPEN && (int)$new_state === Trial::STATUS_IN_PROGRESS) {
-            $this->started_date = date('Y-m-d H:i:s');
+        if (($this->started_date === null || $this->started_date === '')
+            && (int)$this->status === Trial::STATUS_OPEN && (int)$new_state === Trial::STATUS_IN_PROGRESS) {
+            $this->started_date = date('d-m-Y');
         }
 
         $this->status = $new_state;
@@ -595,5 +633,28 @@ class Trial extends BaseActiveRecordVersioned
         $this->audit('trial', 'transition-state');
 
         return self::RETURN_CODE_OK;
+    }
+
+    /**
+     * This validator is added to the Trial object in TrialController create/update action
+     *
+     * Validating the date format
+     * @param string $attribute The name of the date attribute the validate
+     * @param mixed $params The validator params
+     */
+    public function dateFormatValidator($attribute, $params)
+    {
+        if ($this->$attribute === null || $this->$attribute === '') {
+            return;
+        }
+
+        // because 02/02/198 is valid according to DateTime::createFromFormat('d-m-Y', ...)
+        $format_check = preg_match("/^(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}$/", $this->$attribute);
+
+        $patient_dob_date = DateTime::createFromFormat('d-m-Y', $this->$attribute);
+
+        if (!$patient_dob_date || !$format_check) {
+            $this->addError($attribute, 'Wrong date format. Use dd/mm/yyyy' . $this->$attribute);
+        }
     }
 }
