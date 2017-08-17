@@ -74,13 +74,11 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
 
         ?>
 
-      <div class="large-10 column">
-        <div class="box">
-          <div class="row">
+        <div class="row">
             <div class="large-2 column">
                 <?php echo CHtml::label($this->getLabel(), false); ?>
             </div>
-            <div class="large-2 column">
+            <div class="large-3 column">
                 <?php echo CHtml::activeDropDownList($this, "[$id]operation", $ops,
                     array('prompt' => 'Select One...')); ?>
                 <?php echo CHtml::error($this, "[$id]operation"); ?>
@@ -97,54 +95,51 @@ class PreviousTrialParameter extends CaseSearchParameter implements DBProviderIn
                 <?php echo CHtml::activeDropDownList($this, "[$id]trial", $trials,
                     array('empty' => 'Any', 'style' => 'display: none;')); ?>
             </div>
-          </div>
-          <br/>
-          <div class="row treatment-type-container"
-               <?php if ($this->type !== '' && $this->type !== null && (int)$this->type === Trial::TRIAL_TYPE_NON_INTERVENTION): ?>style="display:none" <?php endif; ?>>
+        </div>
+        <div class="row treatment-type-container"
+             <?php if ($this->type !== '' && $this->type !== null && (int)$this->type === Trial::TRIAL_TYPE_NON_INTERVENTION): ?>style="display:none" <?php endif; ?>>
             <div class="large-2 column">&nbsp;</div>
-            <div class="large-2 column">
-              <p style="float: right; margin: 5px">and was given</p>
+            <div class="large-3 column">
+                <p style="float: right; margin: 5px">and was given</p>
             </div>
             <div class="large-2 column">
                 <?php echo CHtml::activeDropDownList($this, "[$id]treatmentType", $treatmentTypeList,
                     array('empty' => 'Any')); ?>
             </div>
-            <div class="large-2 column end">
-              <p style="margin: 5px">treatment</p>
+            <div class="large-3 column end">
+                <p style="margin: 5px">treatment</p>
             </div>
-          </div>
         </div>
-      </div>
 
 
-      <script type="text/javascript">
-        function getTrialList(target, parameter_id) {
-          var parameterNode = $('.parameter#' + parameter_id);
+        <script type="text/javascript">
+            function getTrialList(target, parameter_id) {
+                var parameterNode = $('.parameter#' + parameter_id);
 
-          var trialType = parseInt($(target).val());
-          var trialList = parameterNode.find('.trial-list select');
-          var treatmentTypeContainer = parameterNode.find('.treatment-type-container');
+                var trialType = parseInt($(target).val());
+                var trialList = parameterNode.find('.trial-list select');
+                var treatmentTypeContainer = parameterNode.find('.treatment-type-container');
 
-          // Only show the treatment type if the trial type is set to "Any" or "Intervention"
-          treatmentTypeContainer.toggle(isNaN(trialType) || trialType === <?php echo Trial::TRIAL_TYPE_INTERVENTION; ?>);
+                // Only show the treatment type if the trial type is set to "Any" or "Intervention"
+                treatmentTypeContainer.toggle(isNaN(trialType) || trialType === <?php echo Trial::TRIAL_TYPE_INTERVENTION; ?>);
 
-          if (isNaN(trialType)) {
-            trialList.empty();
-            trialList.hide();
-          } else {
-            $.ajax({
-              url: '<?php echo Yii::app()->createUrl('/OETrial/trial/getTrialList'); ?>',
-              type: 'GET',
-              data: {type: trialType},
-              success: function (response) {
-                trialList.empty();
-                trialList.append(response);
-                trialList.show();
-              }
-            });
-          }
-        }
-      </script>
+                if (isNaN(trialType)) {
+                    trialList.empty();
+                    trialList.hide();
+                } else {
+                    $.ajax({
+                        url: '<?php echo Yii::app()->createUrl('/OETrial/trial/getTrialList'); ?>',
+                        type: 'GET',
+                        data: {type: trialType},
+                        success: function (response) {
+                            trialList.empty();
+                            trialList.append(response);
+                            trialList.show();
+                        }
+                    });
+                }
+            }
+        </script>
 
         <?php
         Yii::app()->clientScript->registerScript('GetTrials', '
