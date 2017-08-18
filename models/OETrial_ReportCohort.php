@@ -47,7 +47,7 @@ class OETrial_ReportCohort extends BaseReport
      */
     public function run()
     {
-        $select = 'p.id, p.hos_num, c.first_name, c.last_name, p.dob, t_p.external_trial_identifier, t_p.treatment_type, t_p.patient_status, GROUP_CONCAT(DISTINCT d.name) as name, GROUP_CONCAT(DISTINCT do.term) as term';
+        $select = 'p.id, p.hos_num, c.first_name, c.last_name, p.dob, t_p.external_trial_identifier, t_p.treatment_type, t_p.patient_status, GROUP_CONCAT(DISTINCT d.name) as Medications, GROUP_CONCAT(DISTINCT do.term) as Diagnoses';
 
         $query = $this->getDbCommand();
 
@@ -92,8 +92,8 @@ class OETrial_ReportCohort extends BaseReport
             'external_trial_identifier' => $item['external_trial_identifier'],
             'treatment_type' => $item['treatment_type'],
             'patient_status' => $item['patient_status'],
-            'name' => $item['name'],
-            'term' => $item['term'],
+            'Medications' => $item['Medications'],
+            'Diagnoses' => $item['Diagnoses'],
         );
     }
 
@@ -106,11 +106,14 @@ class OETrial_ReportCohort extends BaseReport
     {
         $output = $this->description() . "\n\n";
 
-        $output .= Patient::model()->getAttributeLabel('hos_num') . ',' . Patient::model()->getAttributeLabel('dob') . ',' . Patient::model()->getAttributeLabel('first_name') . ',' . Patient::model()->getAttributeLabel('last_name') . ',' . TrialPatient::model()->getAttributeLabel('external_trial_identifier') . ',' . TrialPatient::model()->getAttributeLabel('treatment_type') . ',' . TrialPatient::model()->getAttributeLabel('patient_status') . ',' . Drug::model()->getAttributeLabel('name') .',' . Disorder::model()->getAttributeLabel('term') ."\n";
+        $output .= Patient::model()->getAttributeLabel('hos_num') . ',' . Patient::model()->getAttributeLabel('dob') . ',' . Patient::model()->getAttributeLabel('first_name') . ','
+                   . Patient::model()->getAttributeLabel('last_name') . ',' . TrialPatient::model()->getAttributeLabel('external_trial_identifier') . ','
+                   . TrialPatient::model()->getAttributeLabel('treatment_type') . ',' . TrialPatient::model()->getAttributeLabel('patient_status') . ',' . 'Medications' .',' . 'Diagnoses' ."\n";
 
         foreach ($this->patients as $ts => $patient) {
             $output .= "\"{$patient['hos_num']}\",\"" . ($patient['dob'] ? date('j M Y',
-                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"{$patient['external_trial_identifier']}\",\"{$patient['treatment_type']}\", {$patient['patient_status']},\"{$patient['name']}\",\"{$patient['term']}\"" . "\n";
+                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"{$patient['external_trial_identifier']}\",\"{$patient['treatment_type']}\""
+                    .", {$patient['patient_status']},\"{$patient['Medications']}\",\"{$patient['Diagnoses']}\"" . "\n";
         }
 
         return $output;
