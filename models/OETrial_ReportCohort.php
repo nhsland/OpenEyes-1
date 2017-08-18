@@ -47,7 +47,7 @@ class OETrial_ReportCohort extends BaseReport
      */
     public function run()
     {
-        $select = 'p.id, p.hos_num, c.first_name, c.last_name, p.dob, t_p.external_trial_identifier, t_p.treatment_type, t_p.patient_status, GROUP_CONCAT(DISTINCT d.name) as Medications, GROUP_CONCAT(DISTINCT do.term) as Diagnoses';
+        $select = 'p.id, p.hos_num, c.first_name, c.last_name, p.dob, t_p.external_trial_identifier, t_p.id as trial_patient_id, GROUP_CONCAT(DISTINCT d.name) as Medications, GROUP_CONCAT(DISTINCT do.term) as Diagnoses';
 
         $query = $this->getDbCommand();
 
@@ -90,8 +90,7 @@ class OETrial_ReportCohort extends BaseReport
             'first_name' => $item['first_name'],
             'last_name' => $item['last_name'],
             'external_trial_identifier' => $item['external_trial_identifier'],
-            'treatment_type' => $item['treatment_type'],
-            'patient_status' => $item['patient_status'],
+            'trial_patient_id' => $item['trial_patient_id'],
             'Medications' => $item['Medications'],
             'Diagnoses' => $item['Diagnoses'],
         );
@@ -111,9 +110,10 @@ class OETrial_ReportCohort extends BaseReport
                    . TrialPatient::model()->getAttributeLabel('treatment_type') . ',' . TrialPatient::model()->getAttributeLabel('patient_status') . ',' . 'Medications' .',' . 'Diagnoses' ."\n";
 
         foreach ($this->patients as $ts => $patient) {
+            $trial_patient_id = TrialPatient::model()->findByPk($patient['trial_patient_id']);
             $output .= "\"{$patient['hos_num']}\",\"" . ($patient['dob'] ? date('j M Y',
-                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"{$patient['external_trial_identifier']}\",\"{$patient['treatment_type']}\""
-                    .", {$patient['patient_status']},\"{$patient['Medications']}\",\"{$patient['Diagnoses']}\"" . "\n";
+                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"{$patient['external_trial_identifier']}\",\"{$trial_patient_id->getTreatmentTypeForDisplay()}\""
+                    .", {$trial_patient_id->getStatusForDisplay()},\"{$patient['Medications']}\",\"{$patient['Diagnoses']}\"" . "\n";
         }
 
         return $output;
