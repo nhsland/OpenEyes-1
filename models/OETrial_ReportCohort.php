@@ -47,7 +47,7 @@ class OETrial_ReportCohort extends BaseReport
      */
     public function run()
     {
-        $select = 'p.id, p.hos_num, c.first_name, c.last_name, p.dob, t_p.external_trial_identifier, t_p.id as trial_patient_id, GROUP_CONCAT(DISTINCT d.name) as Medications, GROUP_CONCAT(DISTINCT do.term) as Diagnoses';
+        $select = 'p.id, p.hos_num, c.first_name, c.last_name, p.dob, t_p.external_trial_identifier, t_p.id as trial_patient_id, GROUP_CONCAT(DISTINCT d.name) as medications, GROUP_CONCAT(DISTINCT do.term) as diagnoses';
 
         $query = $this->getDbCommand();
 
@@ -91,8 +91,8 @@ class OETrial_ReportCohort extends BaseReport
             'last_name' => $item['last_name'],
             'external_trial_identifier' => $item['external_trial_identifier'],
             'trial_patient_id' => $item['trial_patient_id'],
-            'Medications' => $item['Medications'],
-            'Diagnoses' => $item['Diagnoses'],
+            'medications' => $item['medications'],
+            'diagnoses' => $item['diagnoses'],
         );
     }
 
@@ -110,10 +110,10 @@ class OETrial_ReportCohort extends BaseReport
                    . TrialPatient::model()->getAttributeLabel('treatment_type') . ',' . TrialPatient::model()->getAttributeLabel('patient_status') . ',' . 'Medications' .',' . 'Diagnoses' ."\n";
 
         foreach ($this->patients as $ts => $patient) {
-            $trial_patient_id = TrialPatient::model()->findByPk($patient['trial_patient_id']);
+            $trial_patient = TrialPatient::model()->findByPk($patient['trial_patient_id']);
             $output .= "\"{$patient['hos_num']}\",\"" . ($patient['dob'] ? date('j M Y',
-                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"{$patient['external_trial_identifier']}\",\"{$trial_patient_id->getTreatmentTypeForDisplay()}\""
-                    .", {$trial_patient_id->getStatusForDisplay()},\"{$patient['Medications']}\",\"{$patient['Diagnoses']}\"" . "\n";
+                    strtotime($patient['dob'])) : 'Unknown') . "\",\"{$patient['first_name']}\",\"{$patient['last_name']}\",\"{$patient['external_trial_identifier']}\",\"{$trial_patient->getTreatmentTypeForDisplay()}\""
+                    .", {$trial_patient->getStatusForDisplay()},\"{$patient['medications']}\",\"{$patient['diagnoses']}\"" . "\n";
         }
 
         return $output;
