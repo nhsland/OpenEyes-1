@@ -10,125 +10,139 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $model->id, Us
 ?>
 
 <h1 class="badge">Trial</h1>
-<div class="row">
-  <div class="large-9 column">
-    <div class="box admin">
+<div class="box">
+  <div class="row">
+    <div class="large-9 column">
+      <div class="box admin">
+          <?php
+          $this->widget('zii.widgets.CBreadcrumbs', array(
+              'links' => $this->breadcrumbs,
+          ));
+          ?>
 
-        <?php if ((int)$model->trial_type === Trial::TRIAL_TYPE_INTERVENTION): ?>
-          <div class="alert-box alert with-icon">
-            This is an Intervention Trial. Participants of this Trial cannot be accepted into other Intervention
-            Trials
-          </div>
-        <?php endif; ?>
+          <?php if ((int)$model->trial_type === Trial::TRIAL_TYPE_INTERVENTION): ?>
+            <div class="alert-box alert with-icon">
+              This is an Intervention Trial. Participants of this Trial cannot be accepted into other Intervention
+              Trials
+            </div>
+          <?php endif; ?>
 
-        <?php if ((int)$model->status === Trial::STATUS_CANCELLED): ?>
-          <div class="alert-box alert with-icon">This Trial has been cancelled. You will need to reopen it before you
-            can make any changes.
+          <?php if ((int)$model->status === Trial::STATUS_CANCELLED): ?>
+            <div class="alert-box alert with-icon">This Trial has been cancelled. You will need to reopen it before you
+              can make any changes.
+            </div>
+          <?php elseif ((int)$model->status === Trial::STATUS_CLOSED): ?>
+            <div class="alert-box alert with-icon">This Trial has been closed. You will need to reopen it before you
+              can make any changes.
+            </div>
+          <?php endif; ?>
+        <div class="row">
+          <div class="large-9 column">
+            <h1 style="display: inline"><?php echo CHtml::encode($model->name); ?></h1>
+            <h3 style="display: inline"><?php echo CHtml::encode('owned by ' . $model->ownerUser->getFullName()); ?></h3>
           </div>
-        <?php elseif ((int)$model->status === Trial::STATUS_CLOSED): ?>
-          <div class="alert-box alert with-icon">This Trial has been closed. You will need to reopen it before you
-            can make any changes.
+          <div class="large-3 column">
+              <?php echo $model->getStartedDateForDisplay(); ?>
+              <?php if ($model->started_date !== null): ?>
+                &mdash; <?php echo $model->getClosedDateForDisplay() ?>
+              <?php endif; ?>
           </div>
-        <?php endif; ?>
-      <div class="row">
-        <div class="large-9 column">
-          <h1 style="display: inline"><?php echo CHtml::encode($model->name); ?></h1>
-          <h3 style="display: inline"><?php echo CHtml::encode('owned by ' . $model->ownerUser->getFullName()); ?></h3>
         </div>
-        <div class="large-3 column">
-            <?php echo $model->getStartedDateForDisplay(); ?>
-            <?php if ($model->started_date !== null): ?>
-              &mdash; <?php echo $model->getClosedDateForDisplay() ?>
-            <?php endif; ?>
-        </div>
+
+          <?php if ($model->description !== ''): ?>
+            <div class="row">
+              <div class="large-12 column">
+                <p><?php echo CHtml::encode($model->description); ?></p>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if ($model->external_data_link !== ''): ?>
+            <div class="row">
+              <div class="large-12 column">
+                <p>
+                    <?php echo $model->getAttributeLabel('external_data_link') ?>
+                    <?php echo CHtml::link(CHtml::encode($model->external_data_link),
+                        CHtml::encode($model->external_data_link), array('target' => '_blank')); ?>
+                </p>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if ($hasManagePermissions): ?>
+            <br/>
+
+              <?php if (in_array((int)$model->status,
+                  array(Trial::STATUS_OPEN, Trial::STATUS_CANCELLED, Trial::STATUS_CLOSED), true)): ?>
+                  <?php echo CHtml::button((int)$model->status === Trial::STATUS_OPEN ? 'Start Trial' : 'Re-open Trial',
+                      array(
+                          'id' => 'start-trial-button',
+                          'class' => 'small button primary event-action',
+                          'onclick' => "changeTrialState($model->id, " . Trial::STATUS_IN_PROGRESS . ')',
+                      )); ?>
+              <?php endif; ?>
+
+              <?php if ((int)$model->status === Trial::STATUS_IN_PROGRESS): ?>
+                  <?php echo CHtml::button('Close Trial', array(
+                      'id' => 'close-trial-button',
+                      'class' => 'small button primary event-action',
+                      'onclick' => "changeTrialState($model->id, " . Trial::STATUS_CLOSED . ')',
+                  )); ?>
+
+              <?php endif; ?>
+
+              <?php if ((int)$model->status === Trial::STATUS_OPEN || (int)$model->status === Trial::STATUS_IN_PROGRESS): ?>
+                  <?php echo CHtml::button('Cancel Trial', array(
+                      'id' => 'cancel-trial-button',
+                      'class' => 'small button primary event-action',
+                      'onclick' => "changeTrialState($model->id, " . Trial::STATUS_CANCELLED . ')',
+                  )); ?>
+              <?php endif; ?>
+
+
+          <?php endif; ?>
+      </div>
+    </div>
+      <?php $this->renderPartial('_trialActions', array('trial' => $model)); ?>
+  </div>
+</div>
+
+<div class="box">
+  <div class="row">
+    <div class="large-9 column">
+      <div class="box admin">
+
+          <?php $this->renderPartial('_patientList', array(
+              'trial' => $model,
+              'listId' => 'acceptedPatientList',
+              'title' => 'Accepted Participants',
+              'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
+              'sort_by' => $sort_by,
+              'sort_dir' => $sort_dir,
+          )); ?>
+
+          <?php $this->renderPartial('_patientList', array(
+              'trial' => $model,
+              'listId' => 'shortlistedPatientList',
+              'title' => 'Shortlisted Participants',
+              'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
+              'sort_by' => $sort_by,
+              'sort_dir' => $sort_dir,
+          )); ?>
+
+          <?php $this->renderPartial('_patientList', array(
+              'trial' => $model,
+              'listId' => 'rejectedPatientList',
+              'title' => 'Rejected Participants',
+              'dataProvider' => $dataProviders[TrialPatient::STATUS_REJECTED],
+              'sort_by' => $sort_by,
+              'sort_dir' => $sort_dir,
+          )); ?>
+
       </div>
 
-        <?php if ($model->description !== ''): ?>
-          <div class="row">
-            <div class="large-12 column">
-              <p><?php echo CHtml::encode($model->description); ?></p>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <?php if ($model->external_data_link !== ''): ?>
-          <div class="row">
-            <div class="large-12 column">
-              <p>
-                  <?php echo $model->getAttributeLabel('external_data_link') ?>
-                  <?php echo CHtml::link(CHtml::encode($model->external_data_link),
-                      CHtml::encode($model->external_data_link), array('target' => '_blank')); ?>
-              </p>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <?php if ($hasManagePermissions): ?>
-          <br/>
-
-            <?php if (in_array((int)$model->status,
-                array(Trial::STATUS_OPEN, Trial::STATUS_CANCELLED, Trial::STATUS_CLOSED), true)): ?>
-                <?php echo CHtml::button((int)$model->status === Trial::STATUS_OPEN ? 'Start Trial' : 'Re-open Trial',
-                    array(
-                        'id' => 'start-trial-button',
-                        'class' => 'small button primary event-action',
-                        'onclick' => "changeTrialState($model->id, " . Trial::STATUS_IN_PROGRESS . ')',
-                    )); ?>
-            <?php endif; ?>
-
-            <?php if ((int)$model->status === Trial::STATUS_IN_PROGRESS): ?>
-                <?php echo CHtml::button('Close Trial', array(
-                    'id' => 'close-trial-button',
-                    'class' => 'small button primary event-action',
-                    'onclick' => "changeTrialState($model->id, " . Trial::STATUS_CLOSED . ')',
-                )); ?>
-
-            <?php endif; ?>
-
-            <?php if ((int)$model->status === Trial::STATUS_OPEN || (int)$model->status === Trial::STATUS_IN_PROGRESS): ?>
-                <?php echo CHtml::button('Cancel Trial', array(
-                    'id' => 'cancel-trial-button',
-                    'class' => 'small button primary event-action',
-                    'onclick' => "changeTrialState($model->id, " . Trial::STATUS_CANCELLED . ')',
-                )); ?>
-            <?php endif; ?>
-
-
-        <?php endif; ?>
-      <hr/>
-
-        <?php $this->renderPartial('_patientList', array(
-            'trial' => $model,
-            'listId' => 'acceptedPatientList',
-            'title' => 'Accepted Participants',
-            'dataProvider' => $dataProviders[TrialPatient::STATUS_ACCEPTED],
-            'sort_by' => $sort_by,
-            'sort_dir' => $sort_dir,
-        )); ?>
-
-        <?php $this->renderPartial('_patientList', array(
-            'trial' => $model,
-            'listId' => 'shortlistedPatientList',
-            'title' => 'Shortlisted Participants',
-            'dataProvider' => $dataProviders[TrialPatient::STATUS_SHORTLISTED],
-            'sort_by' => $sort_by,
-            'sort_dir' => $sort_dir,
-        )); ?>
-
-        <?php $this->renderPartial('_patientList', array(
-            'trial' => $model,
-            'listId' => 'rejectedPatientList',
-            'title' => 'Rejected Participants',
-            'dataProvider' => $dataProviders[TrialPatient::STATUS_REJECTED],
-            'sort_by' => $sort_by,
-            'sort_dir' => $sort_dir,
-        )); ?>
-
-    </div>
-
-  </div><!-- /.large-9.column -->
-
-    <?php $this->renderPartial('_trialActions', array('trial' => $model)); ?>
+    </div><!-- /.large-9.column -->
+  </div>
 </div>
 
 <?php

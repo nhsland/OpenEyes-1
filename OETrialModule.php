@@ -1,6 +1,6 @@
 <?php
 
-class OETrialModule extends CWebModule
+class OETrialModule extends BaseModule
 {
     public function init()
     {

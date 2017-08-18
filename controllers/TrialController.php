@@ -61,6 +61,18 @@ class TrialController extends BaseModuleController
     }
 
     /**
+     * @param CAction $action The action being called
+     * @return bool Whether the action is
+     */
+    public function beforeAction($action)
+    {
+        $assetPath = Yii::app()->assetManager->publish(Yii::getPathOfAlias('application.modules.OETrial.assets'));
+        Yii::app()->clientScript->registerCssFile($assetPath . '/css/module.css');
+
+        return parent::beforeAction($action);
+    }
+
+    /**
      * Displays a particular model.
      * @param int $id the ID of the model to be displayed
      * @throws CException Thrown if an error occurs when loading the data providers
@@ -94,6 +106,11 @@ class TrialController extends BaseModuleController
                 $sortBy = 'treatment_type';
                 break;
         }
+
+        $this->breadcrumbs = array(
+            'Trials' => array('index'),
+            $model->name,
+        );
 
         $this->render('view', array(
             'model' => $model,
@@ -143,6 +160,11 @@ class TrialController extends BaseModuleController
             }
         }
 
+        $this->breadcrumbs = array(
+            'Trials' => array('index'),
+            'Create a Trial',
+        );
+
         $this->render('create', array(
             'model' => $model,
         ));
@@ -165,6 +187,12 @@ class TrialController extends BaseModuleController
                 $this->redirect(array('view', 'id' => $model->id));
             }
         }
+
+        $this->breadcrumbs = array(
+            'Trials' => array('index'),
+            $model->name => array('view', 'id' => $model->id),
+            'Edit',
+        );
 
         $this->render('update', array(
             'model' => $model,
@@ -229,6 +257,10 @@ class TrialController extends BaseModuleController
             ),
         ));
 
+        $this->breadcrumbs = array(
+            'Trials',
+        );
+
         $this->render('index', array(
             'interventionTrialDataProvider' => $interventionTrialDataProvider,
             'nonInterventionTrialDataProvider' => $nonInterventionTrialDataProvider,
@@ -257,6 +289,12 @@ class TrialController extends BaseModuleController
         ));
 
         $newPermission = new UserTrialPermission();
+
+        $this->breadcrumbs = array(
+            'Trials' => array('index'),
+            $model->name => array('view', 'id' => $model->id),
+            'Permissions',
+        );
 
         $this->render('permissions', array(
             'model' => $model,

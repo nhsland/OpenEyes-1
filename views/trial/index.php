@@ -6,29 +6,45 @@
 /* @var string $sort_dir */
 
 ?>
+
+<?php
+$this->widget('zii.widgets.CBreadcrumbs', array(
+    'links' => $this->breadcrumbs,
+));
+?>
+
 <h1 class="badge">Trials</h1>
 
 <div class="row">
   <div class="large-9 column">
 
-      <?php
-      $this->renderPartial('_trialList', array(
-          'dataProvider' => $interventionTrialDataProvider,
-          'title' => 'Intervention Trials',
-          'sort_by' => $sort_by,
-          'sort_dir' => $sort_dir,
-      ));
-      ?>
+    <div class="box admin">
+        <?php
+        $this->widget('zii.widgets.CBreadcrumbs', array(
+            'links' => $this->breadcrumbs,
+        ));
+        ?>
 
+        <?php
+        $this->renderPartial('_trialList', array(
+            'dataProvider' => $interventionTrialDataProvider,
+            'title' => 'Intervention Trials',
+            'sort_by' => $sort_by,
+            'sort_dir' => $sort_dir,
+        ));
+        ?>
 
-      <?php
-      $this->renderPartial('_trialList', array(
-          'dataProvider' => $nonInterventionTrialDataProvider,
-          'title' => 'Non-Intervention Trials',
-          'sort_by' => $sort_by,
-          'sort_dir' => $sort_dir,
-      ));
-      ?>
+      <hr/>
+
+        <?php
+        $this->renderPartial('_trialList', array(
+            'dataProvider' => $nonInterventionTrialDataProvider,
+            'title' => 'Non-Intervention Trials',
+            'sort_by' => $sort_by,
+            'sort_dir' => $sort_dir,
+        ));
+        ?>
+    </div>
 
   </div><!-- /.large-9.column -->
     <?php if (Yii::app()->user->checkAccess('TaskCreateTrial')): ?>
