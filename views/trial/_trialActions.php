@@ -58,7 +58,7 @@ $hasManagePermissions = Trial::checkTrialAccess(Yii::app()->user, $trial->id, Us
           <?php echo CHtml::beginForm($this->createUrl('report/downloadReport')); ?>
         <p>
           <span class="highlight">
-              <?php echo CHtml::hiddenField('report-name', 'Cohort'); ?>
+              <?php echo CHtml::hiddenField('report-name', $trial->name); ?>
               <?php echo CHtml::hiddenField('trialID', $trial->id); ?>
 
               <?php echo CHtml::linkButton('Download Report'); ?>

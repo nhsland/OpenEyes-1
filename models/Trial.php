@@ -107,6 +107,7 @@ class Trial extends BaseActiveRecordVersioned
         return array(
             array('name, owner_user_id, status', 'required'),
             array('name', 'length', 'max' => 64),
+            array('name', 'match', 'pattern' => '([^\w\s\d\-_~,;\[\]\(\).])', 'not' => true), // ensure the trial name also constitutes a valid file name.
             array('external_data_link', 'url', 'defaultScheme' => 'http'),
             array('external_data_link', 'length', 'max' => 255),
             array('owner_user_id, last_modified_user_id, created_user_id, status', 'length', 'max' => 10),

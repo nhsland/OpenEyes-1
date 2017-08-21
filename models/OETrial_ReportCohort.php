@@ -74,7 +74,7 @@ class OETrial_ReportCohort extends BaseReport
         /* @var Trial $trial */
         $trial = Trial::model()->findByPk($this->trialID);
 
-        return "Patients shortlisted for $trial->name";
+        return "Participants in trial: $trial->name";
     }
 
     /**
