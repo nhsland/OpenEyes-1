@@ -80,7 +80,7 @@ class TrialController extends BaseModuleController
     public function actionView($id)
     {
         $model = $this->loadModel($id);
-        $report = new OETrial_ReportCohort();
+        $report = new OETrial_ReportTrialCohort();
 
         $sortDir = Yii::app()->request->getParam('sort_dir', '0') === '0' ? 'asc' : 'desc';
         $sortBy = null;

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class OETrial_ReportCohort
+ * Class OETrial_ReportTrialCohort
  */
-class OETrial_ReportCohort extends BaseReport
+class OETrial_ReportTrialCohort extends BaseReport
 {
     /**
      * @var int The ID of the trial
