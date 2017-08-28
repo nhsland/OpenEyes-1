@@ -90,5 +90,23 @@ foreach (explode(',', $this->attributeList) as $attribute):?>
         );
     }
 <?php endif;?>
+
+    /**
+    * Serialise/encode a case search parameter as a JSON string.
+    * @return string a JSON representation of the case search parameter.
+    */
+    public function serialise()
+    {
+        return CJSON::encode($this->attributes);
+    }
+
+    /**
+    * De-serialise a JSON encoded case search parameter.
+    * @param $json string a JSON representation of the case search parameter.
+    */
+    public function deSerialise($json)
+    {
+        $this->attributes = CJSON::decode($json);
+    }
 <?php endforeach;?>
 }

@@ -42,4 +42,25 @@ class <?php echo $this->className; ?>ParameterTest extends CDbTestCase
 
         $this->markTestIncomplete('TODO');
     }
+
+    public function testSerialise()
+    {
+        $expected = null; // Define expected JSON here.
+        $actual = $this->parameter->serialise();
+
+        // $this->assertEquals($expected, $actual);
+        $this->markTestIncomplete('TODO');
+    }
+
+    public function testDeSerialise()
+    {
+        $json = null; // Define sample JSON here.
+
+        $this->parameter->deSerialise($json);
+        $this->assertNotNull($this->parameter->operation);
+<?php if (!empty($this->attributeList)):
+    foreach (explode(',', $this->attributeList) as $attribute):?>
+        $this->assertNotNull($this->parameter-><?php echo $attribute; ?>);
+    <?php endforeach; endif;?>
+    }
 }
