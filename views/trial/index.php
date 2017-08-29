@@ -7,12 +7,6 @@
 
 ?>
 
-<?php
-$this->widget('zii.widgets.CBreadcrumbs', array(
-    'links' => $this->breadcrumbs,
-));
-?>
-
 <h1 class="badge">Trials</h1>
 
 <div class="row">
