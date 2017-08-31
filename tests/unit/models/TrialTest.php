@@ -26,13 +26,13 @@ class TrialTest extends CDbTestCase
     {
         $trial = new Trial();
         $trial->started_date = date('Y-m-d', strtotime('2012-12-21'));
-        $this->assertEquals($trial->getStartedDateForDisplay(), '21 Dec 2012');
+        $this->assertEquals('21 Dec 2012', $trial->getStartedDateForDisplay());
 
-        $trial->started_date = date('Y-m-d', strtotime('1970-1-1'));
-        $this->assertEquals($trial->getStartedDateForDisplay(), '1 Jan 1970');
+        $trial->started_date = date('Y-m-d', strtotime('1972-1-1'));
+        $this->assertEquals('1 Jan 1972', $trial->getStartedDateForDisplay());
 
         $trial->started_date = null;
-        $this->assertEquals($trial->getStartedDateForDisplay(), 'Pending');
+        $this->assertEquals('Pending', $trial->getStartedDateForDisplay());
     }
 
     public function testClosedDate()
@@ -42,16 +42,16 @@ class TrialTest extends CDbTestCase
         $trial->closed_date = date('Y-m-d', strtotime('2012-12-21'));
         $this->assertEquals($trial->getClosedDateForDisplay(), '21 Dec 2012');
 
-        $trial->closed_date = date('Y-m-d', strtotime('1970-1-1'));
-        $this->assertEquals($trial->getClosedDateForDisplay(), '1 Jan 1970');
+        $trial->closed_date = date('Y-m-d', strtotime('1972-1-1'));
+        $this->assertEquals('1 Jan 1972', $trial->getClosedDateForDisplay());
 
         $trial->started_date = null;
         $trial->closed_date = null;
         $this->assertNull($trial->getClosedDateForDisplay());
 
-        $trial->started_date = date('Y-m-d', strtotime('1970-01-01'));
+        $trial->started_date = date('Y-m-d', strtotime('1972-01-01'));
         $trial->closed_date = null;
-        $this->assertEquals($trial->getClosedDateForDisplay(), 'present');
+        $this->assertEquals('present', $trial->getClosedDateForDisplay());
     }
 
     public function testDataProvidersExist()
