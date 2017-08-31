@@ -21,7 +21,7 @@
       <thead>
       <tr>
         <th>Trial</th>
-        <th>Principle Investigator</th>
+        <th>Principal Investigator</th>
         <th>Treatment</th>
         <th>Trial Status</th>
         <th>Trial Type</th>
