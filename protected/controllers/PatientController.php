@@ -1973,3 +1973,11 @@ class PatientController extends BaseController
         echo CJSON::encode($result);
     }
 }
+        else {
+            $this->renderPartial('crud/_conflicts', array(
+                'name' => $firstName . ' ' . $last_name
+            ));
+        }
+    }
+
+}
