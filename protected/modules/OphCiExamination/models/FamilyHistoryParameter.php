@@ -162,4 +162,60 @@ WHERE id NOT IN (
     {
         return "$this->name: $this->side $this->relative $this->operation \"$this->condition\"";
     }
+
+    public function serialise()
+    {
+        return CJSON::encode(array('FamilyHistory' => $this->attributes));
+    }
+
+    public function deSerialise($json)
+    {
+        if (!isset(CJSON::decode($json)['FamilyHistory'])) {
+            return false;
+        }
+        $this->attributes = CJSON::decode($json)['FamilyHistory'];
+        return true;
+    }
+
+    /**
+     * @inherit
+     * @throws CHttpException
+     */
+    public function getJoins()
+    {
+        return array('
+          JOIN patient_family_history fh
+            ON fh.patient_id = p.id');
+    }
+
+    /**
+     * @inherit
+     * @throws CHttpException
+     */
+    public function getWhereCondition()
+    {
+        $whereReturn = ' true ';
+
+        switch ($this->operation) {
+            case '=':
+                $op = '=';
+                break;
+            case '!=':
+                $op = '!=';
+                break;
+            default:
+                throw new CHttpException(400, 'Invalid operator specified.');
+                break;
+        }
+
+        if ($this->side !== null && $this->side !== ''){
+            $whereReturn .= " AND fh.side_id = :f_h_condition_$this->id ";
+        }
+
+        if ($this->relative !== null && $this->relative !== ''){
+            $whereReturn .= " AND fh.relative_id = :f_h_relative_$this->id";
+        }
+
+        return $whereReturn." AND (fh.condition_id $op :f_h_condition_$this->id)";
+    }
 }

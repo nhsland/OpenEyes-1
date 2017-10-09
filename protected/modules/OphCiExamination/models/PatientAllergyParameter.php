@@ -137,4 +137,63 @@ WHERE p1.id NOT IN (
     {
         return "$this->name: $this->operation \"$this->textValue\"";
     }
+
+    public function serialise()
+    {
+        return CJSON::encode(array('PatientAllergy' => $this->attributes));
+    }
+
+    public function deSerialise($json)
+    {
+        if (!isset(CJSON::decode($json)['PatientAllergy'])) {
+            return false;
+        }
+        $this->attributes = CJSON::decode($json)['PatientAllergy'];
+        return true;
+    }
+
+    /**
+     * @inherit
+     * @throws CHttpException
+     */
+    public function getJoins()
+    {
+        if ($this->operation ==='='){
+          $return_joins = array(
+            'LEFT JOIN patient_allergy_assignment paa
+                 ON paa.patient_id = p.id',
+            'LEFT JOIN allergy a
+                 ON a.id = paa.allergy_id');
+          return $return_joins;
+        }
+
+        if ($this->operation !== null && $this->operation !== '') {
+            throw new CHttpException(400, 'Invalid operator specified.');
+        }
+
+        return null;
+    }
+
+    /**
+     * @inherit
+     * @throws CHttpException
+     */
+    public function getWhereCondition()
+    {
+        if ($this->operation ==='=') {
+          return " a.name = :p_al_textValue_$this->id";
+        }
+
+        if ($this->operation ==='!=') {
+            $query = "SELECT DISTINCT p1.id 
+                    FROM patient p1 
+                    LEFT JOIN patient_allergy_assignment paa
+                    ON paa.patient_id = p1.id
+                    LEFT JOIN allergy a
+                    ON a.id = paa.allergy_id
+                    WHERE a.name = :p_al_textValue_$this->id";
+            return "p.id NOT IN ($query)";
+        }
+        throw new CHttpException(400, 'Invalid operator specified.');
+    }
 }

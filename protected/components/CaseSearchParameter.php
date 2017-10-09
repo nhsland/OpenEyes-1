@@ -21,6 +21,11 @@ abstract class CaseSearchParameter extends CFormModel
     public $id;
 
     /**
+     * @var $joinCondition string
+     */
+    public $joinCondition;
+
+    /**
      * Get the parameter identifier (usually the name).
      * @return string The human-readable name of the parameter (for display purposes).
      */
@@ -43,7 +48,7 @@ abstract class CaseSearchParameter extends CFormModel
     {
         return array(
             array('operation', 'required', 'message' => 'The search operator cannot be blank'),
-            array('id', 'safe'),
+            array('id, joinCondition', 'safe'),
         );
     }
 
