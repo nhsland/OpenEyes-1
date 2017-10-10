@@ -183,9 +183,18 @@ WHERE id NOT IN (
      */
     public function getJoins()
     {
-        return array('
-          JOIN patient_family_history fh
-            ON fh.patient_id = p.id');
+        if ($this->operation ==='='){
+            $return_joins = array('
+                JOIN patient_family_history fh
+                    ON fh.patient_id = p.id');
+            return $return_joins;
+        }
+
+        if ($this->operation !== null && $this->operation !== '') {
+            throw new CHttpException(400, 'Invalid operator specified.');
+        }
+
+        return null;
     }
 
     /**
@@ -198,24 +207,29 @@ WHERE id NOT IN (
 
         switch ($this->operation) {
             case '=':
-                $op = '=';
+                if ($this->side !== null && $this->side !== ''){
+                    $whereReturn .= " AND fh.side_id = :f_h_condition_$this->id ";
+                }
+
+                if ($this->relative !== null && $this->relative !== ''){
+                    $whereReturn .= " AND fh.relative_id = :f_h_relative_$this->id";
+                }
+
+                return $whereReturn." AND (fh.condition_id = :f_h_condition_$this->id)";
                 break;
             case '!=':
-                $op = '!=';
+                $query = "SELECT DISTINCT p.id 
+FROM patient p 
+JOIN patient_family_history fh
+  ON fh.patient_id = p.id
+WHERE (:f_h_side_$this->id IS NULL OR fh.side_id = :f_h_side_$this->id)
+  AND (:f_h_relative_$this->id IS NULL OR fh.relative_id = :f_h_relative_$this->id)
+  AND (:f_h_condition_$this->id = :f_h_condition_$this->id)";
+                return "p.id NOT IN ($query)";
                 break;
             default:
                 throw new CHttpException(400, 'Invalid operator specified.');
                 break;
         }
-
-        if ($this->side !== null && $this->side !== ''){
-            $whereReturn .= " AND fh.side_id = :f_h_condition_$this->id ";
-        }
-
-        if ($this->relative !== null && $this->relative !== ''){
-            $whereReturn .= " AND fh.relative_id = :f_h_relative_$this->id";
-        }
-
-        return $whereReturn." AND (fh.condition_id $op :f_h_condition_$this->id)";
     }
 }
