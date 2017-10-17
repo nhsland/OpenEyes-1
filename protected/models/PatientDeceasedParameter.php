@@ -97,4 +97,25 @@ class PatientDeceasedParameter extends CaseSearchParameter implements DBProvider
         $value = $this->operation === false ? 'False' : 'True';
         return "$this->name: $value";
     }
+
+    public function getJoins()
+    {
+        return null;
+    }
+
+    public function getWhereCondition()
+    {
+        switch ($this->operation)
+        {
+            case '0':
+                return ' NOT(is_deceased)';
+                break;
+            case '1':
+                return null;
+                break;
+            default:
+                throw new CHttpException(400, "Invalid value specified: $this->operation");
+                break;
+        }
+    }
 }

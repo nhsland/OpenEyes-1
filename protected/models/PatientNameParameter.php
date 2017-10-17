@@ -115,4 +115,19 @@ WHERE LOWER(CONCAT(c.first_name, ' ', c.last_name)) $op LOWER(:p_n_name_$this->i
     {
         return "$this->name: $this->operation \"$this->patient_name\"";
     }
+
+    public function getJoins()
+    {
+        return array(
+            'JOIN contact c
+            ON c.id = p.contact_id'
+        );
+    }
+
+    public function getWhereCondition()
+    {
+        $op = 'LIKE';
+        return "LOWER(CONCAT(c.first_name, ' ', c.last_name)) 
+            $op LOWER(CONCAT('%',:p_n_name_$this->id,'%'))";
+    }
 }

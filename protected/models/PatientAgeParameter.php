@@ -197,4 +197,49 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
 
         return "$this->name: $this->operation $this->textValue";
     }
+
+    public function getJoins()
+    {
+        return null;
+    }
+
+    /**
+     * @return string
+     * @throws CHttpException
+     */
+    public function getWhereCondition()
+    {
+        $whereStr = ' TIMESTAMPDIFF(YEAR, p.dob, IFNULL(p.date_of_death, CURDATE()))';
+        switch ($this->operation) {
+            case 'BETWEEN':
+                $op = 'BETWEEN';
+                break;
+            case '>':
+                $op = '>';
+                break;
+            case '<':
+                $op = '<';
+                break;
+            case '>=':
+                $op = '>=';
+                break;
+            case '<=':
+                $op = '<=';
+                break;
+            case '=':
+                $op = '=';
+                break;
+            case '!=':
+                $op = '!=';
+                break;
+            default:
+                throw new CHttpException(400, 'Invalid operator specified.');
+                break;
+        }
+
+        if ($op === 'BETWEEN') {
+            return "$whereStr $op :p_a_min_$this->id AND :p_a_max_$this->id";
+        }
+        return "$whereStr $op :p_a_value_$this->id";
+    }
 }

@@ -154,4 +154,38 @@ WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
     {
         return "$this->name: $this->operation \"$this->textValue\"";
     }
+
+    public function getJoins()
+    {
+        if ($this->operation ==='='){
+            $return_joins = array(
+                'LEFT JOIN patient_medication_assignment pma
+                 ON paa.patient_id = p.id',
+                'LEFT JOIN drug d
+                 ON d.id = pma.drug_id');
+            return $return_joins;
+        } elseif ($this->operation ==='!='){
+            return null;
+        } elseif ($this->operation !== null && $this->operation !== ''){
+            throw new CHttpException(400, 'Invalid operator specified.');
+        }
+    }
+
+    public function getWhereCondition()
+    {
+        if ($this->operation ==='='){
+            return " d.name = \"$this->textValue\"";
+        } elseif ($this->operation ==='!='){
+            $query = "SELECT DISTINCT p1.id 
+                    FROM patient p1 
+                    LEFT JOIN patient_medication_assignment pma
+                    ON paa.patient_id = p1.id
+                    LEFT JOIN drug d
+                    ON d.id = pma.drug_id
+                    WHERE d.name = \"$this->textValue\" ";
+            return "p.id NOT IN ($query)";
+        } elseif ($this->operation !== null && $this->operation !== ''){
+            throw new CHttpException(400, 'Invalid operator specified.');
+        }
+    }
 }

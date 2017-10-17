@@ -235,4 +235,73 @@ WHERE p1.id NOT IN (
 
         return $result;
     }
+
+    public function getJoins()
+    {
+        switch ($this->operation){
+            case 'LIKE':
+                if ($this->firm_id !== ''&& $this->firm_id !== null){
+                    $return_joins = array(
+                        'JOIN episode ep
+                        ON ep.patient_id = p.id',
+                        'JOIN disorder d 
+                        ON (d.id = ep.disorder_id)'
+                    );
+                } else{
+                    $return_joins = array(
+                        'LEFT JOIN secondary_diagnosis sd 
+                      ON sd.patient_id = p.id',
+                        'LEFT JOIN episode ep
+                      ON ep.patient_id = p.id',
+                        'LEFT JOIN disorder d 
+                      ON (d.id = sd.disorder_id OR d.id = ep.disorder_id)'
+                    );
+                }
+                return $return_joins;
+                break;
+            case 'NOT LIKE':
+                return null;
+                break;
+            default:
+                throw new CHttpException(400, 'Invalid operator specified.');
+                break;
+        }
+    }
+
+    public function getWhereCondition()
+    {
+        switch ($this->operation){
+            case 'LIKE':
+                $where_query = "LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)";
+                if ($this->firm_id !== '' && $this->firm_id !== null){
+                    $where_query .= " AND ep.firm_id = :p_d_firm_$this->id";
+                }
+                return $where_query;
+                break;
+            case 'NOT LIKE':
+                $query = "SELECT DISTINCT p1.id 
+                    FROM patient p1
+                    LEFT JOIN secondary_diagnosis sd 
+                      ON sd.patient_id = p1.id 
+                    LEFT JOIN episode ep
+                      ON ep.patient_id = p1.id
+                    LEFT JOIN disorder d 
+                      ON (d.id = sd.disorder_id OR d.id = ep.disorder_id)
+                    WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)";
+                if ($this->firm_id !== '' && $this->firm_id !== null) {
+                    $query = "SELECT DISTINCT p1.id 
+                      FROM patient p1 
+                      JOIN episode ep
+                        ON ep.patient_id = p1.id
+                      JOIN disorder d 
+                        ON (d.id = ep.disorder_id)
+                      WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
+                      AND ep.firm_id = :p_d_firm_$this->id";
+                }
+                return "p.id NOT IN ($query)";
+                break;
+            default:
+                throw new CHttpException(400, 'Invalid operator specified');
+        }
+    }
 }

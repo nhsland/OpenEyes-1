@@ -111,4 +111,15 @@ WHERE p.hos_num $op :p_num_number_$this->id";
     {
         return "$this->name: $this->operation $this->number";
     }
+
+    public function getJoins()
+    {
+        return null;
+    }
+
+    public function getWhereCondition()
+    {
+        $op = 'like';
+        return " p.hos_num $op CONCAT('%',:p_num_number_$this->id,'%') ";
+    }
 }
