@@ -167,7 +167,7 @@ WHERE p1.id NOT IN (
           return $return_joins;
         }
 
-        if ($this->operation !== null && $this->operation !== '') {
+        if ($this->operation === null || $this->operation === '') {
             throw new CHttpException(400, 'Invalid operator specified.');
         }
 

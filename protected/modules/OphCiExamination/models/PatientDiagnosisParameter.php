@@ -238,66 +238,85 @@ WHERE p1.id NOT IN (
 
     public function getJoins()
     {
-        switch ($this->operation){
-            case 'LIKE':
-                if ($this->firm_id !== ''&& $this->firm_id !== null){
-                    $return_joins = array(
-                        'JOIN episode ep
-                        ON ep.patient_id = p.id',
-                        'JOIN disorder d 
-                        ON (d.id = ep.disorder_id)'
-                    );
-                } else{
-                    $return_joins = array(
-                        'LEFT JOIN secondary_diagnosis sd 
-                      ON sd.patient_id = p.id',
-                        'LEFT JOIN episode ep
-                      ON ep.patient_id = p.id',
-                        'LEFT JOIN disorder d 
-                      ON (d.id = sd.disorder_id OR d.id = ep.disorder_id)'
-                    );
-                }
-                return $return_joins;
-                break;
-            case 'NOT LIKE':
-                return null;
-                break;
-            default:
-                throw new CHttpException(400, 'Invalid operator specified.');
-                break;
-        }
+        return null;
     }
 
     public function getWhereCondition()
     {
-        switch ($this->operation){
+        $query = '';
+        if ($this->firm_id !== '' && $this->firm_id !== null) {
+            $query .= "SELECT DISTINCT p.id 
+FROM patient p
+JOIN patient_diagnosis_assignment paa
+  ON paa.patient_id = p.id
+JOIN disorder d
+  ON d.id = paa.disorder_id
+JOIN et_ophciexamination_diagnoses et_diag
+  ON et_diag.id = paa.element_diagnoses_id
+JOIN latest_diagnosis_examination_events latest
+  ON latest.event_id = et_diag.event_id
+  AND latest.patient_id = p.id
+JOIN event e
+  ON e.id = latest.event_id
+JOIN episode ep
+  ON ep.id = e.episode_id
+WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
+  AND ep.firm_id = :p_d_firm_$this->id
+  
+UNION
+
+SELECT DISTINCT p2.id
+FROM patient p2 
+JOIN patient_systemic_diagnosis psd
+  ON psd.patient_id = p2.id
+JOIN disorder d2
+  ON d2.id = psd.disorder_id
+JOIN et_ophciexamination_systemic_diagnoses et_systemic
+  ON et_systemic.id = psd.element_id
+JOIN latest_systemic_examination_events latest2
+  ON latest2.event_id = et_systemic.event_id
+  AND latest2.patient_id = p2.id
+JOIN event e2
+  ON e2.id = latest2.event_id
+JOIN episode ep2
+  ON ep2.id = e2.episode_id
+WHERE LOWER(d2.term) LIKE LOWER(:p_d_value_$this->id)
+  AND ep2.firm_id = :p_d_firm_$this->id";
+        } else {
+            $query .= "SELECT DISTINCT p.id
+FROM patient p
+JOIN patient_diagnosis_assignment paa
+  ON paa.patient_id = p.id
+JOIN disorder d
+  ON d.id = paa.disorder_id
+WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
+
+UNION
+
+SELECT DISTINCT p2.id
+FROM patient p2 
+JOIN patient_systemic_diagnosis psd
+  ON psd.patient_id = p2.id
+JOIN disorder d2
+  ON d2.id = psd.disorder_id
+WHERE LOWER(d2.term) LIKE LOWER(:p_d_value_$this->id)
+
+UNION
+
+SELECT DISTINCT p3.id
+FROM patient p3 
+JOIN secondary_diagnosis sd
+  ON sd.patient_id = p3.id
+JOIN disorder d3
+  ON d3.id = sd.disorder_id
+WHERE LOWER(d3.term) LIKE LOWER(:p_d_value_$this->id)";
+        }
+
+        switch ($this->operation) {
             case 'LIKE':
-                $where_query = "LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)";
-                if ($this->firm_id !== '' && $this->firm_id !== null){
-                    $where_query .= " AND ep.firm_id = :p_d_firm_$this->id";
-                }
-                return $where_query;
+                return "p.id IN ($query)";
                 break;
             case 'NOT LIKE':
-                $query = "SELECT DISTINCT p1.id 
-                    FROM patient p1
-                    LEFT JOIN secondary_diagnosis sd 
-                      ON sd.patient_id = p1.id 
-                    LEFT JOIN episode ep
-                      ON ep.patient_id = p1.id
-                    LEFT JOIN disorder d 
-                      ON (d.id = sd.disorder_id OR d.id = ep.disorder_id)
-                    WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)";
-                if ($this->firm_id !== '' && $this->firm_id !== null) {
-                    $query = "SELECT DISTINCT p1.id 
-                      FROM patient p1 
-                      JOIN episode ep
-                        ON ep.patient_id = p1.id
-                      JOIN disorder d 
-                        ON (d.id = ep.disorder_id)
-                      WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
-                      AND ep.firm_id = :p_d_firm_$this->id";
-                }
                 return "p.id NOT IN ($query)";
                 break;
             default:
