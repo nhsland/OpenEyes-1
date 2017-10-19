@@ -33,7 +33,7 @@ class DBProvider extends SearchProvider
                 }
                 $newWhere = $param->getWhereCondition();
                 if ($newWhere !== null) {
-                    $whereStr .= ' AND '.$newWhere.' ';
+                    $whereStr .= " $param->joinCondition $newWhere ";
                 }
                 $binds += $param->bindValues();
             }

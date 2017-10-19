@@ -23,7 +23,7 @@ abstract class CaseSearchParameter extends CFormModel
     /**
      * @var $joinCondition string
      */
-    public $joinCondition;
+    public $joinCondition = 'AND';
 
     /**
      * Get the parameter identifier (usually the name).
