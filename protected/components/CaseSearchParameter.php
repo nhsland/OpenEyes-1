@@ -2,28 +2,19 @@
 
 /**
  * Class CaseSearchParameter
+ * @property $name string
+ * @property $operation mixed
+ * @property $id mixed
+ * @property $joinCondition string
+ * @property $level string
  */
 abstract class CaseSearchParameter extends CFormModel
 {
-    /**
-     * @var string $name
-     */
     public $name;
-
-    /**
-     * @var string $operator .
-     */
     public $operation;
-
-    /**
-     * @var integer $id .
-     */
     public $id;
-
-    /**
-     * @var $joinCondition string
-     */
     public $joinCondition = 'AND';
+    public $level= 0; // Default group is top-level group.
 
     /**
      * Get the parameter identifier (usually the name).
@@ -47,8 +38,8 @@ abstract class CaseSearchParameter extends CFormModel
     public function rules()
     {
         return array(
-            array('operation', 'required', 'message' => 'The search operator cannot be blank'),
-            array('id, joinCondition', 'safe'),
+            array('operation', 'required'),
+            array('operation, id, joinCondition, level', 'safe')
         );
     }
 
