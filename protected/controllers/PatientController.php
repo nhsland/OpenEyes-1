@@ -1972,6 +1972,7 @@ class PatientController extends BaseController
 
         echo CJSON::encode($result);
     }
+}
 
     public function actionFindDuplicates($firstName, $last_name, $dob, $id = null)
     {
