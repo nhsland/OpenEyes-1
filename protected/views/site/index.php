@@ -41,7 +41,7 @@
                 <div class="search-examples">
                     Find a patient by...<br />
                     <strong>Hospital Number</strong>,<br />
-                    <strong>NHS Number</strong>,<br />
+                    <strong><?php echo Yii::app()->params['nhs_number_label']; ?></strong>,<br />
                     <strong>Firstname Surname</strong> or <br />
                     <strong>Surname, Firstname</strong>.
                 </div>

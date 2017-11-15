@@ -62,7 +62,7 @@ $based_on = implode(', ', $based_on);
             <table id="patient-grid" class="grid">
                 <thead>
                 <tr>
-                    <?php foreach (array('Hospital Number', 'Title', 'First name', 'Last name', 'Date of birth', 'Gender', 'NHS number') as $i => $field) { ?>
+                    <?php foreach (array('Hospital Number', 'Title', 'First name', 'Last name', 'Date of birth', 'Gender', Yii::app()->params['nhs_number_label']) as $i => $field) { ?>
                         <th id="patient-grid_c<?php echo $i; ?>">
                             <?php
                             $new_sort_dir = ($i == $sort_by) ? 1 - $sort_dir : 0;

@@ -40,7 +40,7 @@ Yii::app()->assetManager->registerCssFile('components/font-awesome/css/font-awes
             <!-- NHS number -->
             <div class="nhs-number warning">
 				<span class="hide-text print-only">
-					NHS number:
+					<?php echo Yii::app()->params['nhs_number_label']; ?>:
 				</span>
                 <?php echo $this->patient->nhsnum?>
                 <?php if ($this->patient->nhsNumberStatus && $this->patient->nhsNumberStatus->isAnnotatedStatus()):?>
