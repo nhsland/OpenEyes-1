@@ -243,73 +243,57 @@ WHERE p1.id NOT IN (
 
     public function getWhereCondition()
     {
-        $query = '';
-        if ($this->firm_id !== '' && $this->firm_id !== null) {
-            $query .= "SELECT DISTINCT p.id 
-FROM patient p
-JOIN patient_diagnosis_assignment paa
-  ON paa.patient_id = p.id
-JOIN disorder d
-  ON d.id = paa.disorder_id
-JOIN et_ophciexamination_diagnoses et_diag
-  ON et_diag.id = paa.element_diagnoses_id
-JOIN latest_diagnosis_examination_events latest
-  ON latest.event_id = et_diag.event_id
-  AND latest.patient_id = p.id
-JOIN event e
-  ON e.id = latest.event_id
-JOIN episode ep
-  ON ep.id = e.episode_id
-WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
-  AND ep.firm_id = :p_d_firm_$this->id
-  
-UNION
-
-SELECT DISTINCT p2.id
-FROM patient p2 
-JOIN patient_systemic_diagnosis psd
-  ON psd.patient_id = p2.id
-JOIN disorder d2
-  ON d2.id = psd.disorder_id
-JOIN et_ophciexamination_systemic_diagnoses et_systemic
-  ON et_systemic.id = psd.element_id
-JOIN latest_systemic_examination_events latest2
-  ON latest2.event_id = et_systemic.event_id
-  AND latest2.patient_id = p2.id
-JOIN event e2
-  ON e2.id = latest2.event_id
-JOIN episode ep2
-  ON ep2.id = e2.episode_id
-WHERE LOWER(d2.term) LIKE LOWER(:p_d_value_$this->id)
-  AND ep2.firm_id = :p_d_firm_$this->id";
-        } else {
-            $query .= "SELECT DISTINCT p.id
-FROM patient p
-JOIN patient_diagnosis_assignment paa
-  ON paa.patient_id = p.id
-JOIN disorder d
-  ON d.id = paa.disorder_id
-WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
+        $query = "
+SELECT episode.patient_id
+FROM ophciexamination_diagnosis diagnosis
+JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
+JOIN event ON event.id = diagnoses.event_id
+JOIN episode ON episode.id = event.episode_id
+JOIN disorder ON diagnosis.disorder_id = disorder.id
+WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
+AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
+AND (:p_d_only_latest_event_$this->id = 0 OR
+  NOT EXISTS (
+    SELECT true
+    FROM et_ophciexamination_diagnoses later_diagnoses
+    JOIN event later_event ON later_event.id = later_diagnoses.event_id
+    JOIN episode later_episode ON later_episode.id = later_event.episode_id
+    WHERE later_episode.patient_id = episode.patient_id
+    AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
+  )
+)
 
 UNION
 
-SELECT DISTINCT p2.id
-FROM patient p2 
-JOIN patient_systemic_diagnosis psd
-  ON psd.patient_id = p2.id
-JOIN disorder d2
-  ON d2.id = psd.disorder_id
-WHERE LOWER(d2.term) LIKE LOWER(:p_d_value_$this->id)
-
-UNION
-
-SELECT DISTINCT p3.id
+SELECT episode.patient_id
+FROM ophciexamination_systemic_diagnoses_diagnosis diagnosis
+JOIN et_ophciexamination_systemic_diagnoses diagnoses ON diagnoses.id = diagnosis.element_id
+JOIN event ON event.id = diagnoses.event_id
+JOIN episode ON episode.id = event.episode_id
+JOIN disorder ON diagnosis.disorder_id = disorder.id
+WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
+AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
+AND (:p_d_only_latest_event_$this->id = 0 OR
+  NOT EXISTS (
+    SELECT true
+    FROM et_ophciexamination_systemic_diagnoses later_diagnoses
+    JOIN event later_event ON later_event.id = later_diagnoses.event_id
+    JOIN episode later_episode ON later_episode.id = later_event.episode_id
+    WHERE later_episode.patient_id = episode.patient_id
+    AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
+  )
+)";
+        if (($this->firm_id === '' || $this->firm_id === null) && $this->only_latest_event == 0) {
+            $query .= ' UNION ';
+            $query .= "SELECT p3.id
 FROM patient p3 
 JOIN secondary_diagnosis sd
   ON sd.patient_id = p3.id
 JOIN disorder d3
   ON d3.id = sd.disorder_id
-WHERE LOWER(d3.term) LIKE LOWER(:p_d_value_$this->id)";
+WHERE LOWER(d3.term) LIKE LOWER(:p_d_value_$this->id)
+AND :p_d_firm_$this->id IS NULL
+AND :p_d_only_latest_event_$this->id = 0";
         }
 
         switch ($this->operation) {
