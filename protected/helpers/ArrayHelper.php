@@ -32,4 +32,20 @@ class ArrayHelper
             }
         }
     }
+
+    /**
+     *
+     */
+    public static function array_dump_html($arr)
+    {
+        $return_str = '';
+        foreach ($arr as $element) {
+            if (!is_array($element)) {
+                $return_str .= '<li>'.$element.'</li>';
+            } else {
+                $return_str .= '<div style="padding-left: 50px">'.self::array_dump_html($element).'</div>';
+            }
+        }
+        return $return_str;
+    }
 }
