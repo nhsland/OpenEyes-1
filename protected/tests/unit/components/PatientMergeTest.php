@@ -71,7 +71,7 @@ class PatientMergeTest extends CDbTestCase
 
         // Change the dob and gender 
         $primary_patient->gender = 'M';
-        $primary_patient->dob = '1981-12-21';
+        $primary_patient->dob = (new DateTime())->modify('-37 year')->format('Y').'-01-01';
     
         $primary_patient->save();
 
@@ -80,8 +80,8 @@ class PatientMergeTest extends CDbTestCase
         $this->assertTrue($result['is_conflict'], 'Personal details should NOT be the same. Both DOB and Gender are different at this point.');
 
         $this->assertEquals($result['details'][0]['column'], 'dob');
-        $this->assertEquals($result['details'][0]['primary'], '1981-12-21');
-        $this->assertEquals($result['details'][0]['secondary'], '1977-01-01');
+        $this->assertEquals($result['details'][0]['primary'], (new DateTime())->modify('-37 year')->format('Y').'-01-01');
+        $this->assertEquals($result['details'][0]['secondary'], (new DateTime())->modify('-40 year')->format('Y').'-01-01');
 
         $this->assertEquals($result['details'][1]['column'], 'gender');
         $this->assertEquals($result['details'][1]['primary'], 'M');

@@ -254,7 +254,7 @@ class ReportDiagnosesTest extends CDbTestCase
                 'hos_num' => '12345',
                 'first_name' => 'Jim',
                 'last_name' => 'Aylward',
-                'dob' => '1970-01-01',
+                'dob' => (new DateTime())->modify('-47 year')->format('Y').'-01-01',
                 'sdis0_date' => date('Y-m-d', strtotime('-10 days')),
                 'sdis0_fully_specified_name' => 'Myopia (disorder)',
                 'sdis0_eye' => '1',
@@ -269,7 +269,7 @@ class ReportDiagnosesTest extends CDbTestCase
                 'hos_num' => '23456',
                 'first_name' => 'Bob',
                 'last_name' => 'Collin',
-                'dob' => '1972-01-01',
+                'dob' => (new DateTime())->modify('-45 year')->format('Y').'-01-01',
                 'sdis0_date' => '2004',
                 'sdis0_fully_specified_name' => 'Myopia (disorder)',
                 'sdis0_eye' => '1',
@@ -284,7 +284,7 @@ class ReportDiagnosesTest extends CDbTestCase
                 'hos_num' => '34567',
                 'first_name' => 'Edward',
                 'last_name' => 'Allan',
-                'dob' => '1960-01-01',
+                'dob' => (new DateTime())->modify('-57 year')->format('Y').'-01-01',
                 'sdis0_date' => null,
                 'sdis0_fully_specified_name' => null,
                 'sdis0_eye' => null,
@@ -299,7 +299,7 @@ class ReportDiagnosesTest extends CDbTestCase
                 'hos_num' => '34321',
                 'first_name' => 'Sarah',
                 'last_name' => 'Shore',
-                'dob' => '1977-01-01',
+                'dob' => (new DateTime())->modify('-40 year')->format('Y').'-01-01',
                 'sdis0_date' => null,
                 'sdis0_fully_specified_name' => null,
                 'sdis0_eye' => null,
@@ -945,7 +945,7 @@ Between 10 May 2002 and 19 May 2002
         $row = array_pop($r->diagnoses);
 
         $this->assertEquals('12345', $row['hos_num']);
-        $this->assertEquals('1970-01-01', $row['dob']);
+        $this->assertEquals((new DateTime())->modify('-47 year')->format('Y').'-01-01', $row['dob']);
         $this->assertEquals('Jim', $row['first_name']);
         $this->assertEquals('Aylward', $row['last_name']);
         $this->assertCount(2, $row['diagnoses']);
@@ -986,7 +986,7 @@ Between 10 May 2002 and 19 May 2002
         $row = array_pop($r->diagnoses);
 
         $this->assertEquals('12345', $row['hos_num']);
-        $this->assertEquals('1970-01-01', $row['dob']);
+        $this->assertEquals((new DateTime())->modify('-47 year')->format('Y').'-01-01', $row['dob']);
         $this->assertEquals('Jim', $row['first_name']);
         $this->assertEquals('Aylward', $row['last_name']);
         $this->assertCount(2, $row['diagnoses']);
@@ -1021,7 +1021,7 @@ Between 10 May 2002 and 19 May 2002
         $row = array_pop($r->diagnoses);
 
         $this->assertEquals('12345', $row['hos_num']);
-        $this->assertEquals('1970-01-01', $row['dob']);
+        $this->assertEquals((new DateTime())->modify('-47 year')->format('Y').'-01-01', $row['dob']);
         $this->assertEquals('Jim', $row['first_name']);
         $this->assertEquals('Aylward', $row['last_name']);
         $this->assertCount(3, $row['diagnoses']);
@@ -1069,7 +1069,7 @@ Between 10 May 2002 and 19 May 2002
         $row = array_pop($r->diagnoses);
 
         $this->assertEquals('12345', $row['hos_num']);
-        $this->assertEquals('1970-01-01', $row['dob']);
+        $this->assertEquals((new DateTime())->modify('-47 year')->format('Y').'-01-01', $row['dob']);
         $this->assertEquals('Jim', $row['first_name']);
         $this->assertEquals('Aylward', $row['last_name']);
         $this->assertCount(3, $row['diagnoses']);
@@ -1113,7 +1113,7 @@ Between 10 May 2002 and 19 May 2002
         $row = array_pop($r->diagnoses);
 
         $this->assertEquals('12345', $row['hos_num']);
-        $this->assertEquals('1970-01-01', $row['dob']);
+        $this->assertEquals((new DateTime())->modify('-47 year')->format('Y').'-01-01', $row['dob']);
         $this->assertEquals('Jim', $row['first_name']);
         $this->assertEquals('Aylward', $row['last_name']);
         $this->assertCount(3, $row['diagnoses']);
@@ -1162,7 +1162,7 @@ Between 10 May 2002 and 19 May 2002
         $row = array_pop($r->diagnoses);
 
         $this->assertEquals('12345', $row['hos_num']);
-        $this->assertEquals('1970-01-01', $row['dob']);
+        $this->assertEquals((new DateTime())->modify('-47 year')->format('Y').'-01-01', $row['dob']);
         $this->assertEquals('Jim', $row['first_name']);
         $this->assertEquals('Aylward', $row['last_name']);
         $this->assertCount(3, $row['diagnoses']);
