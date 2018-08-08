@@ -23,6 +23,10 @@ use OEModule\OphCiExamination\components\ExaminationHelper;
 list($right_principals, $left_principals) = ExaminationHelper::getOtherPrincipalDiagnoses($this->episode);
  ?>
 <div class="element-data element-eyes row">
+
+        <?php if (!$element->id) { ?>
+        <div class="data-value not-recorded">No diagnoses recorded during this encounter</div>
+        <?php } else { ?>
     <div class="element-eye right-eye column">
         <?php
         $principal = OEModule\OphCiExamination\models\OphCiExamination_Diagnosis::model()->find('element_diagnoses_id=? and principal=1 and eye_id in (2,3)', array($element->id));
@@ -90,7 +94,8 @@ list($right_principals, $left_principals) = ExaminationHelper::getOtherPrincipal
                 </div>
             </div>
             <?php
-        } ?>
+        } 
+}?>
     </div>
 </div>
 
